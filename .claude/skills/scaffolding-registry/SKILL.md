@@ -1,0 +1,109 @@
+---
+name: scaffolding-registry
+description: >
+  This skill should be used when the user wants to set up their AI Registry as a
+  knowledge bundle — a registry/ folder with SCHEMA.md and concept nodes for the
+  workflows, processes, and functions of their business. Triggers: "set up my
+  registry", "set up my AI registry", "create my registry", "scaffold my
+  registry", starting the registry lab, or when any framework skill finds no
+  registry/SCHEMA.md in the workspace. NOT the business knowledge graph: for
+  "build my knowledge graph" or a knowledge/ folder about the work itself
+  (clients, offerings, processes as knowledge), use building-knowledge-graph.
+  Also handles migrating legacy workspaces (outputs/*/workflow.yaml manifests or
+  flat requirements files) into the bundle. Re-running on an existing bundle
+  fills gaps; it never re-scaffolds.
+user-invocable: true
+---
+
+# Scaffolding Registry
+
+Stand up a student's AI Registry as an [OKF v0.2](https://github.com/GoogleCloudPlatform/open-knowledge-format/blob/main/SPEC.md) knowledge bundle: a `registry/` folder with a `SCHEMA.md` producer profile and concept nodes for their real business. This is the on-ramp — a guided interview of about 25 minutes that captures the student's real business, lines of business, functions, and processes. It names no workflows: the `analyze` skill does that next, writing them into the backlog.
+
+## What this builds
+
+```
+<workspace or repo root>/
+├── REGISTRY.md              ← Tier 1 dashboard (derived, never hand-edited)
+├── registry-dashboard.html  ← Tier 2 dashboard (derived, optional)
+├── registry/                ← the OKF v0.2 bundle
+│   ├── SCHEMA.md            ← producer profile (written by scaffolding-registry)
+│   ├── index.md             ← bundle root; frontmatter okf_version: "0.2"
+│   ├── log.md                ← migrations + schema changes only
+│   ├── businesses/  lines-of-business/  functions/
+│   ├── processes/   workflows/          notes/
+│   │       (each typed directory has its own index.md)
+├── outputs/<workflow>/      ← raw-source layer, unchanged (requirements,
+│                              design-spec, runs.md, generated artifacts;
+│                              event-facts live here, never in nodes)
+├── sops/  process-guides/   ← unchanged homes; nodes link to them
+```
+
+The registry is the structured record every framework skill reads and writes — `analyze` writes backlog Workflow nodes into it, `deconstruct` fills in requirements, `run` flips status to `in-production`, and so on all the way through `improve`. `registry/SCHEMA.md` is the contract that makes that possible: it defines the six concept types (Business, LineOfBusiness, Process, Workflow, Note, Function), their required frontmatter, and the rules — enum values, link discipline, banned fields — that every skill's writes and every maintenance pass's lint checks agree on. Write it once per workspace, using `references/schema-template.md` verbatim; after that, the student's own copy is authoritative and every skill re-reads it before writing.
+
+## Platform & Workspace
+
+The procedure below is identical everywhere — the same six phases (0–5), the same node shapes, the same SCHEMA.md. Platforms differ only in how the skill instructions arrive and how bytes get written to the bundle.
+
+| Platform | Skill delivery | Where the bundle lives | Mode |
+|---|---|---|---|
+| Claude Code | handsonai plugin | any local folder (incl. a synced cloud-drive folder or a repo clone) | write mode |
+| Cowork | handsonai plugin (installed once, shared with Claude Chat) or skill ZIP | the working folder (a project or any local folder) | write mode |
+| ChatGPT desktop (Codex) | same SKILL.md dirs at `~/.agents/skills/` (user-level default) or repo `.agents/skills/` (optional pin) | any local folder | write mode |
+| claude.ai | handsonai plugin (paid plans; same install as Cowork) or skill ZIP (Releases channel) | wherever the student saves — computer, synced drive, or GitHub; read-back via a connector if one exists | print-and-save mode (write mode only if the tool can create files in a connected drive) |
+| ChatGPT web (paid plans) | handsonai plugin via Plugins > Add marketplace, or Personal Skill upload (same ZIP) | wherever the student saves — computer, synced drive, or GitHub; read-back via a connector if one exists | print-and-save mode (write mode only if the tool can create files in a connected drive) |
+| Gemini Spark / Gemini Enterprise | skill ZIP via Skills > Upload | wherever the student saves — computer, synced drive, or GitHub; read-back via a connector if one exists | print-and-save mode (write mode only if the tool can create files in a connected drive) |
+| M365 Copilot | agent-instructions packaging | wherever the student saves — computer, synced drive, or GitHub; read-back via a connector if one exists | print-and-save mode (write mode only if the tool can create files in a connected drive) |
+
+A few rules follow from that table:
+
+- **(a) Assistant-agnostic procedures.** Everything in this file — the phases, the write rules, the interview questions — is written for "your AI assistant" in general. Platforms differ only in delivery and mode, never in what gets written or asked.
+- **(b) Print-and-save surfaces must say what's unsaved.** When the assistant cannot create files in the student's folder, it prints each file's complete contents and exact location, and says so every time — never "I've created", never leave the student assuming a file landed somewhere it didn't. The student saves the file wherever their registry lives; the skill does not assume a repo.
+- **(c) Home: any folder; GitHub is optional.** A folder on the student's computer, a synced cloud-drive folder, or a GitHub repository all work — the bundle is plain Markdown with relative links and never depends on Git. Never require GitHub; mention it only for what it adds (assistant read-back through a connector, an in-browser editor, version history, and the template repo's automatic Pages dashboard).
+- **(d) One skill artifact, three channels.** The same agentskills.io-standard SKILL.md — built by the existing `build-skill-zips.sh` pipeline — is what Codex desktop scans locally, what ChatGPT web's Personal Skills accepts as an upload, and what claude.ai accepts as an uploaded skill. There is no separate packaging for each.
+- **(e) Repo-checked-in skills are optional, not the default.** Codex desktop can read `.agents/skills/` inside the student's repo, but the default is a user-level install (`~/.agents/skills/`) — checking a skill into every repo it's used in invites version drift between repos. Only pin a repo-local copy when the student has a specific reason to.
+
+**Platform note (Claude Code / Cowork):** on these two, the Tier 2 dashboard this skill's closing step offers can be published as a Claude Artifact for easy sharing — a mechanic specific to these platforms, not part of the cross-platform procedure above.
+
+## Before scaffolding
+
+Before running the interview, check what's already in the workspace:
+
+0. **A `knowledge/` folder exists** → leave it alone entirely. It is the business knowledge graph, a different OKF bundle with its own `SCHEMA.md` and its own lint (built by `building-knowledge-graph`). Say so in one sentence and continue with the registry checks below.
+1. **`registry/SCHEMA.md` exists** → this is **gap-filling mode**, not a fresh scaffold. List which concept types have zero nodes and which typed directories are missing their `index.md`, tell the student what's missing, and offer to fill only those gaps. Never overwrite an existing node, and never rewrite `SCHEMA.md` once the student has one — their copy is authoritative from here on.
+2. **No `registry/SCHEMA.md`, but a legacy layout is detected** — `outputs/*/workflow.yaml` (the old manifest layout) or an `outputs/<name>-requirements.md` with no matching `outputs/<name>/` folder (the old flat layout) — offer the migration path in `references/migrating-legacy-workspaces.md` instead of, or before, a fresh scaffold. Migration writes into a newly scaffolded bundle; it never invents its own structure.
+3. **Neither exists** → run the interview below from Phase 0.
+
+## The interview
+
+Six phases (0–5), about 25 minutes total, run in order. Follow `references/interview-guide.md` for the exact opening questions, follow-ups, worked examples, and fast paths for each phase — this section is the map; that file is the script.
+
+**Phase 0 — Home (2 min).** Detect, don't ask: if you can create files in the student's folder, you are in write mode and the registry goes at that folder's root (local, synced drive, or repo — no difference); if you cannot, you are in print-and-save mode and must say so on every file. A file the student would have to download does not count as writing — that is print-and-save mode. Confirm the folder in one sentence, ask whether the empty skeleton already exists (template repo or Download ZIP) so you don't reprint it, then run the legacy-detection check. The template repo (`https://github.com/jamesgray-ai/ai-registry-template`) is only the answer to "where's the template repo?" — never a prerequisite. Follow `references/interview-guide.md`.
+
+**Phase 1 — Business (3 min).** One Business node: name, one-sentence identity, `status`, optional `url`. Almost always exactly one business per registry. Follow `references/interview-guide.md`.
+
+**Phase 2 — Lines of Business (4 min).** One or more LineOfBusiness nodes in a curated, ordered list under the Business node. Solo consultants get one default LOB named after the business — no artificial splitting. Follow `references/interview-guide.md`.
+
+**Phase 3 — Functions (3 min).** Offer the starter set (Marketing, Sales, Service Delivery, Operations, Product, Customer Success, IT/Engineering); the student trims and renames it. Every Function node is written with its empty GENERATED `# Owns` block from the start. Follow `references/interview-guide.md`.
+
+**Phase 4 — Processes (8 min).** Per LOB, the two or three highest-value processes — not an exhaustive list; Analyze grows this later. Analyze also files each workflow it finds under one of these processes, so name the ones the student's real work belongs to. Each needs a required `owner:` function slug. Once Processes name their owners, the owning Functions' `# Owns` blocks written empty in Phase 3 are now stale — that's expected, not an error; the Phase 5 maintenance pass regenerates them, and lint only ever flags stale content as a warning, never a blocker. Follow `references/interview-guide.md`.
+
+The Brightwork examples in `references/example-registry.md` are shown, never copied. Every node written is the user's real business.
+
+**Phase 5 — Close (3 min).** Optional Note, the empty `registry/workflows/index.md` (Analyze fills the workflows in — this scaffold never names one), founding `log.md` entry, and hand-off — see Close below. Follow `references/interview-guide.md`.
+
+If a phase runs over its timebox, write what's been gathered, note the gap for the close-out summary, and move on — missing nodes are homework for later; fictional ones are never an acceptable substitute.
+
+## Write rules
+
+- **The student's `registry/SCHEMA.md` is authoritative once it exists.** Re-read it immediately before every write in this skill, including during gap-filling and migration — never write from memory of what the schema template said.
+- **Stamp `generated: { by: process:scaffolding-registry, at: <date> }`** (single-line flow map, `at` as `YYYY-MM-DD`) on every node this skill creates or edits.
+- **Function nodes are always written with their empty GENERATED `# Owns` block** at creation time — never deferred to a later maintenance pass. A Function missing that block is a lint error, because the maintenance pass has nothing to fill.
+- **Every new node gets added to its typed directory's `index.md`.** A concept file with no entry in its directory index is a lint error; write or update the index in the same pass as the node. Index entries use bundle-root-relative leading-slash links — `[Client Onboarding](/processes/client-onboarding.md)`, never a bare same-directory link like `[Client Onboarding](client-onboarding.md)`, which the schema's link discriminator resolves repo-root-relative and lint flags as broken.
+
+## Close
+
+End Phase 5 by writing a founding `registry/log.md` entry describing the scaffolding run (what was created, and — for a migration — every workflow migrated in that run), and making sure every typed directory has an `index.md`, even a stub one — including `registry/workflows/index.md`, which starts as just the heading `# Workflows` because this skill writes no Workflow node; the `analyze` skill adds the first ones.
+
+Then invoke the `indexing-registry` skill for the workspace's first maintenance pass: it lints the new bundle, generates the Tier 1 `REGISTRY.md` — which is written at the workspace root, next to `registry/` and not inside it — and offers the Tier 2 visual dashboard. This is a best-effort hand-off — if the maintenance pass can't run for some reason, say so plainly rather than leaving the student assuming it happened. The lab should end with something visual on screen, not a blank terminal. In print-and-save mode the hand-off produces printed output rather than files: print the founding `log.md` entry, every typed `index.md` you updated, and a complete `REGISTRY.md` composed per `indexing-registry`'s rules, each with its exact location, and tell the student the set is complete.
+
+<!-- Follow-up (2026-09-21): this skill stamps generated.at as YYYY-MM-DD, a deliberate registry-profile choice (see references/schema-template.md). OKF v0.2 §5 specifies full instants; the building-knowledge-graph skill uses them. Aligning the registry profile is a separate change with its own lint and migration. -->

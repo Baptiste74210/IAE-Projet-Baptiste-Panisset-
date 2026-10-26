@@ -1,0 +1,73 @@
+# Build Skill Needs Checklist
+
+Run this checklist against the assembled Design Spec content **before** presenting it for approval. If any item fails, fix the underlying section first. The spec's **Self-Test Summary** section must enumerate every item below, in order, marked ✓ (passed) or ⚠️ (issue — described inline). A Self-Test Summary that doesn't match this list item-for-item means the checklist wasn't actually run.
+
+## Structure
+
+- [ ] **Frontmatter** is present with workflow, requirements_file, spec_version (`3.0`), approved (`false` until the user approves), definition_type, mechanism, involvement, platform, platform_mode, packaging, and counts
+- [ ] Frontmatter `counts` match the body — `skills` = number of Skill Candidate entries, `agents` = number of Agent Configuration entries, `integrations` = number of Integration Options tools
+- [ ] **Source** section names the Workflow Requirements file path (`outputs/[workflow-name]/requirements.md`)
+- [ ] All mandatory template sections are present in template order (Value & Measurement, Execution Pattern, Architecture Decisions, Autonomy Spectrum Summary [or Autonomy Statement], Safety & Permissions, Constraint Conformance, Integration Options, Model Recommendation, Decomposition table, Data Readiness Summary, Recommended Implementation Order, Prerequisites, Deployment Plan, Evaluation Inputs, Deferred to Build, Self-Test Summary — plus conditional sections per their rules)
+- [ ] `Architecture Decisions` table has Lens, Platform, Platform Mode, Orchestration, Involvement, Packaging, and Trigger rows
+- [ ] Every step in the decomposition table has separate Orchestration, Integration, Intelligence, and Build Output columns
+- [ ] Step IDs in the decomposition table match the Step IDs in the Workflow Requirements (Step 1, Step 2, …)
+- [ ] Every step uses canonical autonomy terms: Human / Deterministic / Guided / Autonomous
+- [ ] Every Integration column entry includes the block type, tool name, and use/build tag
+- [ ] Every Build Output value is one of the canonical forms (`New skill: SN`, `Use existing: [name]`, `Extend existing: [name]`, `New agent: AN`, `Inline prompt → Workflow Requirements Step N`, `Handled by orchestrator` [legacy synonym `Handled by agent` accepted], `MCP server: [name]`, `Human (no artifact)`)
+- [ ] Packaging value is one of the canonical forms (`Plugin`, `Standalone Skill`, `Workspace Agent`, `Loose Files`)
+- [ ] Mechanism is one of `Skill | Agent` (never the legacy `Prompt`, `Skill-Powered Workflow`, or `Skill-Powered Prompt`)
+
+## Skill Candidates
+
+- [ ] Every `New skill: SN` reference has a matching Skill Candidates entry with the SN ID
+- [ ] Every Skill Candidate has all 12 fields: ID, Name, Description, Purpose, Covers Steps, Inputs, Outputs, Decision Logic, Failure Modes, Required Tools, Depends On, Stateful?
+- [ ] Every Skill Candidate's Name conforms to format rules (lowercase-hyphen, ≤64 chars, no consecutive hyphens) and is capability-named, not workflow-coupled — except the orchestrator skill, which takes the workflow name
+- [ ] Every Skill Candidate's Description starts with "This skill should be used when...", is ≤1024 chars, is third-person, and names at least two concrete trigger keywords/contexts
+- [ ] No two Skill Candidates describe the same capability at different steps (parallel applications are one skill with multiple Covers Steps entries)
+- [ ] For a `Skill` mechanism, S1 is the orchestrator skill, named with the workflow slug, Covers Steps: all
+- [ ] Every `Extend existing: [name]` cell names the installed skill and carries the `(also used by: …)` parenthetical listing the other workflows that share it (or `none`)
+
+## Agent Configuration
+
+- [ ] Every `New agent: AN` reference has a matching Agent Configuration entry with the AN ID
+- [ ] Every Agent Configuration has all 14 fields: ID, Name, Description, Mission, Responsibilities, Output Format, Tone & Style, Constraints, Failure Modes, Model, Memory Scope, Tools, Skills, Trigger Examples
+- [ ] Every Agent Configuration's Description starts with "Use this agent when...", is ≤1024 chars, is third-person, and names concrete trigger keywords/contexts
+- [ ] Every Agent Configuration's Tools list is consistent with Safety & Permissions (least privilege — no write tool on an agent whose Responsibilities are read-only)
+- [ ] If more than one agent is defined, Multi-Agent Configuration section is present with Orchestration Pattern, Coordinator, Handoff Contracts, and Aggregation Strategy
+
+## Cross-references
+
+- [ ] Every tool in the Integration column has a matching entry in Integration Options with at least one Source URL, and a tool answered by a native-connector one-liner needs no Source URL. If no step names a tool, Integration Options is the single line *No integrations — the workflow is text-only.* and this item passes
+- [ ] Every skill `Depends On` reference points to a defined skill ID
+
+## Mechanism-specific
+
+- [ ] Orchestrator Prompt Outline section is present when mechanism is `Skill` (omitted when mechanism is `Agent`)
+- [ ] Orchestrator Prompt Outline (Skill) or the agent's closing message (Agent) names the closing **What I did** run summary
+- [ ] Agent Configuration present when mechanism is `Agent` (or `agents: 0` is set and orchestration logic is documented in the Deployment Plan)
+
+## Safety
+
+- [ ] Safety & Permissions section is present in Layer 1 — all four questions answered (write access, untrusted input, unattended runs, blast radius) with mitigations, or the explicit "Read-only, human-triggered, trusted inputs" statement. That escape statement is only valid when the Workflow Requirements carries no constraints; if it does, the four questions are answered
+- [ ] Constraint Conformance table is present, listing every constraint from the Workflow Requirements' `Security, Privacy & Safety` section, each in a recorded state (Satisfied / Accepted / Open). Every `Accepted` names an owner and a reason. `Open` constraints were named in the Layer 1 confirmation
+- [ ] Value & Measurement restates the objective, desired outcome, measure, baseline and target from the Workflow Requirements. A `Baseline: Unknown` is carried through as-is, not blanked
+- [ ] If the Workflow Requirements predates these sections, constraints and value fields captured at Design are sourced as such — not presented as though the business stated them
+- [ ] If the workflow consumes untrusted input AND has write access, at least one mitigation is a Human Gate or draft-don't-send constraint — not just "be careful"
+
+## Completeness
+
+- [ ] Model Recommendation section is present with a default capability and per-platform mapping
+- [ ] Data Readiness Summary is present (even if "all accessible") — references Context IDs from the Workflow Requirements
+- [ ] Deployment Plan is present with target location and deployment steps for each artifact, plus a Packaging note
+- [ ] Evaluation Inputs section is present, pointing to the Workflow Requirements file (do not duplicate Acceptance Criteria or Example Scenarios)
+- [ ] Deferred to Build section lists what Build will resolve at generation time
+- [ ] Self-Test Summary section is present at the end of the spec, enumerating every item in this checklist with ✓ or ⚠️
+
+## Goal-driven modifications
+
+For `Definition Type: Goal-Driven` (or legacy `Outcome-Driven`), apply these substitutions; all other items apply unchanged:
+
+- Replace "Step-by-Step Decomposition" with "Capability Domain Mapping"
+- Replace "Step IDs match Workflow Requirements Step IDs" with "Capability Domains are derived from Workflow Requirements (not restated from a section that doesn't exist there)"
+- Replace "Inline prompt → Workflow Requirements Step N" Build Output value with "Handled by orchestrator" (accept legacy "Handled by agent" as a synonym)
+- Agent Configuration is included whenever ≥1 sub-agent is defined; a zero-sub-agent design (orchestration logic + skills only) is valid with `agents: 0`. Never document the primary-loop orchestrator as an agent.

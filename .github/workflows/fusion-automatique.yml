@@ -1,0 +1,41 @@
+# Fusion automatique : chaque fois que Claude Code pousse son travail sur une branche
+# « claude/… », ce travail est fusionné tout seul dans la branche main (≈ 1 minute).
+# L'étudiant n'a pas besoin de créer de pull request ni de cliquer sur Merge.
+name: Fusion automatique du travail de Claude
+
+on:
+  push:
+    branches:
+      - "claude/**"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fusion-main
+  cancel-in-progress: false
+
+jobs:
+  fusion:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Fusionner la branche de Claude dans main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          BRANCHE="${GITHUB_REF_NAME}"
+          git fetch origin "${BRANCHE}"
+          if git merge --no-edit -m "Fusion automatique : ${BRANCHE}" "origin/${BRANCHE}"; then
+            git push origin main
+            echo "✅ Travail de ${BRANCHE} fusionné dans main."
+          else
+            git merge --abort || true
+            echo "::error::Conflit : la fusion automatique n'a pas pu se faire. Créez une pull request et demandez de l'aide à l'enseignante."
+            exit 1
+          fi
