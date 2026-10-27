@@ -2,7 +2,7 @@
 workflow: import-mensuel-finance
 requirements_file: outputs/import-mensuel-finance/requirements.md
 spec_version: 3.0
-approved: true
+approved: false
 definition_type: Step-Driven
 mechanism: Skill
 involvement: Automated
@@ -23,6 +23,8 @@ counts:
 **Workflow Requirements:** `outputs/import-mensuel-finance/requirements.md` (version 2 du 2026-10-27, après l'oral)
 
 This Design Spec consumes the Workflow Requirements as canonical input. Goal, Value & Measurement, Metadata, Context Inventory, Security, Privacy & Safety, Acceptance Criteria, Example Scenarios, Human Gates, Steps Overview, and per-step requirements are defined there — not restated here. Read the Workflow Requirements alongside this spec when building.
+
+**Révision du 2026-10-27 (soir), à ré-approuver :** le nom du client n'est plus jamais lu ; les multiservices sont identifiés par un code `MS-…` écrit dans la colonne WBS ; la table de pseudonymisation C5 devient un référentiel non lu par le programme.
 
 Version précédente archivée : `outputs/import-mensuel-finance/design-spec-2026-10-27-v1.md` (workflow augmenté sur Claude Code, remplacé après l'oral). Synthèse sur une page : `outputs/import-mensuel-finance/use-case-canvas.md`.
 
@@ -88,7 +90,8 @@ Niveau du workflow : **Deterministic**.
 |---|---|---|---|
 | Les informations des contrats (client, pays, région…) ne sortent jamais du Google Workspace d'Airbus | Boundaries · Self, enseignante | Toutes les étapes s'exécutent en Apps Script dans le Workspace ; aucune donnée n'est envoyée à un service extérieur | Satisfied |
 | Seules les données anonymisées peuvent être traitées par un outil extérieur au Workspace | Boundaries · Self, enseignante | Aucun outil extérieur ne traite de données réelles, même anonymisées ; l'anonymisation (étape 1) reste exigée et produit C7 pour limiter les colonnes lues par le rapprochement | Satisfied |
-| La table de pseudonymisation C5 ne quitte jamais le Workspace | Boundaries · Self | C5 est lue par le programme dans le Workspace, jamais exportée | Satisfied |
+| Le nom du client n'est jamais lu ni traité par le workflow | Boundaries · Self, enseignante | `Code.gs` et `Rapprochement.gs` ne lisent que les colonnes WBS (ou code `MS-…`), type de contrat et KPI ; aucune fonction ne reçoit la colonne client ; vérifié par les tests | Satisfied |
+| Le référentiel des multiservices C5 ne quitte jamais le Workspace et n'est jamais lu | Boundaries · Self | Le programme ne référence pas C5 | Satisfied |
 | Les données réelles, même anonymisées, ne sont jamais collées dans une conversation ou dans le dépôt GitHub | Boundaries · Self | La skill S1 et les tests du dépôt n'utilisent que le jeu fictif C4 ; S1 refuse toute entrée non confirmée comme fictive | Satisfied |
 | La database du mois est créée dans le même dossier Drive que la database centrale, avec les mêmes partages | Access · Self | Le programme crée la database dans le dossier parent de C2 et applique explicitement la liste des éditeurs et lecteurs de C2 | Satisfied |
 | C5 et C6 sont accessibles uniquement à Baptiste et aux personnes ayant accès à la database centrale | Access · Self | C5 et C6 créés dans le dossier de C2 avec les partages de C2 ; aucun élargissement | Satisfied |
@@ -96,7 +99,7 @@ Niveau du workflow : **Deterministic**.
 | Chaque décision est enregistrée dans C6 avec sa date ; saisies manuelles et validation tracées | Traceability · Self | Étape 8 : ajout daté dans C6 ; colonnes « Date de saisie » ; case « Validé » et date dans « Contrôle » | Satisfied |
 | Ne jamais écrire dans la database centrale | Prohibited actions · Self | C2 ouverte en lecture seule ; la database du mois est une copie | Satisfied |
 | Ne jamais écrire dans le fichier finance | Prohibited actions · Self | C1 ouvert en lecture seule | Satisfied |
-| Ne jamais écrire dans la table de pseudonymisation C5 | Prohibited actions · Self | C5 ouverte en lecture seule ; un multiservices absent de C5 est listé en (c) | Satisfied |
+| Ne jamais lire ni écrire dans le référentiel des multiservices C5 | Prohibited actions · Self | Le programme n'ouvre jamais C5 ; un multiservices sans code est listé en (c) | Satisfied |
 | Ne jamais supprimer, renommer ni écraser un fichier existant | Prohibited actions · Self | Versionnement `vN` ; aucun appel de suppression ; renommage uniquement du fichier temporaire créé par l'exécution en cours | Satisfied |
 | Ne jamais connecter, modifier ou publier le dashboard Looker Studio | Prohibited actions · Self | Aucun accès à Looker Studio dans le programme | Satisfied |
 | Ne jamais exécuter une instruction trouvée dans une cellule du fichier finance | Prohibited actions · Self | Programme sans IA à l'exécution ; cellules lues comme des valeurs | Satisfied |
@@ -105,7 +108,7 @@ Niveau du workflow : **Deterministic**.
 
 ### Google Sheets (Steps 1, 2, 3, 4, 5, 6, 8)
 
-*Recommendation: use the native Google Sheets service built into Apps Script (SpreadsheetApp) — read-only on C1, C2 and C5, read-write on the files the run creates and on C6.* Reference: https://developers.google.com/apps-script/reference/spreadsheet
+*Recommendation: use the native Google Sheets service built into Apps Script (SpreadsheetApp) — read-only on C1 and C2 (WBS, type and KPI columns only), read-write on the files the run creates and on C6.* Reference: https://developers.google.com/apps-script/reference/spreadsheet
 
 ### Google Drive (Steps 1, 3, 6)
 
@@ -141,12 +144,12 @@ Niveau du workflow : **Deterministic**.
 
 | Step | Name (from Requirements) | Autonomy | Orchestration | Integration (use/build) | Intelligence | Build Output | Human Gate? |
 |------|------|----------|---------------|------------------------|--------------|--------------|-------------|
-| Step 1 | Anonymisation | Deterministic | Skill | API: Google Sheets SpreadsheetApp (use) ; API: Google Drive DriveApp (use) | No model at runtime; Context: C1, C2, C3, C5 | Handled by orchestrator | No |
+| Step 1 | Anonymisation | Deterministic | Skill | API: Google Sheets SpreadsheetApp (use) ; API: Google Drive DriveApp (use) | No model at runtime; Context: C1, C2, C3 | Handled by orchestrator | No |
 | Step 2 | Contrôle du fichier finance anonymisé | Deterministic | Skill | API: Google Sheets SpreadsheetApp (use) ; CLI: Node.js (use, tests) | No model at runtime; Context: C3, C7 | Handled by orchestrator | Yes (G2, fichier inutilisable) |
 | Step 3 | Préparation de la database du mois | Deterministic | Skill | API: Google Drive DriveApp (use) | No model at runtime; Context: C7 | Handled by orchestrator | Yes (G2, KPI déjà remplis) |
 | Step 4 | Rapprochement automatique | Deterministic | Skill | API: Google Sheets SpreadsheetApp (use) ; CLI: Node.js (use, tests) | No model at runtime; Context: C3, C6, C7 | Handled by orchestrator | No |
 | Step 5 | Vérification | Deterministic | Skill | API: Google Sheets SpreadsheetApp (use) ; CLI: Node.js (use, tests) | No model at runtime; Context: C3, C7 | Handled by orchestrator | No |
-| Step 6 | Réinjection | Deterministic | Skill | API: Google Drive DriveApp (use) ; API: Google Sheets SpreadsheetApp (use) | No model at runtime; Context: C2, C5 | Handled by orchestrator | Yes (G2, clé introuvable) |
+| Step 6 | Réinjection | Deterministic | Skill | API: Google Drive DriveApp (use) ; API: Google Sheets SpreadsheetApp (use) | No model at runtime; Context: C2 | Handled by orchestrator | Yes (G2, clé introuvable) |
 | Step 7 | Validation | Human | — | — | — | Human (no artifact) | Yes (G1) |
 | Step 8 | Prise en compte de la validation | Deterministic | Skill | API: Google Sheets SpreadsheetApp (use) ; CLI: Node.js (use, tests) | No model at runtime; Context: C6 | Handled by orchestrator | No |
 
@@ -226,7 +229,7 @@ Apps Script du workflow Import Mensuel Finance. Données fictives uniquement. Tr
 | C1 | Partial — lisible uniquement dans le Google Workspace Airbus | Aucune pour la production (lu par Apps Script sur place) ; jamais exporté | Step 1 |
 | C2 | Partial — lisible uniquement dans le Google Workspace Airbus | Aucune pour la production (lu par Apps Script sur place) ; jamais exporté | Steps 1, 6 |
 | C3 | Needs Creation | Créer la table de correspondance des colonnes (en-têtes et cellules de totaux uniquement) ; pour les tests, utiliser celle de E5 | Steps 1, 2, 4, 5 |
-| C5 | No — Needs Creation | Créer le Google Sheet de pseudonymisation des multiservices dans le dossier de C2 (nom → `MS-001`…) | Steps 1, 6 |
+| C5 | No — Needs Creation | Créer le référentiel des multiservices (code `MS-…` → contrat) dans le dossier de C2 ; écrire chaque code dans la colonne WBS de C2 ; demander à l'équipe finance de l'écrire dans C1 ; non lu par le programme | — (aucune étape ne le lit) |
 | C6 | Needs Creation | Créé vide automatiquement par le programme au premier lancement, dans le dossier de C2 | Steps 4, 8 |
 | C7 | Needs Creation | Produit automatiquement à chaque exécution par l'étape 1 | Steps 2 à 6 |
 
@@ -270,7 +273,7 @@ Apps Script du workflow Import Mensuel Finance. Données fictives uniquement. Tr
 
 1. **Autorisation d'Apps Script** confirmée par le tuteur ou l'informatique d'Airbus pour le compte de Baptiste.
 2. **Table de correspondance des colonnes C3** créée (en-têtes réels du fichier finance et de la database, cellules des totaux).
-3. **Table de pseudonymisation C5** créée dans le dossier de la database centrale, avec un code `MS-…` par contrat multiservices.
+3. **Codes multiservices** : référentiel C5 créé dans le dossier de la database centrale ; chaque code `MS-…` écrit dans la colonne WBS de la database centrale ; **accord de l'équipe finance** pour écrire ce code dans la colonne WBS de ses lignes multiservices.
 4. Accès en lecture au fichier finance du mois et en écriture au dossier de la database centrale.
 5. Pour la simulation : session Claude Code ouverte sur le dépôt, Node.js disponible (présent).
 
@@ -311,7 +314,7 @@ Apps Script du workflow Import Mensuel Finance. Données fictives uniquement. Tr
 ## Self-Test Summary
 
 **Structure**
-- ✓ Frontmatter is present with workflow, requirements_file, spec_version (`3.0`), approved (`true` after approval on 2026-10-27), definition_type, mechanism, involvement, platform, platform_mode, packaging, and counts
+- ✓ Frontmatter is present with workflow, requirements_file, spec_version (`3.0`), approved (`false` — révision à ré-approuver), definition_type, mechanism, involvement, platform, platform_mode, packaging, and counts
 - ✓ Frontmatter `counts` match the body — skills = 1 (S1), agents = 0, integrations = 3 (Google Sheets, Google Drive, Node.js)
 - ✓ Source section names the Workflow Requirements file path
 - ✓ All mandatory template sections are present in template order; Orchestrator Prompt Outline present (mechanism Skill); Agent Configuration and Multi-Agent Configuration omitted (no agents); Stakeholders omitted (Individual lens)
@@ -351,7 +354,7 @@ Apps Script du workflow Import Mensuel Finance. Données fictives uniquement. Tr
 
 **Safety**
 - ✓ Safety & Permissions answers all four questions with mitigations
-- ✓ Constraint Conformance lists every constraint from Security, Privacy & Safety (14 constraints), all `Satisfied`; no `Accepted` or `Open`
+- ✓ Constraint Conformance lists every constraint from Security, Privacy & Safety (15 constraints), all `Satisfied`; no `Accepted` or `Open`
 - ✓ Value & Measurement restates objective, desired outcome, measure, baseline and target; `Baseline: Unknown` carried through
 - ✓ Requirements include these sections — no backfill needed
 - ✓ Untrusted input (C1) meets write access: mitigated by human gate G1 and the « non validée » status before any downstream use, read-only inputs, and no AI interpretation of cell content at runtime

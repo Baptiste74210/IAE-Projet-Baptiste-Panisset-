@@ -13,19 +13,18 @@ MOIS = "Octobre 2026"
 
 
 def scenario(label, fin_path, db_path, memoire):
-    pseudo = im.load_pseudo(im.DEFAULTS["pseudo"])
     fin, block = im.read_finance(fin_path, MOIS)
     _, db = im.read_db(db_path)
     anon_fin, anon_db = [], []
     for r in fin:
-        k, why = im.anonymise(r["wbs"], r["type"], r["client"], pseudo)
+        k, why = im.anonymise(r["wbs"], r["type"])
         anon_fin.append({"ligne": r["row"], "cle": k, "type": r["type"], "kpi": r["kpi"], "raison": why})
     for r in db:
-        k, why = im.anonymise(r["wbs"], r["type"], r["client"], pseudo)
+        k, why = im.anonymise(r["wbs"], r["type"])
         anon_db.append({"ligne": r["row"], "cle": k, "type": r["type"], "raison": why})
     with tempfile.TemporaryDirectory() as tmp:
         mem_path = memoire
-        attendu = im.run(fin_path, db_path, im.DEFAULTS["pseudo"], mem_path, MOIS, tmp, label)
+        attendu = im.run(fin_path, db_path, mem_path, MOIS, tmp, label)
     m = im.load_memory(memoire)
     mem = {"confirmees": sorted([list(p) for p in m["confirmée"]]), "rejetees": sorted([list(p) for p in m["rejetée"]])}
     return {"scenario": label, "entree": {"fin": anon_fin, "db": anon_db, "memoire": mem,

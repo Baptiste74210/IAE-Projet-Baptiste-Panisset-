@@ -9,8 +9,10 @@
  *   - Prendre en compte mes décisions → étape 8 (depuis la database du mois)
  *
  * Toutes les données restent dans le Google Workspace : aucun service extérieur n'est appelé.
- * Le programme ne modifie jamais la database centrale, le fichier finance ni la table de
- * pseudonymisation ; il ne supprime ni n'écrase aucun fichier.
+ * La colonne client n'est jamais lue : seules les colonnes WBS (WBS ou code MS-… des multiservices),
+ * type de contrat et KPI sont lues.
+ * Le programme ne modifie jamais la database centrale ni le fichier finance, ne lit jamais le référentiel
+ * des multiservices, et ne supprime ni n'écrase aucun fichier.
  */
 
 // ---------------------------------------------------------------------------------------------
@@ -21,10 +23,9 @@ var PARAMETRES = {
   prefixeDatabaseMois: 'Database XBH ',
   ligneEnTetesFinance: 19,
   premiereLigneContrats: 20,
-  colonnesFinance: { wbs: 'WBS', client: 'Client Name', type: 'Contract Type' },
-  colonnesDatabase: { wbs: 'WBS', client: 'Client', type: 'Type de contrat' },
+  colonnesFinance: { wbs: 'WBS', type: 'Contract Type' },       // le code MS-… des multiservices est dans la colonne WBS
+  colonnesDatabase: { wbs: 'WBS', type: 'Type de contrat' },
   tableCorrespondance: 'Table de correspondance des colonnes',          // C3, même dossier que la database centrale
-  tablePseudonymisation: 'Table de pseudonymisation multiservices',     // C5, même dossier
   memoire: 'Mémoire des correspondances',                               // C6, même dossier (créée si absente)
   prefixeAnonymise: 'Anonymisé – '                                      // C7, un fichier par exécution
 };
@@ -81,7 +82,6 @@ function executerImport(mois) {
   var dossier = fichierCentrale.getParents().next();
 
   var correspondance = lireCorrespondance(dossier);       // C3
-  var pseudo = lirePseudonymisation(dossier);              // C5 (null si absente)
   var memoireTable = ouvrirMemoire(dossier, fichierCentrale);  // C6
   var memoire = lireMemoire(memoireTable);
 
@@ -93,7 +93,7 @@ function executerImport(mois) {
   var valFin = fFin.getDataRange().getValues();
   var enTetes = valFin[PARAMETRES.ligneEnTetesFinance - 1] || [];
   var colFin = {};
-  var requises = [PARAMETRES.colonnesFinance.wbs, PARAMETRES.colonnesFinance.client, PARAMETRES.colonnesFinance.type]
+  var requises = [PARAMETRES.colonnesFinance.wbs, PARAMETRES.colonnesFinance.type]
     .concat(correspondance.map(function (c) { return c.source; }));
   requises.forEach(function (h) {
     var n = enTetes.filter(function (x) { return x === h; }).length;
@@ -116,7 +116,7 @@ function executerImport(mois) {
     });
     var wbs = ligne[colFin[PARAMETRES.colonnesFinance.wbs]], type = ligne[colFin[PARAMETRES.colonnesFinance.type]];
     if ((wbs === '' || wbs === null) && (type === '' || type === null)) continue;
-    var a = anonymiserLigne(wbs, type, ligne[colFin[PARAMETRES.colonnesFinance.client]], pseudo);
+    var a = anonymiserLigne(wbs, type);
     var kpi = {};
     correspondance.forEach(function (c) { kpi[c.source] = ligne[colFin[c.source]] === '' ? null : ligne[colFin[c.source]]; });
     fin.push({ ligne: i + 1, cle: a.cle, type: type, kpi: kpi, raison: a.raison });
@@ -127,7 +127,7 @@ function executerImport(mois) {
   var valDb = fDb.getDataRange().getValues();
   var enTetesDb = valDb[0];
   var colDb = {};
-  [PARAMETRES.colonnesDatabase.wbs, PARAMETRES.colonnesDatabase.client, PARAMETRES.colonnesDatabase.type]
+  [PARAMETRES.colonnesDatabase.wbs, PARAMETRES.colonnesDatabase.type]
     .concat(correspondance.map(function (c) { return c.cible; })).forEach(function (h) {
       if (enTetesDb.indexOf(h) < 0) throw new Arret('Colonne « ' + h + ' » absente de la database centrale.');
       colDb[h] = enTetesDb.indexOf(h);
@@ -141,8 +141,7 @@ function executerImport(mois) {
         throw new Arret('KPI déjà rempli dans la database centrale : ligne ' + (j + 1) + ', colonne ' + c.cible + '.');
       }
     });
-    var b = anonymiserLigne(l[colDb[PARAMETRES.colonnesDatabase.wbs]], l[colDb[PARAMETRES.colonnesDatabase.type]],
-      l[colDb[PARAMETRES.colonnesDatabase.client]], pseudo);
+    var b = anonymiserLigne(l[colDb[PARAMETRES.colonnesDatabase.wbs]], l[colDb[PARAMETRES.colonnesDatabase.type]]);
     db.push({ ligne: j + 1, cle: b.cle, type: l[colDb[PARAMETRES.colonnesDatabase.type]], raison: b.raison });
   }
   ecrireAnonymise(dossier, mois, fin, db, correspondance);   // C7 : clé, type, KPI uniquement
@@ -287,16 +286,6 @@ function lireCorrespondance(dossier) {
   var v = t.getSheets()[0].getDataRange().getValues().slice(1).filter(function (x) { return x[0] !== ''; });
   if (!v.length) throw new Arret('La table de correspondance des colonnes est vide.');
   return v.map(function (x) { return { source: String(x[0]).trim(), cible: String(x[1]).trim(), celluleTotal: String(x[2]).trim() }; });
-}
-
-function lirePseudonymisation(dossier) {
-  var t = trouverDansDossier(dossier, PARAMETRES.tablePseudonymisation);
-  if (!t) return null;
-  var table = {};
-  t.getSheets()[0].getDataRange().getValues().slice(1).forEach(function (x) {
-    if (x[0] !== '') table[String(x[0]).trim()] = String(x[1]).trim();
-  });
-  return table;
 }
 
 function ouvrirMemoire(dossier, reference) {

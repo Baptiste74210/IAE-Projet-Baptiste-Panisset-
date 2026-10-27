@@ -56,7 +56,6 @@ function classeur(nom, data, dans = dossier) { const c = new Classeur(nom, [new 
 const centrale = classeur('Database Hcare XBH in service contracts', brut.database);
 const finance = classeur('Xbh Contracts Financial performance : Octobre 2026', brut.finance, { autre: true });
 classeur('Table de correspondance des colonnes', brut.correspondance);
-classeur('Table de pseudonymisation multiservices', brut.pseudo);
 const instantCentrale = JSON.stringify(centrale.feuilles[0].d), instantFinance = JSON.stringify(finance.feuilles[0].d);
 let actif = centrale;
 
@@ -97,7 +96,7 @@ v('4 onglets', mois.feuilles.map(f => f.nom).join('|') === 'Feuille 1|À traiter
 const anon = Object.values(fichiers).find(f => f.nom === 'Anonymisé – Octobre 2026').classeur;
 const texteAnon = JSON.stringify(anon.feuilles.map(f => f.d));
 const fuite = brut.clients.concat(brut.pays, ['Europe', 'NORAM', 'LATAM', 'APAC', 'AFME']).filter(n => texteAnon.includes(n));
-v('aucun nom de client, pays ou région dans le fichier anonymisé', fuite.length === 0, fuite.slice(0, 5).join(', '));
+v('aucun code client, pays ou région dans le fichier anonymisé', fuite.length === 0, fuite.slice(0, 5).join(', '));
 const fMoisDb = mois.feuilles[0].d, hDb = fMoisDb[0];
 const totalDb = h => fMoisDb.slice(1).reduce((a, l) => typeof l[hDb.indexOf(h)] === 'number' ? a + l[hDb.indexOf(h)] : a, 0);
 v('total Turnover de la database = corrigé', Math.abs(totalDb('Turnover') - C.database_E5['Turnover (€)']) <= 0.01, totalDb('Turnover'));

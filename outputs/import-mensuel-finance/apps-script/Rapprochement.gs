@@ -7,6 +7,9 @@
  * sur le jeu fictif (tests/test_rapprochement.js), où ses résultats sont comparés à ceux du programme
  * Python de référence (.claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py).
  *
+ * Confidentialité : aucune fonction ne reçoit ni ne lit le nom du client ; les multiservices sont identifiés
+ * par leur code MS-… écrit dans la colonne WBS.
+ *
  * Toute modification d'une règle doit être faite à la fois ici et dans le programme Python,
  * puis vérifiée en relançant les deux séries de tests.
  */
@@ -64,20 +67,13 @@ function ecartCles(s, t) {
 }
 
 /**
- * Anonymisation d'une ligne : renvoie { cle, raison }.
- * Le nom du client sert uniquement à chercher le code MS-… dans la table de pseudonymisation.
- * pseudo : objet { nomClient: 'MS-001' } ou null si la table est absente.
+ * Anonymisation d'une ligne : renvoie { cle, raison } à partir de la seule colonne WBS (WBS ou code MS-…)
+ * et du type de contrat. Le nom du client n'est jamais lu.
  */
-function anonymiserLigne(wbs, type, client, pseudo) {
+function anonymiserLigne(wbs, type) {
   var k = normaliserCle(wbs);
   if (k) return { cle: k, raison: null };
-  if (String(type || '').trim().toLowerCase() === 'multiservices') {
-    var nom = String(client || '').trim();
-    if (pseudo && Object.prototype.hasOwnProperty.call(pseudo, nom)) {
-      return { cle: normaliserCle(pseudo[nom]), raison: null };
-    }
-    return { cle: '', raison: 'c' };
-  }
+  if (String(type || '').trim().toLowerCase() === 'multiservices') return { cle: '', raison: 'c' };
   return { cle: '', raison: 'd' };
 }
 

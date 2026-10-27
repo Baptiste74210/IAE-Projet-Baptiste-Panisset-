@@ -1,5 +1,8 @@
 """Génère le jeu fictif de référence (400 contrats) et son corrigé — données entièrement inventées.
 
+Aucun nom de client : la colonne client ne contient que des codes neutres (« Client 001 »…), et les
+contrats multiservices sont identifiés par un code `MS-…` écrit dans la colonne WBS des deux fichiers.
+
 À lancer depuis la racine du dépôt :
   python3 -I outputs/import-mensuel-finance/inputs/jeu-fictif/generer_jeu_fictif.py
 
@@ -70,7 +73,7 @@ def kpi(type_):
 # ---------------------------------------------------------------- database centrale (400 contrats)
 types = ["XBH"] * 222 + ["FBH"] * 88 + ["PBH"] * 80 + ["Multiservices"] * 10
 rng.shuffle(types)
-clients = clients_uniques(N_DB)
+clients = [f"Client {i + 1:03d}" for i in range(N_DB)]   # codes neutres, aucun nom de client
 db, cles = [], []
 for i, t in enumerate(types):
     reg = rng.choice(list(REGIONS))
@@ -106,7 +109,10 @@ espaces = choisir("XBH", 6) + choisir("FBH", 4)           # espaces, majuscules,
 type_diff = choisir("PBH", 2)                             # même WBS, type finance « XBH » → (h), rapproché
 faux_amis_cibles = choisir("FBH", 1)                      # absent du fichier finance ; un nouveau contrat lui ressemble
 ms = par_type["Multiservices"]
-ms_absents_table = ms[:2]                                 # (c) des deux côtés
+ms_sans_code = ms[:2]                                     # pas encore codés : (c) des deux côtés
+ms_codes = ms[2:]
+for i, c in enumerate(ms_codes, 1):                       # code MS-… écrit dans la colonne WBS des deux fichiers
+    c["wbs"] = f"MS-{i:03d}"
 pris.update(c["id"] for c in ms)
 
 # WBS mal saisis côté finance : on fabrique une clé database qui contient le caractère à confondre.
@@ -156,16 +162,16 @@ for cible in faux_amis_cibles:
         if all(lev(saisie, k) >= 3 for k in autres):
             break
     reg = rng.choice(list(REGIONS))
-    faux_amis.append({"cible": cible, "saisie": saisie, "client": f"{rng.choice(MOTS1)} {rng.choice(MOTS2)} Express (nouveau)",
+    faux_amis.append({"cible": cible, "saisie": saisie, "client": f"Client {N_DB + 1:03d}",
                       "region": reg, "pays": rng.choice(REGIONS[reg])})
     cles.append(saisie)
 
 # Nouveaux contrats PBH (aucun contrat PBH libre dans la database) → (a).
 nouveaux = []
-for _ in range(4):
+for n_ in range(4):
     reg = rng.choice(list(REGIONS))
     k = nouvelle_cle(cles); cles.append(k)
-    nouveaux.append({"wbs": k, "client": f"{rng.choice(MOTS1)} {rng.choice(MOTS2)} Partners (nouveau)",
+    nouveaux.append({"wbs": k, "client": f"Client {N_DB + 2 + n_:03d}",
                      "region": reg, "pays": rng.choice(REGIONS[reg])})
 
 # ---------------------------------------------------------------- fichier finance
@@ -250,12 +256,12 @@ for col, w in zip("ABCDEFGHI", (14, 34, 15, 10, 20, 13, 13, 13, 10)): w2.column_
 w2.freeze_panes = "A2"
 wb2.save(os.path.join(JEU, "Database Hcare XBH in service contracts (FICTIF).xlsx"))
 
-ms_table = [c for c in ms if c not in ms_absents_table]
-with open(os.path.join(JEU, "table-pseudonymisation-multiservices (FICTIF).csv"), "w", newline="", encoding="utf-8") as f:
-    w = csv.writer(f); w.writerow(["Client", "Code MS"])
-    for i, c in enumerate(ms_table, 1):
-        w.writerow([c["client"], f"MS-{i:03d}"])
-    w.writerow(["Ancien Contrat Multiservices (clos)", f"MS-{len(ms_table) + 1:03d}"])
+# Référentiel des contrats multiservices : aide-mémoire de Baptiste, jamais lu par le programme.
+with open(os.path.join(JEU, "referentiel-multiservices (FICTIF).csv"), "w", newline="", encoding="utf-8") as f:
+    w = csv.writer(f); w.writerow(["Code MS", "Désignation interne du contrat", "Statut"])
+    for c in ms_codes:
+        w.writerow([c["wbs"], f"Contrat multiservices {c['wbs'][3:]} (fictif)", "actif"])
+    w.writerow([f"MS-{len(ms_codes) + 1:03d}", f"Contrat multiservices {len(ms_codes) + 1:03d} (fictif)", "clos"])
 
 with open(os.path.join(JEU, "table-correspondance-colonnes (FICTIF).csv"), "w", newline="", encoding="utf-8") as f:
     w = csv.writer(f); w.writerow(["Colonne finance", "Colonne database", "Cellule du total"])
@@ -277,7 +283,7 @@ def somme(lignes, i):
 div_src = {d["db"]["id"] for d in divergents}
 dbl_src = {c["id"] for c in doublons}
 sans_src = {c["id"] for c in sans_wbs}
-ms_abs_src = {c["id"] for c in ms_absents_table}
+ms_abs_src = {c["id"] for c in ms_sans_code}
 fa_keys = {f["saisie"] for f in faux_amis}
 new_keys = {n["wbs"] for n in nouveaux}
 non_rapp_e5 = [r for r in fin if r["src"] in dbl_src or r["src"] in sans_src or r["src"] in ms_abs_src or r["wbs"] in new_keys]
@@ -302,10 +308,10 @@ attendu = {
                       + [{"cle_finance": f["saisie"], "cle_db": f["cible"]["wbs"], "niveau": "Moyenne",
                           "nature": "faux ami (contrats différents)", "bonne_decision": "Non"} for f in faux_amis],
     "raisons_E5": {"(a) absent de la database": len(nouveaux), "(b) absent du fichier finance": len(absents_finance) + len(sans_wbs),
-                   "(c) multiservices sans code": 2 * len(ms_absents_table), "(d) clé manquante": len(sans_wbs),
+                   "(c) multiservices sans code": 2 * len(ms_sans_code), "(d) clé manquante": len(sans_wbs),
                    "(e) doublon": 2 * len(doublons) + len(doublons), "(f) valeur non numérique": len(na),
                    "(h) type de contrat différent": len(type_diff)},
-    "multiservices": {"dans la table (100 %)": len(ms_table), "absents de la table (c)": len(ms_absents_table)},
+    "multiservices": {"codés MS-… (100 %)": len(ms_codes), "sans code (c)": len(ms_sans_code)},
 }
 with open(os.path.join(JEU, "corrige-jeu-fictif.json"), "w", encoding="utf-8") as f:
     json.dump(attendu, f, ensure_ascii=False, indent=1)
@@ -321,9 +327,9 @@ L = ["# Corrigé du jeu fictif de référence (400 contrats) — à ne pas donne
      f"Fichier finance : **{total} lignes** de contrats (lignes 20 à {last}). Database centrale : **{N_DB} contrats**. Mois : **{MOIS}**.", "",
      "## Pièges placés", "",
      "| Piège | Nombre | Résultat attendu (E5, mémoire vide) |", "|---|---|---|",
-     f"| WBS identiques | {cent_e5 - len(espaces) - len(na) - len(type_diff) - len(ms_table)} | Rapprochés à **100 %** |",
+     f"| WBS identiques | {cent_e5 - len(espaces) - len(na) - len(type_diff) - len(ms_codes)} | Rapprochés à **100 %** |",
      f"| Espaces, espaces insécables, caractère invisible, minuscules | {len(espaces)} | Rapprochés à **100 %** |",
-     f"| Multiservices présents dans la table (`MS-…`) | {len(ms_table)} | Rapprochés à **100 %** par leur code |",
+     f"| Multiservices codés `MS-…` dans la colonne WBS | {len(ms_codes)} | Rapprochés à **100 %** par leur code |",
      f"| Cost = « N/A » | {len(na)} | Rapprochés à **100 %**, signalés (f) |",
      f"| Même WBS, type différent (finance XBH, database PBH) | {len(type_diff)} | Rapprochés à **100 %**, signalés (h) |",
      f"| WBS mal saisis (O/0, I/1, préfixe FH/FB, inversion) | {sum(d['niveau'] == 'Élevée' for d in divergents)} | À confirmer, confiance **Élevée** ; bonne décision **Oui** |",
@@ -331,7 +337,7 @@ L = ["# Corrigé du jeu fictif de référence (400 contrats) — à ne pas donne
      f"| Faux ami : nouveau contrat à un caractère d'un contrat absent | {len(faux_amis)} | À confirmer, confiance **Moyenne** ; bonne décision **Non** |",
      f"| Doublons (même WBS sur deux lignes) | {len(doublons)} WBS ({2 * len(doublons)} lignes) | Non rapprochés, (e) ; jamais additionnés |",
      f"| Lignes sans WBS (type XBH) | {len(sans_wbs)} | Non rapprochées, (d) ; jamais rapprochées par le nom |",
-     f"| Multiservices absents de la table | {len(ms_absents_table)} | Non rapprochés, (c), des deux côtés |",
+     f"| Multiservices sans code (WBS vide) | {len(ms_sans_code)} | Non rapprochés, (c), des deux côtés |",
      f"| Nouveaux contrats PBH | {len(nouveaux)} | Non rapprochés, (a) : aucun contrat PBH libre |",
      f"| Contrats de la database absents du fichier finance | {len(absents_finance)} | (b) |", "",
      "## Comptages attendus", "",
@@ -340,7 +346,7 @@ L = ["# Corrigé du jeu fictif de référence (400 contrats) — à ne pas donne
      f"| **E6** — mémoire `memoire-E6 (FICTIF).csv` | {attendu['E6']['100 %']} | 0 / 0 / 0 | {attendu['E6']['Non rapprochées']} | {total} |",
      f"| **Chaîne** — E5, décisions de la colonne « bonne décision », relance | {attendu['E6']['100 %']} après décisions | 0 / 0 / 0 | {attendu['E6']['Non rapprochées']} | {total} |", "",
      "Le scénario **E7 (multiservices)** se vérifie dans l'exécution de E5 : "
-     f"{len(ms_table)} multiservices rapprochés à 100 % par leur code `MS-…`, {len(ms_absents_table)} en (c) des deux côtés, aucun nom de client dans les fichiers anonymisés.", "",
+     f"{len(ms_codes)} multiservices rapprochés à 100 % par leur code `MS-…`, {len(ms_sans_code)} sans code en (c) des deux côtés ; la colonne client n'est jamais lue.", "",
      "## Totaux attendus", "",
      "| KPI | Bloc de totaux | Database E5 | Database E6 et chaîne |", "|---|---|---|---|"]
 for h in kp:
@@ -358,11 +364,11 @@ open(os.path.join(JEU, "corrige-jeu-fictif.md"), "w", encoding="utf-8").write("\
 
 # ---------------------------------------------------------------- fichier d'entrée lisible (E5)
 md = [f"# E5 — Jeu fictif de référence : {total} lignes de contrats, {N_DB} contrats en database (proposed)", "",
-      "**Données entièrement fictives** : clients, WBS et montants inventés, aucune donnée Airbus. "
+      "**Données entièrement fictives** : WBS et montants inventés, aucune donnée Airbus ; **aucun nom de client** (colonne client remplie de codes neutres « Client 001 »…, jamais lue par le programme). "
       "Fichiers à utiliser (dans `inputs/jeu-fictif/`) :", "",
       f"- `Xbh Contracts Financial performance - {MOIS} (FICTIF).xlsx` — fichier finance : lignes 1 à 18 = bloc de totaux, ligne 19 = en-têtes, contrats à partir de la ligne 20 ;",
       "- `Database Hcare XBH in service contracts (FICTIF).xlsx` — database centrale, KPI vides ;",
-      "- `table-pseudonymisation-multiservices (FICTIF).csv` — codes `MS-…` des multiservices ;",
+      "- `referentiel-multiservices (FICTIF).csv` — référentiel des codes `MS-…` (aide-mémoire, jamais lu par le programme) ; les codes sont écrits dans la colonne WBS des deux fichiers ;",
       "- `table-correspondance-colonnes (FICTIF).csv` — colonnes de KPI et cellules des totaux ;",
       "- `memoire-E6 (FICTIF).csv` — mémoire des correspondances du scénario E6 (mois suivant).", "",
       f"Mois demandé au lancement : **{MOIS}**. Le contenu complet figure dans les fichiers Excel ; ce fichier n'en donne qu'un aperçu.", "",

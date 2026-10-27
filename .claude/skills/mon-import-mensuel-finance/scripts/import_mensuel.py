@@ -2,7 +2,7 @@
 
 À lancer depuis la racine du dépôt :
   Simulation : python3 -I .claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py simulation
-               [--mois "Octobre 2026"] [--finance F.xlsx] [--database D.xlsx] [--pseudo P.csv] [--memoire M.csv]
+               [--mois "Octobre 2026"] [--finance F.xlsx] [--database D.xlsx] [--memoire M.csv]
   Décisions  : python3 -I .claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py decisions
                --fichier "outputs/import-mensuel-finance/runs/Database XBH Octobre 2026.xlsx"
                [--decision "CLÉ=Oui" --decision "CLÉ=Non"] [--memoire M.csv]
@@ -13,6 +13,9 @@
 Écrit la database du mois dans outputs/import-mensuel-finance/runs/ (nouvelle version si elle existe déjà)
 et affiche un résumé JSON. Ne lit jamais le corrigé : la comparaison se fait après, à part.
 Besoin : openpyxl, et LibreOffice (soffice) pour calculer les formules du bloc de totaux.
+
+Confidentialité : la colonne client n'est jamais lue. Les contrats multiservices sont identifiés par leur
+code MS-… écrit dans la colonne WBS ; un multiservices sans code est mis de côté (raison c).
 """
 import argparse, csv, json, os, re, shutil, subprocess, sys, tempfile, unicodedata
 from datetime import date
@@ -24,7 +27,6 @@ RUNS = os.path.join(WORKFLOW, "runs")
 DEFAULTS = {
     "finance": os.path.join(JEU, "Xbh Contracts Financial performance - Octobre 2026 (FICTIF).xlsx"),
     "database": os.path.join(JEU, "Database Hcare XBH in service contracts (FICTIF).xlsx"),
-    "pseudo": os.path.join(JEU, "table-pseudonymisation-multiservices (FICTIF).csv"),
     "memoire": os.path.join(RUNS, "memoire-correspondances.csv"),
 }
 # Mémoire du scénario E6 (mois suivant), fournie avec le jeu fictif de référence.
@@ -96,13 +98,6 @@ def ecart(s, t):
     return d[n][m]
 
 
-def load_pseudo(path):
-    if not path or not os.path.exists(path):
-        return None
-    with open(path, newline="", encoding="utf-8-sig") as f:
-        return {r["Client"].strip(): r["Code MS"].strip() for r in csv.DictReader(f)}
-
-
 def load_memory(path):
     mem = {"confirmée": set(), "rejetée": set()}
     if path and path != "-" and os.path.exists(path):
@@ -112,14 +107,13 @@ def load_memory(path):
     return mem
 
 
-def anonymise(key, ctype, client, pseudo):
-    """Renvoie (clé, raison éventuelle). Le nom du client ne sert qu'à la table."""
+def anonymise(key, ctype):
+    """Renvoie (clé, raison éventuelle) à partir de la seule colonne WBS (WBS ou code MS-…) et du type.
+    Le nom du client n'est jamais lu."""
     k = norm(key)
     if k:
         return k, None
     if str(ctype or "").strip().lower() == "multiservices":
-        if pseudo is not None and str(client or "").strip() in pseudo:
-            return norm(pseudo[str(client).strip()]), None
         return "", "c"
     return "", "d"
 
@@ -148,7 +142,7 @@ def read_finance(path, mois):
     ws = wb.active
     headers = [c.value for c in ws[19]]
     col = {}
-    for h in ["WBS", "Client Name", "Contract Type"] + KPI_SRC:
+    for h in ["WBS", "Contract Type"] + KPI_SRC:
         n = headers.count(h)
         if n != 1:
             raise Stop(f"En-tête « {h} » trouvé {n} fois en ligne 19 (attendu : 1).")
@@ -160,8 +154,8 @@ def read_finance(path, mois):
             raise Stop(f"Ligne « Total » trouvée en ligne {r}.")
         if vals[col["WBS"]] in (None, "") and vals[col["Contract Type"]] in (None, ""):
             continue
-        rows.append({"row": r, "wbs": vals[col["WBS"]], "client": vals[col["Client Name"]],
-                     "type": vals[col["Contract Type"]], "kpi": {h: vals[col[h]] for h in KPI_SRC}})
+        rows.append({"row": r, "wbs": vals[col["WBS"]], "type": vals[col["Contract Type"]],
+                     "kpi": {h: vals[col[h]] for h in KPI_SRC}})
     if not rows:
         raise Stop("Aucun contrat à partir de la ligne 20.")
     last = max(r["row"] for r in rows)
@@ -189,28 +183,26 @@ def read_db(path):
         for tgt in MAP.values():
             if rec.get(tgt) not in (None, ""):
                 raise Stop(f"KPI déjà rempli dans la database centrale : ligne {r}, colonne {tgt}.")
-        rows.append({"row": r, "values": vals, "wbs": rec.get("WBS"), "client": rec.get("Client"),
-                     "type": rec.get("Type de contrat")})
+        rows.append({"row": r, "values": vals, "wbs": rec.get("WBS"), "type": rec.get("Type de contrat")})
     return headers, rows
 
 
-def run(fin_path, db_path, pseudo_path, mem_path, mois, runs_dir, label):
+def run(fin_path, db_path, mem_path, mois, runs_dir, label):
     for p in (fin_path, db_path):
         if not os.path.exists(p):
             raise Stop(f"Fichier d'entrée introuvable : {p}")
-    pseudo = load_pseudo(pseudo_path)
     mem = load_memory(mem_path)
     fin, block = read_finance(fin_path, mois)
     headers, db = read_db(db_path)
-    notes = [] if pseudo is not None else ["Table de pseudonymisation absente."]
+    notes = []
 
     # Anonymisation : on ne garde que ligne, clé, type et KPI.
     anon_fin, anon_db = [], []
     for r in fin:
-        k, why = anonymise(r["wbs"], r["type"], r["client"], pseudo)
+        k, why = anonymise(r["wbs"], r["type"])
         anon_fin.append({"row": r["row"], "key": k, "type": r["type"], "kpi": r["kpi"], "why": why})
     for r in db:
-        k, why = anonymise(r["wbs"], r["type"], r["client"], pseudo)
+        k, why = anonymise(r["wbs"], r["type"])
         anon_db.append({"row": r["row"], "key": k, "type": r["type"], "why": why})
 
     fin_count, db_count = {}, {}
@@ -521,18 +513,18 @@ def run_tests(mois, runs_dir=None):
         scenarios = [("E5 (mémoire vide)", None), ("E6 (mémoire du mois suivant)", MEMOIRE_E6)]
         for label, mem in scenarios:
             try:
-                results.append(run(DEFAULTS["finance"], DEFAULTS["database"], DEFAULTS["pseudo"], mem, mois, out_dir, label))
+                results.append(run(DEFAULTS["finance"], DEFAULTS["database"], mem, mois, out_dir, label))
             except Stop as e:
                 results.append({"scenario": label, "arret": str(e)})
         label = "Chaîne E5 → décisions → relance"
         try:
             mem_chain = os.path.join(tmp, "memoire-chaine.csv")
-            first = run(DEFAULTS["finance"], DEFAULTS["database"], DEFAULTS["pseudo"], None, mois, out_dir,
+            first = run(DEFAULTS["finance"], DEFAULTS["database"], None, mois, out_dir,
                         label + " [1. import]")
             after = apply_decisions(first["fichier"], mem_chain, decisions_depuis_memoire(MEMOIRE_E6))
             with open(mem_chain, newline="", encoding="utf-8") as f:
                 after["memoire_lignes"] = sum(1 for _ in csv.DictReader(f))
-            second = run(DEFAULTS["finance"], DEFAULTS["database"], DEFAULTS["pseudo"], mem_chain, mois,
+            second = run(DEFAULTS["finance"], DEFAULTS["database"], mem_chain, mois,
                          out_dir, label + " [3. relance]")
             results.append({"scenario": label, "apres_decisions": after,
                             "relance": {"fichier": second["fichier"], "counts": second["counts"],
@@ -552,7 +544,6 @@ if __name__ == "__main__":
     ap.add_argument("--mois", default="Octobre 2026")
     ap.add_argument("--finance", default=DEFAULTS["finance"])
     ap.add_argument("--database", default=DEFAULTS["database"])
-    ap.add_argument("--pseudo", default=DEFAULTS["pseudo"])
     ap.add_argument("--memoire", default=DEFAULTS["memoire"])
     ap.add_argument("--runs", default=RUNS)
     a = ap.parse_args()
@@ -572,7 +563,7 @@ if __name__ == "__main__":
                     forced[norm(k)] = v.strip().capitalize()
             out = apply_decisions(a.fichier, a.memoire, forced)
         else:
-            out = run(a.finance, a.database, a.pseudo, a.memoire, a.mois, a.runs, "simulation")
+            out = run(a.finance, a.database, a.memoire, a.mois, a.runs, "simulation")
         print(json.dumps(out, ensure_ascii=False, indent=1, default=str))
     except Stop as e:
         print(json.dumps({"arret": str(e)}, ensure_ascii=False))

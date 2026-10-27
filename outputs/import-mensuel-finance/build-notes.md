@@ -17,6 +17,8 @@
 | Connector: Node.js (tests) | `tests/test_rapprochement.js`, `tests/test_code_mock.js` | `outputs/import-mensuel-finance/apps-script/tests/` | Created |
 | Autorisations | `appsscript.json` (Sheets, Drive, interface du Sheet uniquement) | `outputs/import-mensuel-finance/apps-script/appsscript.json` | Created |
 
+**Confidentialité :** le programme (Python et Apps Script) ne lit jamais la colonne client ; les multiservices sont identifiés par leur code `MS-…` dans la colonne WBS (révision du 2026-10-27 au soir).
+
 **Écart assumé par rapport au design :** le design prévoyait une skill nommée `import-mensuel-finance` partageant son code JavaScript avec Apps Script. La skill de Baptiste `mon-import-mensuel-finance` existait déjà, avec un programme Python testé : elle tient le rôle de S1 pour éviter un doublon. Le programme Python est la **référence** ; `Rapprochement.gs` en est la traduction, et les tests vérifient que les deux donnent exactement les mêmes résultats.
 
 ## Résultats des tests (données fictives)
@@ -35,12 +37,13 @@
 
 1. **Créer les deux tables** dans le dossier Google Drive de la database centrale :
    - `Table de correspondance des colonnes` — un Google Sheet avec en ligne 1 : `Colonne finance` | `Colonne database` | `Cellule du total`, puis une ligne par KPI (en-tête exact du fichier finance, en-tête exact de la database, cellule du total dans le bloc, ex. `F5`). Aucun montant.
-   - `Table de pseudonymisation multiservices` — un Google Sheet avec en ligne 1 : `Client` | `Code MS`, puis une ligne par contrat multiservices (`MS-001`, `MS-002`…). Ce fichier ne sort jamais du Workspace.
+   - `Référentiel des contrats multiservices` — votre aide-mémoire : une ligne par contrat multiservices, avec son code `MS-001`, `MS-002`… **Le programme ne le lit jamais** et il ne sort jamais du Workspace.
+   - **Écrire chaque code `MS-…` dans la colonne WBS** des lignes multiservices de la database centrale, et **demander à l'équipe finance** de l'écrire aussi dans la colonne WBS de ses lignes multiservices. Une ligne multiservices sans code part dans « À traiter à la main » (raison c).
    - La `Mémoire des correspondances` est créée automatiquement au premier lancement.
 2. **Vérifier les paramètres** en haut de `Code.gs` (bloc `PARAMETRES`) : noms exacts des colonnes WBS, client et type de contrat dans le fichier finance et dans la database, ligne des en-têtes (19), première ligne de contrats (20).
 3. **Coller le programme** : ouvrir la database centrale → **Extensions → Apps Script** → créer trois fichiers et y coller `Code.gs`, `Rapprochement.gs` et `appsscript.json` (pour ce dernier : **Paramètres du projet → Afficher le fichier manifeste**). Enregistrer.
 4. **Recharger** la database centrale : le menu **Import mensuel finance** apparaît. Au premier clic, Google demande les autorisations (Sheets, Drive, interface) : les accepter.
-5. **Premier essai sur des copies fictives** : importer dans Google Sheets les fichiers du dossier `inputs/jeu-fictif/` (fichier finance, database, `table-pseudonymisation-multiservices (FICTIF).csv`, `table-correspondance-colonnes (FICTIF).csv`), les placer dans un dossier de test sous les noms attendus (`Xbh Contracts Financial performance : Octobre 2026`, `Database Hcare XBH in service contracts`, `Table de pseudonymisation multiservices`, `Table de correspondance des colonnes`), coller le programme dans la database fictive, lancer l'import d'Octobre 2026 et vérifier 370 / 15 / 13 comme dans le corrigé.
+5. **Premier essai sur des copies fictives** : importer dans Google Sheets les fichiers du dossier `inputs/jeu-fictif/` (fichier finance, database, `table-correspondance-colonnes (FICTIF).csv` ; les multiservices sont déjà codés dans la colonne WBS), les placer dans un dossier de test sous les noms attendus (`Xbh Contracts Financial performance : Octobre 2026`, `Database Hcare XBH in service contracts`, `Table de correspondance des colonnes`), coller le programme dans la database fictive, lancer l'import d'Octobre 2026 et vérifier 370 / 15 / 13 comme dans le corrigé.
 6. **Utilisation réelle, chaque mois :**
    1. à réception du fichier finance, ouvrir la database centrale → **Import mensuel finance → Lancer l'import** → saisir le mois (« Novembre 2026 ») ;
    2. ouvrir la database du mois créée, remplir « Oui » ou « Non » dans l'onglet « Correspondances à confirmer », traiter si besoin « À traiter à la main » ;
@@ -50,7 +53,7 @@
 ## Ce qui reste à faire
 
 - Obtenir l'autorisation Apps Script et faire le premier essai réel sur copies fictives (étape 5 du guide).
-- Créer les vraies tables C3 et C5 (étape 1 du guide).
+- Créer la vraie table C3 et le référentiel C5, écrire les codes `MS-…` dans la database centrale, et obtenir l'accord de l'équipe finance pour les écrire dans son fichier (étape 1 du guide).
 - Étape suivante du cours : **Test** (Step 5) sur les scénarios E1 à E7.
 
 **Jeu fictif :** depuis le 2026-10-27, le seul jeu de référence est celui de 400 contrats (`inputs/jeu-fictif/`, régénérable avec `generer_jeu_fictif.py`) ; le premier jeu de 12 contrats et ses résultats sont archivés dans `inputs/archive-v1/` et `runs/archive-v1/`.

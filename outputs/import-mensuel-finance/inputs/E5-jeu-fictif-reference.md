@@ -1,10 +1,10 @@
 # E5 — Jeu fictif de référence : 398 lignes de contrats, 400 contrats en database (proposed)
 
-**Données entièrement fictives** : clients, WBS et montants inventés, aucune donnée Airbus. Fichiers à utiliser (dans `inputs/jeu-fictif/`) :
+**Données entièrement fictives** : WBS et montants inventés, aucune donnée Airbus ; **aucun nom de client** (colonne client remplie de codes neutres « Client 001 »…, jamais lue par le programme). Fichiers à utiliser (dans `inputs/jeu-fictif/`) :
 
 - `Xbh Contracts Financial performance - Octobre 2026 (FICTIF).xlsx` — fichier finance : lignes 1 à 18 = bloc de totaux, ligne 19 = en-têtes, contrats à partir de la ligne 20 ;
 - `Database Hcare XBH in service contracts (FICTIF).xlsx` — database centrale, KPI vides ;
-- `table-pseudonymisation-multiservices (FICTIF).csv` — codes `MS-…` des multiservices ;
+- `referentiel-multiservices (FICTIF).csv` — référentiel des codes `MS-…` (aide-mémoire, jamais lu par le programme) ; les codes sont écrits dans la colonne WBS des deux fichiers ;
 - `table-correspondance-colonnes (FICTIF).csv` — colonnes de KPI et cellules des totaux ;
 - `memoire-E6 (FICTIF).csv` — mémoire des correspondances du scénario E6 (mois suivant).
 
@@ -14,18 +14,18 @@ Mois demandé au lancement : **Octobre 2026**. Le contenu complet figure dans le
 
 | Ligne | WBS | Client Name | Contract Type | Region | Country | Turnover (€) | Invoicing (€) | Cost (€) | Flight Hours |
 |---|---|---|---|---|---|---|---|---|---|
-| 20 | `FH.SWJJL` | Vista Aero Rescue | XBH | AFME | Kenya | 2 359 949,76 | 2 211 892,02 | 1 734 712,28 | 6945 |
-| 21 | `FH.6DNK9` | Pacific Wings Offshore | PBH | Europe | Allemagne | 937 309,77 | 899 284,58 | 676 113,20 | 6398 |
-| 22 | `FH.8HBEP` | Condor Flight Rescue | FBH | NORAM | États-Unis | 7 280 172,93 | 6 803 752,45 | 5 221 854,31 | 4687 |
-| 23 | `FH.C72UG` | Cardinal Fleet Services | FBH | NORAM | Canada | 6 568 758,85 | 6 173 109,49 | 4 511 848,72 | 4381 |
-| 24 | `FH.TSHBL` | Falcon Aviation Patrol | FBH | APAC | Australie | 1 096 068,26 | 1 093 827,10 | 799 558,66 | 8132 |
-| 25 | `FH.7NUJV` | Lynx Air Medevac | XBH | LATAM | Brésil | 5 068 791,69 | 4 733 684,55 | 4 173 267,45 | 675 |
-| 26 | `FH.PBSL8` | Sierra Heli Partners (nouveau) | PBH | LATAM | Brésil | 3 934 293,95 | 3 884 933,65 | 2 881 889,17 | 4954 |
-| 27 | `FH.LXYK4` | Nordic Flight Logistics | XBH | AFME | Nigeria | 5 558 993,20 | 5 497 501,50 | 3 772 636,54 | 8230 |
-| 28 | `FH.FNUE9` | Sierra Aero Medevac | XBH | Europe | Suisse | 4 590 897,27 | 4 433 928,78 | 3 686 578,09 | 1643 |
-| 29 | `FH.H4P7D` | Cardinal Aviation Patrol | FBH | AFME | Nigeria | 2 486 291,64 | 2 429 955,82 | 1 884 864,51 | 5578 |
-| 30 | `FH.PPLEJ` | Orion Flight Services | XBH | Europe | France | 4 661 018,10 | 4 438 402,63 | 3 469 910,41 | 3825 |
-| 31 | `FH.TPLPH` | Crystal Lift Medevac | FBH | APAC | Inde | 1 239 235,29 | 1 216 098,60 | 793 405,98 | 8268 |
-| 32 | `FH.RSU9T` | Polar Rotor Operations | XBH | LATAM | Chili | 2 144 684,63 | 2 122 819,92 | 1 635 876,11 | 7695 |
-| 33 | `FH.GX87S` | Pacific Air Group | PBH | NORAM | Canada | 6 341 822,96 | 6 269 330,73 | 5 080 448,19 | 836 |
-| 34 | `FH.6CFK6` | Granite Lift Medevac | PBH | NORAM | Canada | 3 470 496,38 | 3 406 253,95 | 2 908 621,08 | 8674 |
+| 20 | `FH.C7JUR` | Client 068 | XBH | APAC | Malaisie | 5 966 585,56 | 5 862 408,91 | 4 744 868,37 | 5598 |
+| 21 | `FH.9PZL5` | Client 052 | XBH | NORAM | États-Unis | 2 426 746,22 | 2 420 814,44 | 1 692 609,99 | 1644 |
+| 22 | `FH.4KCZW` | Client 400 | XBH | LATAM | Chili | 4 842 973,27 | 4 756 214,48 | 3 204 130,50 | 7531 |
+| 23 | `FH.NDXZK` | Client 353 | XBH | Europe | Suisse | 2 816 229,25 | 2 694 737,58 | 2 099 570,94 | 6588 |
+| 24 | `FH.ZPV68` | Client 053 | PBH | APAC | Inde | 1 517 147,20 | 1 464 279,80 | 965 486,76 | 8580 |
+| 25 | `FH.UDHX5` | Client 118 | XBH | Europe | France | 2 957 976,48 | 2 819 595,20 | 2 162 417,02 | 3160 |
+| 26 | `FH.G43AR` | Client 071 | FBH | APAC | Japon | 6 667 769,22 | 6 299 751,55 | 4 111 644,92 | 4587 |
+| 27 | `FH.ZZUN4` | Client 253 | XBH | APAC | Japon | 2 928 787,25 | 2 903 875,85 | N/A | 7448 |
+| 28 | `FH.VSQLW` | Client 021 | XBH | Europe | Pologne | 7 326 620,83 | 7 127 365,63 | 6 249 383,95 | 344 |
+| 29 | `FH.G4QHE` | Client 122 | PBH | LATAM | Mexique | 2 080 148,62 | 1 975 282,80 | 1 283 732,07 | 8799 |
+| 30 | `FH.T99FJ` | Client 339 | XBH | APAC | Singapour | 762 516,55 | 711 547,33 | 557 305,22 | 2080 |
+| 31 | `FH.U2BF9` | Client 143 | XBH | APAC | Inde | 5 214 501,13 | 5 071 838,01 | 3 782 430,07 | 1617 |
+| 32 | `FH.TL3DE` | Client 125 | PBH | LATAM | Mexique | 7 220 524,87 | 7 208 151,15 | 6 151 665,87 | 6811 |
+| 33 | `FH.4M5ES` | Client 107 | XBH | Europe | France | 2 689 385,91 | 2 612 088,18 | 1 918 736,43 | 891 |
+| 34 | `FH.GTBP8` | Client 316 | PBH | LATAM | Argentine | 6 800 346,49 | 6 775 621,66 | 4 392 076,09 | 6807 |

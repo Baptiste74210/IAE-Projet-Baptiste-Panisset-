@@ -19,125 +19,125 @@
   "Total lignes fichier finance": 398
  },
  "bloc": {
-  "Turnover (€)": 1543974476.19,
-  "Invoicing (€)": 1491446660.64,
-  "Cost (€)": 1112197095.4,
-  "Flight Hours": 1776837
+  "Turnover (€)": 1516914829.77,
+  "Invoicing (€)": 1463742453.74,
+  "Cost (€)": 1092766728.71,
+  "Flight Hours": 1801640
  },
  "database_E5": {
-  "Turnover (€)": 1490099882.37,
-  "Invoicing (€)": 1439160594.39,
-  "Cost (€)": 1072257967.74,
-  "Flight Hours": 1716775
+  "Turnover (€)": 1467184114.25,
+  "Invoicing (€)": 1416332660.37,
+  "Cost (€)": 1059643928.11,
+  "Flight Hours": 1760223
  },
  "database_E6": {
-  "Turnover (€)": 1489170637.02,
-  "Invoicing (€)": 1438281418.04,
-  "Cost (€)": 1071636604.92,
-  "Flight Hours": 1715538
+  "Turnover (€)": 1465282374.18,
+  "Invoicing (€)": 1414550037.66,
+  "Cost (€)": 1058131510.01,
+  "Flight Hours": 1754967
  },
  "a_confirmer_E5": [
   {
-   "cle_finance": "FH.UWXOM",
-   "cle_db": "FH.UWX0M",
+   "cle_finance": "FH.EPZRO",
+   "cle_db": "FH.EPZR0",
    "niveau": "Élevée",
    "nature": "O/0",
    "bonne_decision": "Oui"
   },
   {
-   "cle_finance": "FH.NBORJ",
-   "cle_db": "FH.NB0RJ",
+   "cle_finance": "FH.OQ37D",
+   "cle_db": "FH.0Q37D",
    "niveau": "Élevée",
    "nature": "O/0",
    "bonne_decision": "Oui"
   },
   {
-   "cle_finance": "FH.OUB8S",
-   "cle_db": "FH.0UB8S",
+   "cle_finance": "FH.H7OY5",
+   "cle_db": "FH.H70Y5",
    "niveau": "Élevée",
    "nature": "O/0",
    "bonne_decision": "Oui"
   },
   {
-   "cle_finance": "FH.8IJW6",
-   "cle_db": "FH.81JW6",
+   "cle_finance": "FH.2HFIB",
+   "cle_db": "FH.2HF1B",
    "niveau": "Élevée",
    "nature": "I/1",
    "bonne_decision": "Oui"
   },
   {
-   "cle_finance": "FH.IPRFK",
-   "cle_db": "FH.1PRFK",
+   "cle_finance": "FH.8FIBA",
+   "cle_db": "FH.8F1BA",
    "niveau": "Élevée",
    "nature": "I/1",
    "bonne_decision": "Oui"
   },
   {
-   "cle_finance": "FH.ENIAU",
-   "cle_db": "FH.EN1AU",
+   "cle_finance": "FH.BCIWH",
+   "cle_db": "FH.BC1WH",
    "niveau": "Élevée",
    "nature": "I/1",
    "bonne_decision": "Oui"
   },
   {
-   "cle_finance": "FB.Z5ZT9",
-   "cle_db": "FH.Z5ZT9",
+   "cle_finance": "FB.RBMUF",
+   "cle_db": "FH.RBMUF",
    "niveau": "Élevée",
    "nature": "préfixe FH/FB",
    "bonne_decision": "Oui"
   },
   {
-   "cle_finance": "FB.86BY7",
-   "cle_db": "FH.86BY7",
+   "cle_finance": "FB.AVDW9",
+   "cle_db": "FH.AVDW9",
    "niveau": "Élevée",
    "nature": "préfixe FH/FB",
    "bonne_decision": "Oui"
   },
   {
-   "cle_finance": "FH.SHDCN",
-   "cle_db": "FH.SHCDN",
+   "cle_finance": "FH.U2BF9",
+   "cle_db": "FH.U2B9F",
    "niveau": "Élevée",
    "nature": "inversion",
    "bonne_decision": "Oui"
   },
   {
-   "cle_finance": "FH.57JZ4",
-   "cle_db": "FH.75JZ4",
+   "cle_finance": "FH.GRTWQ",
+   "cle_db": "FH.RGTWQ",
    "niveau": "Élevée",
    "nature": "inversion",
    "bonne_decision": "Oui"
   },
   {
-   "cle_finance": "FB.G8BW7",
-   "cle_db": "FH.G8WB7",
+   "cle_finance": "FB.VXVFM",
+   "cle_db": "FH.XVVFM",
    "niveau": "Moyenne",
    "nature": "préfixe + inversion",
    "bonne_decision": "Oui"
   },
   {
-   "cle_finance": "FB.M2HKU",
-   "cle_db": "FH.MH2KU",
+   "cle_finance": "FB.8UZAW",
+   "cle_db": "FH.8UAZW",
    "niveau": "Moyenne",
    "nature": "préfixe + inversion",
    "bonne_decision": "Oui"
   },
   {
-   "cle_finance": "FH.4R7SX",
-   "cle_db": "FH.437SX",
+   "cle_finance": "FH.KAPLC",
+   "cle_db": "FH.KAULC",
    "niveau": "Moyenne",
    "nature": "substitution",
    "bonne_decision": "Oui"
   },
   {
-   "cle_finance": "FH.GE694",
-   "cle_db": "FH.LE694",
+   "cle_finance": "FH.X8BS2",
+   "cle_db": "FH.X87S2",
    "niveau": "Moyenne",
    "nature": "substitution",
    "bonne_decision": "Oui"
   },
   {
-   "cle_finance": "FH.9LZYY",
-   "cle_db": "FH.9LZYW",
+   "cle_finance": "FH.F4ZSJ",
+   "cle_db": "FH.FVZSJ",
    "niveau": "Moyenne",
    "nature": "faux ami (contrats différents)",
    "bonne_decision": "Non"
@@ -153,7 +153,7 @@
   "(h) type de contrat différent": 2
  },
  "multiservices": {
-  "dans la table (100 %)": 8,
-  "absents de la table (c)": 2
+  "codés MS-… (100 %)": 8,
+  "sans code (c)": 2
  }
 }

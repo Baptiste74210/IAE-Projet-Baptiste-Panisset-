@@ -46,3 +46,17 @@
 | 30 | Certains cas ne peuvent pas être automatisés sans inventer de chiffres | **Je précise** : seul un fichier inutilisable arrête le workflow ; les doublons, les clés manquantes et les contrats sans aucun candidat restent dans « À traiter à la main » | Règle « aucun chiffre inventé » : un doublon ne peut pas être départagé sans additionner |
 | 31 | Les données traitées hors d'Airbus doivent revenir dans la vraie database | **J'ajoute** une étape de réinjection (étape 6) dans le Google Workspace Airbus, par WBS ou code `MS-…` | La database du mois réelle doit contenir toutes les informations des contrats |
 | 32 | Les scénarios de test ne couvrent pas la mémoire | **J'ajoute** le scénario E6 (mois suivant après confirmations) et la section « Version 2 » du corrigé ; E2 et E4 sont mis à jour | Tester l'apprentissage et le versionnement |
+
+---
+
+# Revue 3 — confidentialité du nom du client (2026-10-27, soir)
+
+**Origine :** exigence de confidentialité : le nom du client ne doit jamais être associé aux données financières. **Auteur des décisions :** Baptiste Panisset.
+
+| # | Point soulevé | Ma décision | Pourquoi |
+|---|---|---|---|
+| 33 | Le workflow lisait le nom du client pour attribuer le code `MS-…` des multiservices (table de pseudonymisation) | **Je précise** : le nom du client n'est plus jamais lu ; chaque multiservices est numéroté à l'avance avec un code `MS-…` écrit dans la colonne WBS de la database centrale (par moi) et du fichier finance (par l'équipe finance) | Ne jamais traiter le nom du client avec ses données financières ; il y a très peu de multiservices |
+| 34 | Il faut savoir à quel contrat correspond chaque code `MS-…` | **J'ajoute** un référentiel des multiservices (C5), tenu par moi dans le Google Workspace Airbus, jamais lu par le workflow | Garder la correspondance code ↔ contrat hors du traitement automatique |
+| 35 | Un multiservices peut arriver sans code (nouveau contrat) | **Je précise** : il part en (c) « multiservices sans code » et je le traite à la main ; je lui attribue un code pour les mois suivants | Ne jamais deviner un contrat sans clé |
+| 36 | Le jeu fictif contenait des noms de clients, même inventés | **Je précise** : la colonne client du jeu fictif ne contient plus que des codes neutres (« Client 001 »…) ; les multiservices fictifs portent leur code dans la colonne WBS | Même les données de démonstration ne montrent aucun nom de client |
+| 37 | Le code `MS-…` doit être présent dans le fichier finance | **J'ajoute** un prérequis : demander à l'équipe finance d'écrire le code dans ses lignes multiservices ; à défaut, ces lignes restent à traiter à la main | Le workflow ne modifie jamais le fichier finance |

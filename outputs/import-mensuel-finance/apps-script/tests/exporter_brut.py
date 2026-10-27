@@ -24,7 +24,6 @@ fin_path = im.DEFAULTS["finance"]
 block = im.recalc_block(fin_path)
 out = {"finance": valeurs(fin_path, block), "database": valeurs(im.DEFAULTS["database"]),
        "correspondance": lire_csv(os.path.join(im.JEU, "table-correspondance-colonnes (FICTIF).csv")),
-       "pseudo": lire_csv(im.DEFAULTS["pseudo"]),
        "memoire_e6": lire_csv(im.MEMOIRE_E6),
        "corrige": json.load(open(os.path.join(im.JEU, "corrige-jeu-fictif.json"), encoding="utf-8")),
        "clients": sorted({r[1] for r in valeurs(im.DEFAULTS["database"])[1:] if r[1]}),
