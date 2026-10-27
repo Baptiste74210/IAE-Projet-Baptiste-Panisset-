@@ -13,6 +13,13 @@ Cette skill simule, sur des données fictives, le programme Apps Script qui fera
 
 Les vraies données ne passent jamais par cette skill : la production tourne en Apps Script, à l'intérieur d'Airbus.
 
+## Le programme
+Les étapes 2 à 7 sont faites par le programme `.claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py`, lancé depuis la racine du dépôt (besoin : Python avec `openpyxl`, et LibreOffice pour calculer les formules du bloc de totaux sur une copie) :
+- **Simulation** : `python3 -I .claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py simulation --mois "Octobre 2026"` ; options `--finance`, `--database`, `--pseudo`, `--memoire` pour d'autres fichiers (par défaut : les fichiers fictifs et la mémoire listés ci-dessous).
+- **Tests** : `python3 -I .claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py tests` lance E5 (mémoire vide), E6 (mémoire décrite dans `requirements.md`) et E7 (si ses fichiers existent).
+
+Le programme écrit le fichier Excel dans `outputs/import-mensuel-finance/runs/` sans jamais écraser une version existante, et affiche un résumé JSON : comptages, rapprochements avec leur niveau de confiance, lignes à traiter à la main, contrôle des totaux. S'il s'arrête (fichier inutilisable, fichier introuvable), il affiche `"arret"` avec l'explication, n'écrit rien et sort avec le code 2. Il ne lit jamais le corrigé.
+
 ## Ce que je fournis en entrée
 - **L'usage** : simulation, tests ou modification.
 - **Le mois et l'année**, en français : par exemple « Octobre 2026 ».
@@ -24,6 +31,8 @@ Les vraies données ne passent jamais par cette skill : la production tourne en 
 - **Ma confirmation que les fichiers sont fictifs.**
 
 ## Étapes
+Les étapes 2 à 7 ci-dessous décrivent ce que fait le programme (voir « Le programme ») : je le lance, puis je lis son résumé.
+
 1. **Vérifier le lancement** : me demander de confirmer que les fichiers sont fictifs ; relever le mois, les fichiers, la table de pseudonymisation et l'état de la mémoire.
 2. **Anonymiser** : pour chaque contrat de type « Multiservices » sans WBS, remplacer la clé vide par son code `MS-…` trouvé dans la table de pseudonymisation, en cherchant le nom du client ; s'il est absent de la table, laisser la clé vide et le marquer « multiservices sans code ». Ensuite, ne garder que le numéro de ligne d'origine, la clé (WBS ou code `MS-…`), le type de contrat et les KPI. Le nom du client ne sert qu'à cette recherche dans la table, jamais au rapprochement.
 3. **Contrôler le fichier finance** : le mois du nom de fichier correspond au mois demandé ; un seul onglet ; en-têtes en ligne 19 ; toutes les colonnes de la table de correspondance présentes, une seule fois chacune ; aucune ligne « Total » ou « Sous-total » à partir de la ligne 20 ; au moins un contrat. La liste des contrats va de la ligne 20 jusqu'à la dernière ligne contenant une clé ou un type de contrat.
@@ -40,13 +49,13 @@ Les vraies données ne passent jamais par cette skill : la production tourne en 
    - **Non** : KPI retirés, ligne déplacée dans « À traiter à la main » avec la raison (g), paire ajoutée à la mémoire comme « rejetée », avec la date ;
    - relancer la vérification (étape 6) et mettre à jour le fichier.
 
-**Pour l'usage « tests »** : exécuter E5 avec une mémoire vide, E6 avec la mémoire décrite dans `requirements.md`, et E7 (multiservices) s'il existe, puis comparer chaque résultat à la section « Version 2 » de `outputs/import-mensuel-finance/inputs/jeu-fictif/corrige-jeu-fictif.md`. Afficher « Conforme » ou « Non conforme » point par point. Ne lire le corrigé qu'**après** avoir produit les résultats.
+**Pour l'usage « tests »** : lancer le programme en mode `tests`, qui exécute E5 avec une mémoire vide, E6 avec la mémoire décrite dans `requirements.md`, et E7 (multiservices) s'il existe, puis comparer chaque résultat à la section « Version 2 » de `outputs/import-mensuel-finance/inputs/jeu-fictif/corrige-jeu-fictif.md`. Afficher « Conforme » ou « Non conforme » point par point. Ne lire le corrigé qu'**après** avoir produit les résultats.
 
-**Pour l'usage « modification »** : modifier la règle demandée, relancer les tests, et ne valider la modification que si tous les scénarios restent conformes au corrigé.
+**Pour l'usage « modification »** : modifier la règle demandée dans le programme (et dans ce fichier), relancer les tests, et ne valider la modification que si tous les scénarios restent conformes au corrigé.
 
 ## Règles
 - **Toujours** : chaque ligne du fichier finance finit soit rapprochée (à 100 % ou en attente de confirmation), soit dans « À traiter à la main », avec sa raison.
-- **Toujours** : faire les rapprochements et les calculs avec un petit programme (Python ou Node.js), jamais en recopiant les chiffres à la main.
+- **Toujours** : faire les rapprochements et les calculs avec le programme `scripts/import_mensuel.py` (et, pour l'étape 8, avec un petit programme Python), jamais en recopiant les chiffres à la main.
 - **Toujours** : afficher le niveau de confiance de chaque rapprochement qui n'est pas à 100 %.
 - **Jamais** : inventer, estimer, arrondir ou additionner un chiffre ; deux lignes avec le même WBS ne sont jamais additionnées.
 - **Jamais** : rapprocher deux contrats par le nom du client.
