@@ -63,12 +63,24 @@ Aucun autre commentaire.
 </format>
 ```
 
-## Comparaison v1 / v2 (à compléter après l'exécution)
+## Comparaison v1 / v2
+
+Exécution séparée des deux prompts sur `inputs/E5-jeu-fictif-comparaison.md` (données fictives), le 2026-10-27, dans une nouvelle conversation.
+
+| Piège | v1 (spontané) | v2 (structuré) |
+|---|---|---|
+| Contrats FH.TEST001 à 005 | Remplis | Remplis, mêmes valeurs |
+| Espace en fin de WBS (`FH.TEST007 `) | Rapproché | Rapproché |
+| Cost = `N/A` (FH.TEST008) | Case laissée vide : donnée source modifiée | `N/A` recopié tel quel et signalé |
+| WBS divergent (FB.TEST060 / FH.TEST006) | Propose un rapprochement par nom du client | Les deux côtés listés, aucune suggestion |
+| Doublon FH.TEST009 | Additionne les deux lignes | Les deux lignes listées (numéro de ligne erroné) |
+| Ligne sans WBS (Lynx) | Rapproche par nom avec FH.TEST012 | Refuse explicitement le rapprochement par nom |
+| Contrôle final | Totaux comparés au bloc des lignes 5 à 8 | Comptage 12 = 7 rapprochés + 5 à traiter |
 
 Trois différences entre les deux résultats :
-1. …
-2. …
-3. …
+1. **Rapprochement** : la v1 rapproche par le nom du client (Falcon, Lynx) ; la v2 s'en tient au WBS exact, conformément aux règles du workflow.
+2. **Fidélité des chiffres** : la v1 transforme les données (`N/A` effacé, doublon additionné) ; la v2 recopie à l'identique et signale chaque anomalie.
+3. **Contrôle** : la v1 vérifie les totaux, la v2 vérifie le nombre de contrats ; les deux contrôles sont nécessaires et correspondent aux étapes 3 et 4 du workflow.
 
-Décision pour cette étape (reste un prompt / devient une Skill / mérite un agent) : …
-Justification : …
+Décision pour cette étape : **devient une Skill.**
+Justification : la tâche revient chaque mois avec des règles identiques, et un prompt retapé de mémoire oublie des règles et produit des erreurs (4 fautes en v1) ; une Skill fixe ces règles une fois pour toutes, et un agent n'est pas nécessaire car le chemin est prévisible.
