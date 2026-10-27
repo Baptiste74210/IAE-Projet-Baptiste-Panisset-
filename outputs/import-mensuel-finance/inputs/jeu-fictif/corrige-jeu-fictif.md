@@ -68,6 +68,8 @@ Contrôle d'exhaustivité attendu : 12 lignes = 7 à 100 % + 2 en attente de con
 
 - `FB.TEST060` ↔ `FH.TEST006` : **Oui** → statut « certain », paire enregistrée « confirmée » dans C6.
 - `FH.TEST011` ↔ `FH.TEST010` : **Non** → KPI retirés, ligne en (g) correspondance rejetée, paire enregistrée « rejetée » dans C6 ; `FH.TEST010` passe en (b).
+- Comptage attendu après prise en compte : 12 lignes = 8 à 100 % + 0 en attente + 4 non rapprochées ; totaux identiques à ceux du scénario E6 ; validation « possible ».
+- Relance avec la mémoire obtenue : résultat identique au scénario E6.
 
 ## Scénario E6 — mois suivant, mémoire C6 renseignée
 

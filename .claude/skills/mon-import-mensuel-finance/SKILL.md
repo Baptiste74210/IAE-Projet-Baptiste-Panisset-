@@ -14,11 +14,12 @@ Cette skill simule, sur des données fictives, le programme Apps Script qui fera
 Les vraies données ne passent jamais par cette skill : la production tourne en Apps Script, à l'intérieur d'Airbus.
 
 ## Le programme
-Les étapes 2 à 7 sont faites par le programme `.claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py`, lancé depuis la racine du dépôt (besoin : Python avec `openpyxl`, et LibreOffice pour calculer les formules du bloc de totaux sur une copie) :
+Les étapes 2 à 8 sont faites par le programme `.claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py`, lancé depuis la racine du dépôt (besoin : Python avec `openpyxl`, et LibreOffice pour calculer les formules du bloc de totaux sur une copie) :
 - **Simulation** : `python3 -I .claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py simulation --mois "Octobre 2026"` ; options `--finance`, `--database`, `--pseudo`, `--memoire` pour d'autres fichiers (par défaut : les fichiers fictifs et la mémoire listés ci-dessous).
-- **Tests** : `python3 -I .claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py tests` lance E5 (mémoire vide), E6 (mémoire décrite dans `requirements.md`) et E7 (si ses fichiers existent).
+- **Décisions (étape 8)** : `python3 -I .claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py decisions --fichier "outputs/import-mensuel-finance/runs/Database XBH Octobre 2026.xlsx" --decision "FB.TEST060=Oui" --decision "FH.TEST011=Non"` ; sans `--decision`, il lit la colonne « Décision » déjà remplie dans le fichier. Il ne traite que les lignes encore « En attente de confirmation », met à jour le fichier du mois et la mémoire (`--memoire`, par défaut `outputs/import-mensuel-finance/runs/memoire-correspondances.csv`), puis relance le contrôle.
+- **Tests** : `python3 -I .claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py tests` lance E5 (mémoire vide), E6 (mémoire décrite dans `requirements.md`), E7 (si ses fichiers existent), puis la chaîne complète « E5 → décisions (FB.TEST060 = Oui, FH.TEST011 = Non) → relance avec la mémoire obtenue ». Les fichiers sont écrits dans un dossier temporaire ; ajouter `--garder` pour les écrire dans `runs/`.
 
-Le programme écrit le fichier Excel dans `outputs/import-mensuel-finance/runs/` sans jamais écraser une version existante, et affiche un résumé JSON : comptages, rapprochements avec leur niveau de confiance, lignes à traiter à la main, contrôle des totaux. S'il s'arrête (fichier inutilisable, fichier introuvable), il affiche `"arret"` avec l'explication, n'écrit rien et sort avec le code 2. Il ne lit jamais le corrigé.
+En simulation, le programme écrit le fichier Excel dans `outputs/import-mensuel-finance/runs/` sans jamais écraser une version existante (en mode `decisions`, il met à jour uniquement le fichier du mois indiqué, comme le prévoit l'étape 8), et affiche un résumé JSON : comptages, rapprochements avec leur niveau de confiance, lignes à traiter à la main, contrôle des totaux. S'il s'arrête (fichier inutilisable, fichier introuvable), il affiche `"arret"` avec l'explication, n'écrit rien et sort avec le code 2. Il ne lit jamais le corrigé.
 
 ## Ce que je fournis en entrée
 - **L'usage** : simulation, tests ou modification.
@@ -31,7 +32,7 @@ Le programme écrit le fichier Excel dans `outputs/import-mensuel-finance/runs/`
 - **Ma confirmation que les fichiers sont fictifs.**
 
 ## Étapes
-Les étapes 2 à 7 ci-dessous décrivent ce que fait le programme (voir « Le programme ») : je le lance, puis je lis son résumé.
+Les étapes 2 à 8 ci-dessous décrivent ce que fait le programme (voir « Le programme ») : je le lance, puis je lis son résumé.
 
 1. **Vérifier le lancement** : me demander de confirmer que les fichiers sont fictifs ; relever le mois, les fichiers, la table de pseudonymisation et l'état de la mémoire.
 2. **Anonymiser** : pour chaque contrat de type « Multiservices » sans WBS, remplacer la clé vide par son code `MS-…` trouvé dans la table de pseudonymisation, en cherchant le nom du client ; s'il est absent de la table, laisser la clé vide et le marquer « multiservices sans code ». Ensuite, ne garder que le numéro de ligne d'origine, la clé (WBS ou code `MS-…`), le type de contrat et les KPI. Le nom du client ne sert qu'à cette recherche dans la table, jamais au rapprochement.
@@ -44,18 +45,19 @@ Les étapes 2 à 7 ci-dessous décrivent ce que fait le programme (voir « Le pr
    - **Recopier les KPI** de chaque ligne rapprochée depuis la colonne source vers la colonne cible, valeur réelle et non arrondie.
 6. **Vérifier** : pour chaque KPI, comparer le total du bloc de totaux, le total des lignes de contrats et le total de la database plus les lignes non rapprochées, à 0,01 près ; compter les lignes à 100 %, en attente de confirmation (par niveau) et non rapprochées ; leur somme doit égaler le nombre de lignes du fichier finance.
 7. **Écrire le fichier Excel** de la database du mois, avec ses onglets (voir « Format de la sortie »), en remettant les informations des contrats depuis la database centrale fictive grâce à la clé.
-8. **Me demander mes décisions** sur chaque correspondance à moins de 100 % (« Oui » ou « Non »), puis :
+8. **Me demander mes décisions** sur chaque correspondance à moins de 100 % (« Oui » ou « Non »), puis lancer le programme en mode `decisions` avec mes réponses :
    - **Oui** : statut « certain », paire ajoutée à la mémoire comme « confirmée », avec la date ;
    - **Non** : KPI retirés, ligne déplacée dans « À traiter à la main » avec la raison (g), paire ajoutée à la mémoire comme « rejetée », avec la date ;
-   - relancer la vérification (étape 6) et mettre à jour le fichier.
+   - décision manquante : la ligne reste « En attente de confirmation » et la validation reste indisponible ;
+   - le programme relance la vérification (étape 6), met à jour le fichier et indique si la validation est possible.
 
-**Pour l'usage « tests »** : lancer le programme en mode `tests`, qui exécute E5 avec une mémoire vide, E6 avec la mémoire décrite dans `requirements.md`, et E7 (multiservices) s'il existe, puis comparer chaque résultat à la section « Version 2 » de `outputs/import-mensuel-finance/inputs/jeu-fictif/corrige-jeu-fictif.md`. Afficher « Conforme » ou « Non conforme » point par point. Ne lire le corrigé qu'**après** avoir produit les résultats.
+**Pour l'usage « tests »** : lancer le programme en mode `tests`, qui exécute E5 avec une mémoire vide, E6 avec la mémoire décrite dans `requirements.md`, E7 (multiservices) s'il existe, et la chaîne « E5 → décisions → relance » (dont le résultat doit être identique à E6), puis comparer chaque résultat à la section « Version 2 » de `outputs/import-mensuel-finance/inputs/jeu-fictif/corrige-jeu-fictif.md`. Afficher « Conforme » ou « Non conforme » point par point. Ne lire le corrigé qu'**après** avoir produit les résultats.
 
 **Pour l'usage « modification »** : modifier la règle demandée dans le programme (et dans ce fichier), relancer les tests, et ne valider la modification que si tous les scénarios restent conformes au corrigé.
 
 ## Règles
 - **Toujours** : chaque ligne du fichier finance finit soit rapprochée (à 100 % ou en attente de confirmation), soit dans « À traiter à la main », avec sa raison.
-- **Toujours** : faire les rapprochements et les calculs avec le programme `scripts/import_mensuel.py` (et, pour l'étape 8, avec un petit programme Python), jamais en recopiant les chiffres à la main.
+- **Toujours** : faire les rapprochements et les calculs avec le programme `scripts/import_mensuel.py`, y compris l'étape 8 (mode `decisions`), jamais en recopiant les chiffres à la main.
 - **Toujours** : afficher le niveau de confiance de chaque rapprochement qui n'est pas à 100 %.
 - **Jamais** : inventer, estimer, arrondir ou additionner un chiffre ; deux lignes avec le même WBS ne sont jamais additionnées.
 - **Jamais** : rapprocher deux contrats par le nom du client.
@@ -84,8 +86,8 @@ Les étapes 2 à 7 ci-dessous décrivent ce que fait le programme (voir « Le pr
 - **Fichier** : `outputs/import-mensuel-finance/runs/Database XBH [Mois] [Année].xlsx` (ou `… v2.xlsx`), avec 4 onglets :
   - **Database** : mêmes colonnes et même ordre que la database centrale, une ligne par contrat, KPI remplis pour les lignes rapprochées ;
   - **À traiter à la main** : n° de ligne d'origine | clé | type de contrat | raison | KPI côté finance | Valeur saisie à la main | Date de saisie ;
-  - **Correspondances à confirmer** : clé finance | clé database | niveau de confiance | écart | Décision (Oui / Non) ;
-  - **Contrôle** : pour chaque KPI, total du bloc, total des lignes, total database, part des lignes non rapprochées, part en attente de confirmation, écart restant, statut OK ou À vérifier ; puis les comptages et la trace d'exécution (date, fichier finance, mois, version).
+  - **Correspondances à confirmer** : clé finance | clé database | niveau de confiance | écart | Décision (Oui / Non) | Statut | ligne finance d'origine | ligne dans l'onglet Database ;
+  - **Contrôle** : pour chaque KPI, total du bloc, total des lignes, total database, part des lignes non rapprochées, part en attente de confirmation, écart restant, statut OK ou À vérifier ; puis les comptages, la trace d'exécution (date, fichier finance, mois, version), la ligne « Validé » (possible ou indisponible) et, après l'étape 8, la trace des décisions.
 - **Mémoire** : `outputs/import-mensuel-finance/runs/memoire-correspondances.csv`, mise à jour après mes décisions.
 - **Journal** : une ligne ajoutée à `outputs/import-mensuel-finance/runs.md` (date, usage, mois, résultat, nombre de correspondances à confirmer et de lignes à traiter).
 - **Résumé dans la conversation**, en 3 lignes : lignes à 100 % / lignes en attente de confirmation / lignes non rapprochées.

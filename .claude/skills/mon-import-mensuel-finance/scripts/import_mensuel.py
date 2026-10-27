@@ -3,7 +3,13 @@
 À lancer depuis la racine du dépôt :
   Simulation : python3 -I .claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py simulation
                [--mois "Octobre 2026"] [--finance F.xlsx] [--database D.xlsx] [--pseudo P.csv] [--memoire M.csv]
-  Tests      : python3 -I .claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py tests
+  Décisions  : python3 -I .claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py decisions
+               --fichier "outputs/import-mensuel-finance/runs/Database XBH Octobre 2026.xlsx"
+               [--decision "FB.TEST060=Oui" --decision "FH.TEST011=Non"] [--memoire M.csv]
+               (étape 8 : sans --decision, lit la colonne « Décision » remplie dans le fichier)
+  Tests      : python3 -I .claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py tests [--garder]
+               (E5, E6, E7, puis E5 → décisions → relance ; fichiers écrits dans un dossier temporaire,
+                ou dans runs/ avec --garder)
 Écrit la database du mois dans outputs/import-mensuel-finance/runs/ (nouvelle version si elle existe déjà)
 et affiche un résumé JSON. Ne lit jamais le corrigé : la comparaison se fait après, à part.
 Besoin : openpyxl, et LibreOffice (soffice) pour calculer les formules du bloc de totaux.
@@ -38,6 +44,11 @@ REASONS = {
     "g": "(g) correspondance rejetée",
     "h": "(h) type de contrat différent",
 }
+
+
+CONF_HEADERS = ["Clé finance", "Clé database", "Niveau de confiance", "Écart", "Décision (Oui / Non)",
+                "Statut", "Ligne finance d'origine", "Ligne dans l'onglet Database"]
+MEM_HEADERS = ["clé finance", "clé database", "statut", "date"]
 
 
 class Stop(Exception):
@@ -318,7 +329,9 @@ def run(fin_path, db_path, pseudo_path, mem_path, mois, runs_dir, label):
     ws.title = "Database"
     ws.append(headers)
     by_db = {m["db"]["row"]: fin_by_row[fr] for fr, m in matches.items()}
+    out_row = {}
     for d in db:  # informations des contrats remises depuis la database centrale
+        out_row[d["row"]] = ws.max_row + 1
         vals = list(d["values"])
         if d["row"] in by_db:
             for src, tgt in MAP.items():
@@ -331,12 +344,12 @@ def run(fin_path, db_path, pseudo_path, mem_path, mois, runs_dir, label):
         ws2.append([row, key or "donnée manquante", typ, why]
                    + [kpi[h] if kpi else None for h in KPI_SRC] + [None, None])
     ws3 = wb.create_sheet("Correspondances à confirmer")
-    ws3.append(["Clé finance", "Clé database", "Niveau de confiance", "Écart", "Décision (Oui / Non)"])
+    ws3.append(CONF_HEADERS)
     to_confirm = []
     for fr, m in sorted(matches.items()):
         if m["level"] != "100 %":
             to_confirm.append((fin_by_row[fr]["key"], m["db"]["key"], m["level"], m["ecart"]))
-            ws3.append([*to_confirm[-1], None])
+            ws3.append([*to_confirm[-1], None, "En attente de confirmation", fr, out_row[m["db"]["row"]]])
     ws4 = wb.create_sheet("Contrôle")
     ws4.append(["KPI", "Total du bloc", "Total des lignes", "Total database", "Part non rapprochée",
                 "Part en attente de confirmation", "Écart restant", "Statut"])
@@ -353,6 +366,8 @@ def run(fin_path, db_path, pseudo_path, mem_path, mois, runs_dir, label):
     ws4.append(["Scénario", label])
     for n in notes:
         ws4.append(["Note", n])
+    ws4.append([])
+    ws4.append(["Validé", "indisponible : décisions à prendre" if to_confirm else "possible (case à cocher par Baptiste)"])
     wb.save(out)
 
     return {"scenario": label, "fichier": out, "counts": counts,
@@ -362,7 +377,135 @@ def run(fin_path, db_path, pseudo_path, mem_path, mois, runs_dir, label):
             "a_confirmer": to_confirm, "controle": control}
 
 
-def run_tests(mois):
+def apply_decisions(xlsx_path, mem_path, forced=None, today=None):
+    """Étape 8 : applique les décisions Oui / Non de Baptiste, met à jour la mémoire et relance le contrôle.
+
+    forced : dict {clé finance normalisée: "Oui"/"Non"} qui simule la saisie de Baptiste dans la colonne
+    « Décision » ; sans forced, la colonne remplie dans le fichier fait foi. Seul le fichier du mois traité
+    est mis à jour (c'est l'action prévue par l'étape 8) ; les fichiers d'entrée ne sont jamais touchés.
+    """
+    today = today or date.today().isoformat()
+    if not os.path.exists(xlsx_path):
+        raise Stop(f"Fichier du mois introuvable : {xlsx_path}")
+    wb = openpyxl.load_workbook(xlsx_path)
+    for name in ("Database", "À traiter à la main", "Correspondances à confirmer", "Contrôle"):
+        if name not in wb.sheetnames:
+            raise Stop(f"Onglet « {name} » absent : ce fichier n'a pas été produit par l'import.")
+    wdb, wman, wconf, wctl = (wb[n] for n in ("Database", "À traiter à la main",
+                                               "Correspondances à confirmer", "Contrôle"))
+    if [c.value for c in wconf[1]][:len(CONF_HEADERS)] != CONF_HEADERS:
+        raise Stop("Onglet « Correspondances à confirmer » d'un ancien format : relancer l'import d'abord.")
+    headers = [c.value for c in wdb[1]]
+    kcol = {src: headers.index(tgt) + 1 for src, tgt in MAP.items()}
+    ci = {h: i + 1 for i, h in enumerate(CONF_HEADERS)}
+
+    done = {"Oui": [], "Non": [], "vide": []}
+    delta = {h: {"db": 0.0, "unm": 0.0, "pend": 0.0} for h in KPI_SRC}
+    moved = {"100 %": 0, "Non rapprochées": 0}
+    level_minus = {}
+    new_mem = []
+    for r in range(2, wconf.max_row + 1):
+        fk = wconf.cell(r, ci["Clé finance"]).value
+        if fk in (None, ""):
+            continue
+        if not str(wconf.cell(r, ci["Statut"]).value or "").startswith("En attente"):
+            continue  # décision déjà prise lors d'un passage précédent
+        if forced is not None and norm(fk) in forced:
+            wconf.cell(r, ci["Décision (Oui / Non)"]).value = forced[norm(fk)]
+        dec = str(wconf.cell(r, ci["Décision (Oui / Non)"]).value or "").strip().lower()
+        dk = wconf.cell(r, ci["Clé database"]).value
+        lvl = wconf.cell(r, ci["Niveau de confiance"]).value
+        frow = wconf.cell(r, ci["Ligne finance d'origine"]).value
+        drow = wconf.cell(r, ci["Ligne dans l'onglet Database"]).value
+        vals = {h: wdb.cell(drow, kcol[h]).value for h in KPI_SRC}
+        if dec not in ("oui", "non"):
+            done["vide"].append(fk)
+            continue
+        for h in KPI_SRC:
+            if is_num(vals[h]):
+                delta[h]["pend"] -= vals[h]
+        level_minus[lvl] = level_minus.get(lvl, 0) + 1
+        if dec == "oui":
+            wconf.cell(r, ci["Statut"]).value = f"Confirmée le {today} (certaine)"
+            new_mem.append([norm(fk), norm(dk), "confirmée", today])
+            moved["100 %"] += 1
+            done["Oui"].append(fk)
+        else:
+            for h in KPI_SRC:
+                if is_num(vals[h]):
+                    delta[h]["db"] -= vals[h]
+                    delta[h]["unm"] += vals[h]
+                wdb.cell(drow, kcol[h]).value = None
+            wconf.cell(r, ci["Statut"]).value = f"Rejetée le {today}"
+            wman.append([frow, fk, None, REASONS["g"] + f" (proposée avec {dk})"]
+                        + [vals[h] for h in KPI_SRC] + [None, None])
+            wman.append([f"database l.{drow}", dk, None, REASONS["b"] + f" (après rejet de {fk})"]
+                        + [None] * len(KPI_SRC) + [None, None])
+            new_mem.append([norm(fk), norm(dk), "rejetée", today])
+            moved["Non rapprochées"] += 1
+            done["Non"].append(fk)
+
+    # Mémoire des correspondances : ajout sans doublon, fichier créé s'il est absent.
+    if new_mem and mem_path and mem_path != "-":
+        existing = set()
+        if os.path.exists(mem_path):
+            with open(mem_path, newline="", encoding="utf-8-sig") as f:
+                existing = {(norm(x["clé finance"]), norm(x["clé database"]), x["statut"].strip())
+                            for x in csv.DictReader(f)}
+        os.makedirs(os.path.dirname(mem_path) or ".", exist_ok=True)
+        new_file = not os.path.exists(mem_path)
+        with open(mem_path, "a", newline="", encoding="utf-8") as f:
+            w = csv.writer(f)
+            if new_file:
+                w.writerow(MEM_HEADERS)
+            for row in new_mem:
+                if tuple(row[:3]) not in existing:
+                    w.writerow(row)
+
+    # Relance du contrôle (étape 5) : totaux et comptages mis à jour.
+    statut = {}
+    for r in range(2, wctl.max_row + 1):
+        label = wctl.cell(r, 1).value
+        if label in KPI_SRC:
+            block, lines = wctl.cell(r, 2).value, wctl.cell(r, 3).value
+            dbt = round(wctl.cell(r, 4).value + delta[label]["db"], 2)
+            unm = round(wctl.cell(r, 5).value + delta[label]["unm"], 2)
+            pend = round(wctl.cell(r, 6).value + delta[label]["pend"], 2)
+            real_db = sum(v for v in (wdb.cell(i, kcol[label]).value for i in range(2, wdb.max_row + 1)) if is_num(v))
+            if abs(real_db - dbt) > 0.01:
+                raise Stop(f"Incohérence interne sur {label} : total database {real_db} ≠ {dbt}.")
+            rest = round(block - (dbt + unm), 2)
+            ok = abs(block - lines) <= 0.01 and abs(rest) <= 0.01
+            for col, v in ((4, dbt), (5, unm), (6, pend), (7, rest), (8, "OK" if ok else "À vérifier")):
+                wctl.cell(r, col).value = v
+            statut[label] = "OK" if ok else "À vérifier"
+        elif label == "100 %":
+            wctl.cell(r, 2).value += moved["100 %"]
+        elif isinstance(label, str) and label.startswith("En attente – "):
+            wctl.cell(r, 2).value -= level_minus.get(label.split("– ", 1)[1], 0)
+        elif label == "Non rapprochées":
+            wctl.cell(r, 2).value += moved["Non rapprochées"]
+        elif label == "Validé":
+            wctl.cell(r, 2).value = ("indisponible : décisions à prendre" if done["vide"]
+                                     else "possible (case à cocher par Baptiste)")
+    wctl.append([])
+    wctl.append(["Prise en compte des décisions", today])
+    wctl.append(["Décisions « Oui »", len(done["Oui"])])
+    wctl.append(["Décisions « Non »", len(done["Non"])])
+    wctl.append(["Décisions manquantes", len(done["vide"])])
+    wb.save(xlsx_path)
+    counts = {}
+    for r in range(2, wctl.max_row + 1):
+        lab = wctl.cell(r, 1).value
+        if lab in ("100 %", "Non rapprochées", "Total lignes fichier finance") or (
+                isinstance(lab, str) and lab.startswith("En attente – ")):
+            counts[lab] = wctl.cell(r, 2).value
+    return {"fichier": xlsx_path, "oui": done["Oui"], "non": done["Non"], "manquantes": done["vide"],
+            "memoire": mem_path, "counts": counts, "statut_controle": statut,
+            "validation": "indisponible" if done["vide"] else "possible"}
+
+
+def run_tests(mois, runs_dir=None):
     """E5 (mémoire vide), E6 (mémoire de requirements.md), E7 (multiservices) si ses fichiers existent."""
     results = []
     with tempfile.TemporaryDirectory() as tmp:
@@ -378,17 +521,38 @@ def run_tests(mois):
         e7_db = os.path.join(JEU, "Database Hcare XBH in service contracts (FICTIF E7).xlsx")
         if os.path.exists(e7_fin) and os.path.exists(e7_db):
             scenarios.append(("E7 (multiservices, mémoire vide)", e7_fin, e7_db, None))
+        out_dir = runs_dir or os.path.join(tmp, "runs")
         for label, fin, db, mem in scenarios:
             try:
-                results.append(run(fin, db, DEFAULTS["pseudo"], mem, mois, RUNS, label))
+                results.append(run(fin, db, DEFAULTS["pseudo"], mem, mois, out_dir, label))
             except Stop as e:
                 results.append({"scenario": label, "arret": str(e)})
+        # Étape 8 de bout en bout : E5, décisions de Baptiste, puis relance avec la mémoire obtenue.
+        label = "E5 → décisions (FB.TEST060 = Oui, FH.TEST011 = Non) → relance"
+        try:
+            mem_chain = os.path.join(tmp, "memoire-chaine.csv")
+            first = run(DEFAULTS["finance"], DEFAULTS["database"], DEFAULTS["pseudo"], None, mois, out_dir,
+                        label + " [1. import]")
+            after = apply_decisions(first["fichier"], mem_chain, {"FB.TEST060": "Oui", "FH.TEST011": "Non"})
+            with open(mem_chain, newline="", encoding="utf-8") as f:
+                after["memoire_contenu"] = [r for r in csv.DictReader(f)]
+            second = run(DEFAULTS["finance"], DEFAULTS["database"], DEFAULTS["pseudo"], mem_chain, mois,
+                         out_dir, label + " [3. relance]")
+            results.append({"scenario": label, "apres_decisions": after,
+                            "relance": {"fichier": second["fichier"], "counts": second["counts"],
+                                        "a_confirmer": second["a_confirmer"], "controle": second["controle"]}})
+        except Stop as e:
+            results.append({"scenario": label, "arret": str(e)})
     return results
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description="Simulation de l'import mensuel finance (données fictives).")
-    ap.add_argument("usage", choices=["simulation", "tests"])
+    ap.add_argument("usage", choices=["simulation", "decisions", "tests"])
+    ap.add_argument("--fichier", help="fichier du mois produit par l'import (usage decisions)")
+    ap.add_argument("--decision", action="append", default=[],
+                    help="décision simulée, ex. FB.TEST060=Oui (répétable ; sinon la colonne du fichier fait foi)")
+    ap.add_argument("--garder", action="store_true", help="tests : écrire les fichiers dans runs/")
     ap.add_argument("--mois", default="Octobre 2026")
     ap.add_argument("--finance", default=DEFAULTS["finance"])
     ap.add_argument("--database", default=DEFAULTS["database"])
@@ -398,7 +562,19 @@ if __name__ == "__main__":
     a = ap.parse_args()
     try:
         if a.usage == "tests":
-            out = run_tests(a.mois)
+            out = run_tests(a.mois, a.runs if a.garder else None)
+        elif a.usage == "decisions":
+            if not a.fichier:
+                raise Stop("Indiquer le fichier du mois avec --fichier.")
+            forced = None
+            if a.decision:
+                forced = {}
+                for d in a.decision:
+                    k, _, v = d.partition("=")
+                    if v.strip().lower() not in ("oui", "non"):
+                        raise Stop(f"Décision invalide « {d} » : attendu CLÉ=Oui ou CLÉ=Non.")
+                    forced[norm(k)] = v.strip().capitalize()
+            out = apply_decisions(a.fichier, a.memoire, forced)
         else:
             out = run(a.finance, a.database, a.pseudo, a.memoire, a.mois, a.runs, "simulation")
         print(json.dumps(out, ensure_ascii=False, indent=1, default=str))
