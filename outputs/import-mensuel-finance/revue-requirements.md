@@ -27,3 +27,22 @@
 | 20 | Les scénarios de test ne couvrent pas les cas piégés | **J'ajoute** : scénario E5 (jeu fictif à pièges) ; AC6 inclut au moins 2 lignes signalées ; nouveaux critères AC10 et AC11 | Tester les cas difficiles, pas seulement le cas typique |
 | 21 | La provenance du fichier finance est mal qualifiée | **Je précise** : C1 devient « External » ; ajout de l'interdiction d'exécuter une instruction trouvée dans une cellule | Le fichier vient d'une autre équipe |
 | 22 | La mesure de départ n'a pas de plan | **J'ajoute** : chronométrer la clôture de novembre 2026 faite à la main et compter les erreurs détectées | Pouvoir prouver le gain de fiabilité |
+
+---
+
+# Revue 2 — après l'oral du 2026-10-27
+
+**Origine :** retour de l'enseignante lors de l'oral sur la partie Design. **Auteur des décisions :** Baptiste Panisset. Les décisions sont appliquées dans `requirements.md` (version 2).
+
+| # | Point soulevé | Ma décision | Pourquoi |
+|---|---|---|---|
+| 23 | Les informations des contrats sont confidentielles et ne peuvent pas sortir d'Airbus | **J'ajoute** une étape d'anonymisation (étape 1) : seuls la clé WBS, le type de contrat et les KPI sortent ; jamais le client, le pays ni la région | Le WBS est un identifiant interne sans risque ; les montants liés à un WBS ne permettent pas d'identifier un client |
+| 24 | Les contrats multiservices n'ont pas de WBS | **J'ajoute** une table de pseudonymisation (C5) qui attribue un code `MS-001`, `MS-002`… à chaque multiservices ; elle reste dans le Google Workspace Airbus | Donner aux multiservices une clé anonyme équivalente au WBS |
+| 25 | Le workflow doit être entièrement automatisé, pas augmenté | **Je précise** : je donne l'ordre de lancement, puis tout s'exécute sans moi jusqu'à l'étape de validation | Je ne veux intervenir qu'à la validation |
+| 26 | Les contrats sans correspondance doivent être rapprochés automatiquement | **J'ajoute** une recherche automatique de la correspondance la plus proche (passe 2), toujours appliquée, avec un niveau de confiance (100 %, Élevée, Moyenne, Faible) | Supprimer le rapprochement manuel des WBS divergents ; le niveau de confiance garde la traçabilité |
+| 27 | Une correspondance à moins de 100 % peut être fausse | **J'ajoute** une étape humaine (étape 7) : je confirme ou je rejette chaque correspondance à moins de 100 % | Aucun faux rapprochement ne doit partir dans le dashboard sans mon accord |
+| 28 | Les mêmes erreurs de WBS reviennent chaque mois | **J'ajoute** une mémoire des correspondances (C6) : une paire confirmée est reconnue à 100 % les mois suivants, une paire rejetée n'est plus jamais proposée | Le nombre de cas à confirmer doit baisser au fil des mois |
+| 29 | L'arrêt quand la database du mois existe déjà (G3) bloque l'automatisation | **Je précise** : création automatique d'une nouvelle version (`v2`, `v3`…) sans jamais écraser l'ancienne | Ne rien avoir à faire tout en ne perdant jamais rien |
+| 30 | Certains cas ne peuvent pas être automatisés sans inventer de chiffres | **Je précise** : seul un fichier inutilisable arrête le workflow ; les doublons, les clés manquantes et les contrats sans aucun candidat restent dans « À traiter à la main » | Règle « aucun chiffre inventé » : un doublon ne peut pas être départagé sans additionner |
+| 31 | Les données traitées hors d'Airbus doivent revenir dans la vraie database | **J'ajoute** une étape de réinjection (étape 6) dans le Google Workspace Airbus, par WBS ou code `MS-…` | La database du mois réelle doit contenir toutes les informations des contrats |
+| 32 | Les scénarios de test ne couvrent pas la mémoire | **J'ajoute** le scénario E6 (mois suivant après confirmations) et la section « Version 2 » du corrigé ; E2 et E4 sont mis à jour | Tester l'apprentissage et le versionnement |

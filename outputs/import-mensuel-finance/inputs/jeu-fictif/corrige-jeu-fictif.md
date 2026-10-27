@@ -1,5 +1,7 @@
 # Corrigé du jeu fictif E5 — à ne pas donner au prompt
 
+*Version 1 : requirements du matin du 2026-10-27 (workflow augmenté, aucun rapprochement par ressemblance). Version 2 : section en fin de fichier.*
+
 Ce fichier sert uniquement à vérifier les résultats. Ne le joignez jamais à l'exécution d'un prompt.
 
 ## Pièges volontaires
@@ -32,3 +34,50 @@ Ce fichier sert uniquement à vérifier les résultats. Ne le joignez jamais à 
 | FH | 33 417 | 20 170 | 13 247 |
 
 Le Cost de `FH.TEST008` (`N/A`) n'entre dans aucun total.
+
+
+---
+
+# Version 2 — workflow automatisé (requirements du 2026-10-27, après l'oral)
+
+Le jeu E5 est d'abord anonymisé : seuls le numéro de ligne, le WBS, le type de contrat et les KPI sont conservés. Aucun contrat n'est de type « Multiservices » dans ce jeu.
+
+## Résultats attendus (E5, mémoire C6 vide)
+
+| Ligne(s) | Clé finance | Résultat attendu |
+|---|---|---|
+| 20 à 24 | `FH.TEST001` à `FH.TEST005` | Rapprochées à **100 %** |
+| 26 | `FH.TEST007 ` | Rapprochée à **100 %** (espace retiré) |
+| 27 | `FH.TEST008` | Rapprochée à **100 %**, `N/A` recopié et signalé (f) |
+| 25 | `FB.TEST060` | Rapprochée en passe 2 avec `FH.TEST006` (préfixe et deux chiffres inversés : erreurs typiques), confiance **inférieure à 100 %** (Moyenne attendue), « en attente de confirmation ». Bonne décision : **Oui** (même contrat Falcon Offshore) |
+| 30 | `FH.TEST011` | Rapprochée en passe 2 avec `FH.TEST010` (un chiffre différent), confiance **inférieure à 100 %**, « en attente de confirmation ». **Piège** : ce sont deux contrats différents (Kestrel Charter et Juniper Air). Bonne décision : **Non** |
+| 28-29 | `FH.TEST009` ×2 | Non rapprochées, raison (e) doublon ; le `FH.TEST009` de la database reste vide |
+| 31 | *(vide)*, type FBH | Non rapprochée, raison (d) clé manquante ; jamais rapprochée avec `FH.TEST012` |
+| — | `FH.TEST012` (database) | Raison (b) absent du fichier finance |
+
+Contrôle d'exhaustivité attendu : 12 lignes = 7 à 100 % + 2 en attente de confirmation + 3 non rapprochées.
+
+| KPI | Total fichier finance | Total database | Lignes non rapprochées | Dont en attente de confirmation (inclus dans la database) |
+|---|---|---|---|---|
+| Turnover | 13 587 501,65 | 12 271 101,65 | 1 316 400,00 | 4 222 500,00 |
+| Invoicing | 13 218 400,00 | 11 933 000,00 | 1 285 400,00 | 4 145 500,00 |
+| Cost | 9 356 130,35 | 8 324 730,35 | 1 031 400,00 | 3 280 250,00 |
+| FH | 33 417 | 29 965 | 3 452 | 9 795 |
+
+## Après les décisions de Baptiste (étape 8)
+
+- `FB.TEST060` ↔ `FH.TEST006` : **Oui** → statut « certain », paire enregistrée « confirmée » dans C6.
+- `FH.TEST011` ↔ `FH.TEST010` : **Non** → KPI retirés, ligne en (g) correspondance rejetée, paire enregistrée « rejetée » dans C6 ; `FH.TEST010` passe en (b).
+
+## Scénario E6 — mois suivant, mémoire C6 renseignée
+
+- `FB.TEST060` est rapprochée à **100 %** dès la passe 1, sans apparaître dans « Correspondances à confirmer ».
+- `FH.TEST011` n'est plus jamais proposée avec `FH.TEST010` ; aucun autre candidat XBH libre → raison (a). `FH.TEST010` → raison (b).
+- Comptage : 12 lignes = 8 à 100 % + 0 en attente + 4 non rapprochées.
+
+| KPI | Total fichier finance | Total database | Lignes non rapprochées |
+|---|---|---|---|
+| Turnover | 13 587 501,65 | 11 151 101,65 | 2 436 400,00 |
+| Invoicing | 13 218 400,00 | 10 837 500,00 | 2 380 900,00 |
+| Cost | 9 356 130,35 | 7 454 480,35 | 1 901 650,00 |
+| FH | 33 417 | 27 090 | 6 327 |

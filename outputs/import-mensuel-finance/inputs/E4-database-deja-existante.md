@@ -6,4 +6,4 @@ Ne collez jamais de données financières ici : ce fichier décrit seulement com
 
 Préparation : aucune, si le scénario E1 a été lancé avant ; sinon, utiliser un mois dont la database mensuelle existe déjà.
 
-Résultat attendu : le workflow s'arrête à l'étape 2, signale le fichier existant par son nom et n'écrase ni ne modifie aucun fichier.
+Résultat attendu (version 2, workflow automatisé) : le workflow ne s'arrête pas ; il crée `Database XBH [Mois] [Année] v2`, sans modifier ni écraser la version existante.
