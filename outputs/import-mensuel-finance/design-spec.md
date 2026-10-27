@@ -2,7 +2,7 @@
 workflow: import-mensuel-finance
 requirements_file: outputs/import-mensuel-finance/requirements.md
 spec_version: 3.0
-approved: false
+approved: true
 definition_type: Step-Driven
 mechanism: Skill
 involvement: Automated
@@ -311,7 +311,7 @@ Apps Script du workflow Import Mensuel Finance. Données fictives uniquement. Tr
 ## Self-Test Summary
 
 **Structure**
-- ✓ Frontmatter is present with workflow, requirements_file, spec_version (`3.0`), approved (`false`), definition_type, mechanism, involvement, platform, platform_mode, packaging, and counts
+- ✓ Frontmatter is present with workflow, requirements_file, spec_version (`3.0`), approved (`true` after approval on 2026-10-27), definition_type, mechanism, involvement, platform, platform_mode, packaging, and counts
 - ✓ Frontmatter `counts` match the body — skills = 1 (S1), agents = 0, integrations = 3 (Google Sheets, Google Drive, Node.js)
 - ✓ Source section names the Workflow Requirements file path
 - ✓ All mandatory template sections are present in template order; Orchestrator Prompt Outline present (mechanism Skill); Agent Configuration and Multi-Agent Configuration omitted (no agents); Stakeholders omitted (Individual lens)
