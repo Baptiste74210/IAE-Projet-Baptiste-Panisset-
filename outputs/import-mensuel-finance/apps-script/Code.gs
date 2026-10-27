@@ -159,9 +159,15 @@ function executerImport(mois) {
   var fMois = mensuelle.getSheets()[0];
   var finParLigne = {};
   res.fin.forEach(function (x) { finParLigne[x.ligne] = x; });
-  Object.keys(res.matches).forEach(function (k) {
-    var m = res.matches[k], src = finParLigne[k];
-    correspondance.forEach(function (c) { fMois.getRange(m.db.ligne, colDb[c.cible] + 1).setValue(src.kpi[c.source]); });
+  var derniere = valDb.length;
+  correspondance.forEach(function (c) {           // une seule écriture par colonne de KPI (rapide sur 400 contrats)
+    var colonne = [];
+    for (var n = 2; n <= derniere; n++) colonne.push(['']);
+    Object.keys(res.matches).forEach(function (k) {
+      var v = finParLigne[k].kpi[c.source];
+      colonne[res.matches[k].db.ligne - 2] = [v === null || v === undefined ? '' : v];
+    });
+    if (colonne.length) fMois.getRange(2, colDb[c.cible] + 1, colonne.length, 1).setValues(colonne);
   });
   ecrireOngletsMois(mensuelle, res, kpis, mois, finance.getName(), nom);
   SpreadsheetApp.flush();

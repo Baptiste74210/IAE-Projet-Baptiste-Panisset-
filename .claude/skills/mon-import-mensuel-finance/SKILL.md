@@ -8,7 +8,7 @@ description: Utilise cette skill quand Baptiste veut simuler, tester ou faire é
 ## Ce que fait ce skill
 Cette skill simule, sur des données fictives, le programme Apps Script qui fera l'import mensuel réel dans le Google Workspace Airbus. Elle a trois usages :
 - **Simulation** : à partir d'un fichier finance et d'une database fictifs, produire la database du mois `Database XBH [Mois] [Année].xlsx` avec les KPI remplis, les cas mis de côté, les correspondances à confirmer et le contrôle des totaux.
-- **Tests** : lancer les scénarios E5, E6 et E7 et comparer les résultats au corrigé.
+- **Tests** : lancer les scénarios E5, E6 et E7 sur le jeu fictif de référence (400 contrats) et comparer les résultats au corrigé.
 - **Modification** : faire évoluer une règle de rapprochement, puis vérifier que les tests passent toujours.
 
 Les vraies données ne passent jamais par cette skill : la production tourne en Apps Script, à l'intérieur d'Airbus.
@@ -17,7 +17,7 @@ Les vraies données ne passent jamais par cette skill : la production tourne en 
 Les étapes 2 à 8 sont faites par le programme `.claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py`, lancé depuis la racine du dépôt (besoin : Python avec `openpyxl`, et LibreOffice pour calculer les formules du bloc de totaux sur une copie) :
 - **Simulation** : `python3 -I .claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py simulation --mois "Octobre 2026"` ; options `--finance`, `--database`, `--pseudo`, `--memoire` pour d'autres fichiers (par défaut : les fichiers fictifs et la mémoire listés ci-dessous).
 - **Décisions (étape 8)** : `python3 -I .claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py decisions --fichier "outputs/import-mensuel-finance/runs/Database XBH Octobre 2026.xlsx" --decision "FB.TEST060=Oui" --decision "FH.TEST011=Non"` ; sans `--decision`, il lit la colonne « Décision » déjà remplie dans le fichier. Il ne traite que les lignes encore « En attente de confirmation », met à jour le fichier du mois et la mémoire (`--memoire`, par défaut `outputs/import-mensuel-finance/runs/memoire-correspondances.csv`), puis relance le contrôle.
-- **Tests** : `python3 -I .claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py tests` lance E5 (mémoire vide), E6 (mémoire décrite dans `requirements.md`), E7 (si ses fichiers existent), puis la chaîne complète « E5 → décisions (FB.TEST060 = Oui, FH.TEST011 = Non) → relance avec la mémoire obtenue ». Les fichiers sont écrits dans un dossier temporaire ; ajouter `--garder` pour les écrire dans `runs/`.
+- **Tests** : `python3 -I .claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py tests` lance, sur le jeu fictif de référence, E5 (mémoire vide), E6 (mémoire du mois suivant `memoire-E6 (FICTIF).csv`) et la chaîne complète « E5 → décisions → relance avec la mémoire obtenue » ; E7 (multiservices) se vérifie dans l'exécution de E5. Les fichiers sont écrits dans un dossier temporaire ; ajouter `--garder` pour les écrire dans `runs/`.
 
 En simulation, le programme écrit le fichier Excel dans `outputs/import-mensuel-finance/runs/` sans jamais écraser une version existante (en mode `decisions`, il met à jour uniquement le fichier du mois indiqué, comme le prévoit l'étape 8), et affiche un résumé JSON : comptages, rapprochements avec leur niveau de confiance, lignes à traiter à la main, contrôle des totaux. S'il s'arrête (fichier inutilisable, fichier introuvable), il affiche `"arret"` avec l'explication, n'écrit rien et sort avec le code 2. Il ne lit jamais le corrigé.
 
@@ -28,6 +28,8 @@ En simulation, le programme écrit le fichier Excel dans `outputs/import-mensuel
 - **La database centrale fictive** (par défaut `outputs/import-mensuel-finance/inputs/jeu-fictif/Database Hcare XBH in service contracts (FICTIF).xlsx`) : ligne 1 = en-têtes (WBS, Client, Type de contrat, Région, Pays, Turnover, Invoicing, Cost, FH), une ligne par contrat, KPI vides.
 - **La table de correspondance des colonnes** : Turnover (€) → Turnover, Invoicing (€) → Invoicing, Cost (€) → Cost, Flight Hours → FH.
 - **La table de pseudonymisation fictive des multiservices** : `outputs/import-mensuel-finance/inputs/jeu-fictif/table-pseudonymisation-multiservices (FICTIF).csv` (colonnes : Client, Code MS). En production, cette table (C5) reste dans le Google Workspace Airbus. Si elle est absente, je le signale et je traite tout contrat « Multiservices » sans WBS comme « multiservices sans code ».
+- **La table de correspondance des colonnes fictive** : `outputs/import-mensuel-finance/inputs/jeu-fictif/table-correspondance-colonnes (FICTIF).csv`.
+- **La mémoire du mois suivant pour les tests (E6)** : `outputs/import-mensuel-finance/inputs/jeu-fictif/memoire-E6 (FICTIF).csv`.
 - **La mémoire des correspondances** : `outputs/import-mensuel-finance/runs/memoire-correspondances.csv` (colonnes : clé finance, clé database, statut « confirmée » ou « rejetée », date). Si elle n'existe pas, je pars d'une mémoire vide.
 - **Ma confirmation que les fichiers sont fictifs.**
 
@@ -51,7 +53,7 @@ Les étapes 2 à 8 ci-dessous décrivent ce que fait le programme (voir « Le pr
    - décision manquante : la ligne reste « En attente de confirmation » et la validation reste indisponible ;
    - le programme relance la vérification (étape 6), met à jour le fichier et indique si la validation est possible.
 
-**Pour l'usage « tests »** : lancer le programme en mode `tests`, qui exécute E5 avec une mémoire vide, E6 avec la mémoire décrite dans `requirements.md`, E7 (multiservices) s'il existe, et la chaîne « E5 → décisions → relance » (dont le résultat doit être identique à E6), puis comparer chaque résultat à la section « Version 2 » de `outputs/import-mensuel-finance/inputs/jeu-fictif/corrige-jeu-fictif.md`. Afficher « Conforme » ou « Non conforme » point par point. Ne lire le corrigé qu'**après** avoir produit les résultats.
+**Pour l'usage « tests »** : lancer le programme en mode `tests`, puis comparer chaque résultat à `outputs/import-mensuel-finance/inputs/jeu-fictif/corrige-jeu-fictif.md` (version lisible) ou `corrige-jeu-fictif.json` (version machine) : comptages de E5 et E6, correspondances à confirmer avec leur niveau de confiance, raisons de mise de côté, totaux, multiservices (E7) et résultat de la chaîne, qui doit être identique à E6. Afficher « Conforme » ou « Non conforme » point par point. Ne lire le corrigé qu'**après** avoir produit les résultats.
 
 **Pour l'usage « modification »** : modifier la règle demandée dans le programme (et dans ce fichier), relancer les tests, et ne valider la modification que si tous les scénarios restent conformes au corrigé.
 

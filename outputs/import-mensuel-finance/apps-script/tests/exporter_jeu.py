@@ -2,7 +2,7 @@
 
 À lancer depuis la racine du dépôt :
   python3 -I outputs/import-mensuel-finance/apps-script/tests/exporter_jeu.py SORTIE.json
-Pour E5, E6 et E7, lit les fichiers fictifs avec le programme Python de référence, les anonymise,
+Pour E5 et E6 (jeu fictif de référence), lit les fichiers fictifs avec le programme Python de référence, les anonymise,
 puis enregistre dans SORTIE.json les entrées anonymisées et les résultats attendus du programme Python.
 """
 import json, os, sys, tempfile
@@ -24,16 +24,10 @@ def scenario(label, fin_path, db_path, memoire):
         k, why = im.anonymise(r["wbs"], r["type"], r["client"], pseudo)
         anon_db.append({"ligne": r["row"], "cle": k, "type": r["type"], "raison": why})
     with tempfile.TemporaryDirectory() as tmp:
-        mem_path = None
-        if memoire:
-            mem_path = os.path.join(tmp, "mem.csv")
-            with open(mem_path, "w", encoding="utf-8") as f:
-                f.write("clé finance,clé database,statut,date\n")
-                for fk, dk, st in memoire:
-                    f.write(f"{fk},{dk},{st},2026-10-27\n")
+        mem_path = memoire
         attendu = im.run(fin_path, db_path, im.DEFAULTS["pseudo"], mem_path, MOIS, tmp, label)
-    mem = {"confirmees": [[a, b] for a, b, s in (memoire or []) if s == "confirmée"],
-           "rejetees": [[a, b] for a, b, s in (memoire or []) if s == "rejetée"]}
+    m = im.load_memory(memoire)
+    mem = {"confirmees": sorted([list(p) for p in m["confirmée"]]), "rejetees": sorted([list(p) for p in m["rejetée"]])}
     return {"scenario": label, "entree": {"fin": anon_fin, "db": anon_db, "memoire": mem,
             "kpis": im.KPI_SRC, "bloc": block},
             "attendu": {"counts": attendu["counts"], "matches": attendu["matches"],
@@ -41,11 +35,8 @@ def scenario(label, fin_path, db_path, memoire):
 
 
 if __name__ == "__main__":
-    e7_fin = os.path.join(im.JEU, f"Xbh Contracts Financial performance - {MOIS} (FICTIF E7).xlsx")
-    e7_db = os.path.join(im.JEU, "Database Hcare XBH in service contracts (FICTIF E7).xlsx")
     out = [scenario("E5", im.DEFAULTS["finance"], im.DEFAULTS["database"], None),
-           scenario("E6", im.DEFAULTS["finance"], im.DEFAULTS["database"], im.MEMOIRE_E6),
-           scenario("E7", e7_fin, e7_db, None)]
+           scenario("E6", im.DEFAULTS["finance"], im.DEFAULTS["database"], im.MEMOIRE_E6)]
     with open(sys.argv[1], "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, default=str)
     print(f"{len(out)} scénarios exportés dans {sys.argv[1]}")

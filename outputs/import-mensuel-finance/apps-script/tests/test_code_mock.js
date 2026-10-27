@@ -1,4 +1,4 @@
-// Teste Code.gs avec un faux Google Sheets / Google Drive, sur le jeu fictif E5 (aucun accès Google).
+// Teste Code.gs avec un faux Google Sheets / Google Drive, sur le jeu fictif de référence (aucun accès Google).
 // À lancer depuis la racine du dépôt :
 //   python3 -I outputs/import-mensuel-finance/apps-script/tests/exporter_brut.py /tmp/brut.json
 //   node outputs/import-mensuel-finance/apps-script/tests/test_code_mock.js /tmp/brut.json
@@ -83,16 +83,24 @@ let echecs = 0;
 const v = (nom, ok, det) => { console.log(`${ok ? 'Conforme    ' : 'NON CONFORME'} ${nom}${ok ? '' : ' — ' + det}`); if (!ok) echecs++; };
 
 // 1. Import
+const C = brut.corrige, E5 = C.E5, E6 = C.E6;
+const attenteE5 = E5['En attente – Élevée'] + E5['En attente – Moyenne'] + E5['En attente – Faible'];
+const t0 = Date.now();
 const r1 = ctx.executerImport('Octobre 2026');
+console.log(`(import de ${C.lignes_finance} lignes en ${Date.now() - t0} ms dans le faux Google Sheets)`);
 v('nom de la database du mois', r1.nom === 'Database XBH Octobre 2026', r1.nom);
-v('comptages 7 / 2 / 3', r1.comptages['100 %'] === 7 && r1.enAttente === 2 && r1.comptages['Non rapprochées'] === 3, JSON.stringify(r1));
+v(`comptages ${E5['100 %']} / ${attenteE5} / ${E5['Non rapprochées']}`, r1.comptages['100 %'] === E5['100 %'] && r1.enAttente === attenteE5 && r1.comptages['Non rapprochées'] === E5['Non rapprochées'], JSON.stringify(r1));
 v('contrôle des totaux OK', r1.statutControle === 'OK', r1.statutControle);
 const mois = Object.values(fichiers).find(f => f.nom === 'Database XBH Octobre 2026').classeur;
 v('partages recopiés', JSON.stringify(mois.fichier.editeurs) === '["baptiste@airbus.test"]' && mois.fichier.lecteurs.length === 1, JSON.stringify(mois.fichier.editeurs));
 v('4 onglets', mois.feuilles.map(f => f.nom).join('|') === 'Feuille 1|À traiter à la main|Correspondances à confirmer|Contrôle', mois.feuilles.map(f => f.nom).join('|'));
 const anon = Object.values(fichiers).find(f => f.nom === 'Anonymisé – Octobre 2026').classeur;
 const texteAnon = JSON.stringify(anon.feuilles.map(f => f.d));
-v('aucun nom de client dans le fichier anonymisé', !/Alpha Aviation|Falcon|Norvège|Europe/.test(texteAnon), texteAnon.slice(0, 200));
+const fuite = brut.clients.concat(brut.pays, ['Europe', 'NORAM', 'LATAM', 'APAC', 'AFME']).filter(n => texteAnon.includes(n));
+v('aucun nom de client, pays ou région dans le fichier anonymisé', fuite.length === 0, fuite.slice(0, 5).join(', '));
+const fMoisDb = mois.feuilles[0].d, hDb = fMoisDb[0];
+const totalDb = h => fMoisDb.slice(1).reduce((a, l) => typeof l[hDb.indexOf(h)] === 'number' ? a + l[hDb.indexOf(h)] : a, 0);
+v('total Turnover de la database = corrigé', Math.abs(totalDb('Turnover') - C.database_E5['Turnover (€)']) <= 0.01, totalDb('Turnover'));
 v('database centrale inchangée', JSON.stringify(centrale.feuilles[0].d) === instantCentrale, '');
 v('fichier finance inchangé', JSON.stringify(finance.feuilles[0].d) === instantFinance, '');
 
@@ -110,22 +118,25 @@ v('fichier finance du mois absent → arrêt', /0 fichier/.test(arret), arret);
 // 4. Décisions (étape 8) dans la database du mois
 actif = mois;
 const conf = mois.getSheetByName('Correspondances à confirmer');
-conf.d.slice(1).forEach((l, i) => { conf.set(i + 2, 5, l[0] === 'FB.TEST060' ? 'Oui' : 'Non'); });
+const bonnes = {}; C.a_confirmer_E5.forEach(a => { bonnes[a.cle_finance] = a.bonne_decision; });
+conf.d.slice(1).forEach((l, i) => { conf.set(i + 2, 5, bonnes[l[0]]); });
+const nOui = C.a_confirmer_E5.filter(a => a.bonne_decision === 'Oui').length, nNon = C.a_confirmer_E5.length - nOui;
 const r3 = ctx.executerDecisions();
-v('1 Oui, 1 Non, 0 manquante', r3.oui === 1 && r3.non === 1 && r3.manquantes === 0, JSON.stringify(r3));
+v(`${nOui} Oui, ${nNon} Non, 0 manquante`, r3.oui === nOui && r3.non === nNon && r3.manquantes === 0, JSON.stringify(r3));
 v('contrôle OK après décisions', r3.statut === 'OK' && r3.validation === 'possible', JSON.stringify(r3));
 const ctl = mois.getSheetByName('Contrôle').d;
 const val = lab => (ctl.find(l => l[0] === lab) || [])[1];
-v('comptages 8 / 0 / 4 après décisions', val('100 %') === 8 && val('En attente – Moyenne') === 0 && val('Non rapprochées') === 4, JSON.stringify(ctl.slice(6, 12)));
+v(`comptages ${E6['100 %']} / 0 / ${E6['Non rapprochées']} après décisions`, val('100 %') === E6['100 %'] && val('En attente – Élevée') === 0 && val('En attente – Moyenne') === 0 && val('Non rapprochées') === E6['Non rapprochées'], JSON.stringify(ctl.slice(6, 12)));
 const mem = Object.values(fichiers).find(f => f.nom === 'Mémoire des correspondances').classeur.feuilles[0].d;
-v('mémoire : 1 confirmée, 1 rejetée', JSON.stringify(mem.slice(1).map(l => l.slice(0, 3))) === JSON.stringify([['FB.TEST060', 'FH.TEST006', 'confirmée'], ['FH.TEST011', 'FH.TEST010', 'rejetée']]), JSON.stringify(mem));
+const trier = l => l.map(x => x.slice(0, 3).join('|')).sort();
+v(`mémoire : ${nOui} confirmées, ${nNon} rejetée(s), identique à la mémoire E6`, JSON.stringify(trier(mem.slice(1))) === JSON.stringify(trier(brut.memoire_e6.slice(1))), JSON.stringify(mem.slice(1, 3)));
 const r4 = ctx.executerDecisions();
 v('nouvelle prise en compte sans effet', r4.oui === 0 && r4.non === 0, JSON.stringify(r4));
 
 // 5. Mois suivant simulé : relance depuis la centrale avec la mémoire
 actif = centrale;
 const r5 = ctx.executerImport('Octobre 2026');
-v('relance avec mémoire → 8 / 0 / 4 (comme E6)', r5.comptages['100 %'] === 8 && r5.enAttente === 0 && r5.comptages['Non rapprochées'] === 4, JSON.stringify(r5));
+v(`relance avec mémoire → ${E6['100 %']} / 0 / ${E6['Non rapprochées']} (comme E6)`, r5.comptages['100 %'] === E6['100 %'] && r5.enAttente === 0 && r5.comptages['Non rapprochées'] === E6['Non rapprochées'], JSON.stringify(r5));
 
 console.log(echecs ? `\n${echecs} vérification(s) non conforme(s).` : '\nToutes les vérifications de Code.gs sont conformes.');
 process.exit(echecs ? 1 : 0);

@@ -5,11 +5,11 @@
                [--mois "Octobre 2026"] [--finance F.xlsx] [--database D.xlsx] [--pseudo P.csv] [--memoire M.csv]
   Décisions  : python3 -I .claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py decisions
                --fichier "outputs/import-mensuel-finance/runs/Database XBH Octobre 2026.xlsx"
-               [--decision "FB.TEST060=Oui" --decision "FH.TEST011=Non"] [--memoire M.csv]
+               [--decision "CLÉ=Oui" --decision "CLÉ=Non"] [--memoire M.csv]
                (étape 8 : sans --decision, lit la colonne « Décision » remplie dans le fichier)
   Tests      : python3 -I .claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py tests [--garder]
-               (E5, E6, E7, puis E5 → décisions → relance ; fichiers écrits dans un dossier temporaire,
-                ou dans runs/ avec --garder)
+               (jeu fictif de référence : E5, E6, puis E5 → décisions → relance ; fichiers écrits dans un
+                dossier temporaire, ou dans runs/ avec --garder)
 Écrit la database du mois dans outputs/import-mensuel-finance/runs/ (nouvelle version si elle existe déjà)
 et affiche un résumé JSON. Ne lit jamais le corrigé : la comparaison se fait après, à part.
 Besoin : openpyxl, et LibreOffice (soffice) pour calculer les formules du bloc de totaux.
@@ -27,8 +27,8 @@ DEFAULTS = {
     "pseudo": os.path.join(JEU, "table-pseudonymisation-multiservices (FICTIF).csv"),
     "memoire": os.path.join(RUNS, "memoire-correspondances.csv"),
 }
-# Mémoire du scénario E6, telle que décrite dans requirements.md.
-MEMOIRE_E6 = [("FB.TEST060", "FH.TEST006", "confirmée"), ("FH.TEST011", "FH.TEST010", "rejetée")]
+# Mémoire du scénario E6 (mois suivant), fournie avec le jeu fictif de référence.
+MEMOIRE_E6 = os.path.join(JEU, "memoire-E6 (FICTIF).csv")
 
 MAP = {"Turnover (€)": "Turnover", "Invoicing (€)": "Invoicing", "Cost (€)": "Cost", "Flight Hours": "FH"}
 KPI_SRC = list(MAP)
@@ -505,37 +505,33 @@ def apply_decisions(xlsx_path, mem_path, forced=None, today=None):
             "validation": "indisponible" if done["vide"] else "possible"}
 
 
+def decisions_depuis_memoire(path):
+    """Décisions « Oui » / « Non » à appliquer pour la chaîne de test, lues dans la mémoire E6."""
+    with open(path, newline="", encoding="utf-8-sig") as f:
+        return {norm(r["clé finance"]): ("Oui" if r["statut"].strip() == "confirmée" else "Non")
+                for r in csv.DictReader(f)}
+
+
 def run_tests(mois, runs_dir=None):
-    """E5 (mémoire vide), E6 (mémoire de requirements.md), E7 (multiservices) si ses fichiers existent."""
+    """Jeu fictif de référence : E5 (mémoire vide), E6 (mémoire du mois suivant), puis la chaîne
+    E5 → décisions → relance. Le scénario E7 (multiservices) se vérifie dans l'exécution de E5."""
     results = []
     with tempfile.TemporaryDirectory() as tmp:
-        mem_e6 = os.path.join(tmp, "memoire-E6.csv")
-        with open(mem_e6, "w", newline="", encoding="utf-8") as f:
-            w = csv.writer(f)
-            w.writerow(["clé finance", "clé database", "statut", "date"])
-            for fk, dk, st in MEMOIRE_E6:
-                w.writerow([fk, dk, st, date.today().isoformat()])
-        scenarios = [("E5 (mémoire vide)", DEFAULTS["finance"], DEFAULTS["database"], None),
-                     ("E6 (mémoire de requirements.md)", DEFAULTS["finance"], DEFAULTS["database"], mem_e6)]
-        e7_fin = os.path.join(JEU, f"Xbh Contracts Financial performance - {mois} (FICTIF E7).xlsx")
-        e7_db = os.path.join(JEU, "Database Hcare XBH in service contracts (FICTIF E7).xlsx")
-        if os.path.exists(e7_fin) and os.path.exists(e7_db):
-            scenarios.append(("E7 (multiservices, mémoire vide)", e7_fin, e7_db, None))
         out_dir = runs_dir or os.path.join(tmp, "runs")
-        for label, fin, db, mem in scenarios:
+        scenarios = [("E5 (mémoire vide)", None), ("E6 (mémoire du mois suivant)", MEMOIRE_E6)]
+        for label, mem in scenarios:
             try:
-                results.append(run(fin, db, DEFAULTS["pseudo"], mem, mois, out_dir, label))
+                results.append(run(DEFAULTS["finance"], DEFAULTS["database"], DEFAULTS["pseudo"], mem, mois, out_dir, label))
             except Stop as e:
                 results.append({"scenario": label, "arret": str(e)})
-        # Étape 8 de bout en bout : E5, décisions de Baptiste, puis relance avec la mémoire obtenue.
-        label = "E5 → décisions (FB.TEST060 = Oui, FH.TEST011 = Non) → relance"
+        label = "Chaîne E5 → décisions → relance"
         try:
             mem_chain = os.path.join(tmp, "memoire-chaine.csv")
             first = run(DEFAULTS["finance"], DEFAULTS["database"], DEFAULTS["pseudo"], None, mois, out_dir,
                         label + " [1. import]")
-            after = apply_decisions(first["fichier"], mem_chain, {"FB.TEST060": "Oui", "FH.TEST011": "Non"})
+            after = apply_decisions(first["fichier"], mem_chain, decisions_depuis_memoire(MEMOIRE_E6))
             with open(mem_chain, newline="", encoding="utf-8") as f:
-                after["memoire_contenu"] = [r for r in csv.DictReader(f)]
+                after["memoire_lignes"] = sum(1 for _ in csv.DictReader(f))
             second = run(DEFAULTS["finance"], DEFAULTS["database"], DEFAULTS["pseudo"], mem_chain, mois,
                          out_dir, label + " [3. relance]")
             results.append({"scenario": label, "apres_decisions": after,
@@ -551,7 +547,7 @@ if __name__ == "__main__":
     ap.add_argument("usage", choices=["simulation", "decisions", "tests"])
     ap.add_argument("--fichier", help="fichier du mois produit par l'import (usage decisions)")
     ap.add_argument("--decision", action="append", default=[],
-                    help="décision simulée, ex. FB.TEST060=Oui (répétable ; sinon la colonne du fichier fait foi)")
+                    help="décision simulée, ex. FH.ABCDE=Oui (répétable ; sinon la colonne du fichier fait foi)")
     ap.add_argument("--garder", action="store_true", help="tests : écrire les fichiers dans runs/")
     ap.add_argument("--mois", default="Octobre 2026")
     ap.add_argument("--finance", default=DEFAULTS["finance"])

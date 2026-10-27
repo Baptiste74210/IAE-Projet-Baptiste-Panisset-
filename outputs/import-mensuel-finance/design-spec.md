@@ -206,7 +206,7 @@ Apps Script du workflow Import Mensuel Finance. Données fictives uniquement. Tr
   - Build Output: Handled by orchestrator (fonction appliquerDecisions, mise à jour de la mémoire C6 locale)
 
 [Tests] « lance les tests » : exécute E5 et E6 et compare chaque résultat au corrigé
-  inputs/jeu-fictif/corrige-jeu-fictif.md (section Version 2) ; affiche Met / Not met par critère
+  inputs/jeu-fictif/corrige-jeu-fictif.md (jeu fictif de référence, 400 contrats) ; affiche Met / Not met par critère
 
 [Maintenance] « modifie la règle … » : propose la modification de Rapprochement.gs, relance les
   tests, puis indique à Baptiste les fichiers à recoller dans l'éditeur Apps Script
@@ -297,7 +297,7 @@ Apps Script du workflow Import Mensuel Finance. Données fictives uniquement. Tr
 
 ## Evaluation Inputs
 
-**Acceptance Criteria (AC1 à AC13), Example Scenarios (E1 à E6, avec le corrigé du jeu fictif comme Golden Example pour E5 et E6) and Human Gates (G1, G2) are sourced from the Workflow Requirements file** (`outputs/import-mensuel-finance/requirements.md`). Do not duplicate them here. Step 5 (Test) reads them from that file directly. E5 et E6 s'exécutent dans le dépôt via S1 ; E1 à E4 s'exécutent dans le Google Workspace Airbus avec le programme déployé.
+**Acceptance Criteria (AC1 à AC13), Example Scenarios (E1 à E7, avec le corrigé du jeu fictif de référence comme Golden Example pour E5, E6 et E7) and Human Gates (G1, G2) are sourced from the Workflow Requirements file** (`outputs/import-mensuel-finance/requirements.md`). Do not duplicate them here. Step 5 (Test) reads them from that file directly. E5 et E6 s'exécutent dans le dépôt via S1 ; E1 à E4 s'exécutent dans le Google Workspace Airbus avec le programme déployé.
 
 ## Deferred to Build
 

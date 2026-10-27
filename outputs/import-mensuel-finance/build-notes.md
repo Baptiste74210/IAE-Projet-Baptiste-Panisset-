@@ -23,9 +23,9 @@
 
 | Test | Commande (depuis la racine du dépôt) | Résultat |
 |---|---|---|
-| Programme Python : E5, E6, E7, chaîne E5 → décisions → relance | `python3 -I .claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py tests` | Conforme au corrigé : 7/2/3, 8/0/4, 2/0/2, chaîne 8/0/4 identique à E6 |
-| `Rapprochement.gs` contre le programme Python | `python3 -I outputs/import-mensuel-finance/apps-script/tests/exporter_jeu.py /tmp/jeu.json` puis `node outputs/import-mensuel-finance/apps-script/tests/test_rapprochement.js /tmp/jeu.json` | 15 vérifications conformes |
-| `Code.gs` avec un faux Google Sheets | `python3 -I outputs/import-mensuel-finance/apps-script/tests/exporter_brut.py /tmp/brut.json` puis `node outputs/import-mensuel-finance/apps-script/tests/test_code_mock.js /tmp/brut.json` | 17 vérifications conformes : import, partages, anonymisation sans nom de client, entrées inchangées, version v2, arrêts, décisions, mémoire, mois suivant |
+| Programme Python : E5, E6 (E7 inclus dans E5), chaîne E5 → décisions → relance, sur le jeu fictif de référence (400 contrats) | `python3 -I .claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py tests` | Conforme au corrigé : E5 370/15/13, E6 384/0/14, chaîne identique à E6 ; environ 8 secondes |
+| `Rapprochement.gs` contre le programme Python | `python3 -I outputs/import-mensuel-finance/apps-script/tests/exporter_jeu.py /tmp/jeu.json` puis `node outputs/import-mensuel-finance/apps-script/tests/test_rapprochement.js /tmp/jeu.json` | 14 vérifications conformes (E5, E6, chaîne) |
+| `Code.gs` avec un faux Google Sheets | `python3 -I outputs/import-mensuel-finance/apps-script/tests/exporter_brut.py /tmp/brut.json` puis `node outputs/import-mensuel-finance/apps-script/tests/test_code_mock.js /tmp/brut.json` | 18 vérifications conformes sur 398 lignes : import, partages, anonymisation sans nom de client, entrées inchangées, version v2, arrêts, décisions, mémoire, mois suivant |
 
 **Limite :** `Code.gs` n'a pas encore tourné dans un vrai Google Workspace ; le faux Google Sheets imite les fonctions utilisées, mais le premier lancement réel doit se faire sur une copie fictive (voir ci-dessous).
 
@@ -40,7 +40,7 @@
 2. **Vérifier les paramètres** en haut de `Code.gs` (bloc `PARAMETRES`) : noms exacts des colonnes WBS, client et type de contrat dans le fichier finance et dans la database, ligne des en-têtes (19), première ligne de contrats (20).
 3. **Coller le programme** : ouvrir la database centrale → **Extensions → Apps Script** → créer trois fichiers et y coller `Code.gs`, `Rapprochement.gs` et `appsscript.json` (pour ce dernier : **Paramètres du projet → Afficher le fichier manifeste**). Enregistrer.
 4. **Recharger** la database centrale : le menu **Import mensuel finance** apparaît. Au premier clic, Google demande les autorisations (Sheets, Drive, interface) : les accepter.
-5. **Premier essai sur des copies fictives** : importer dans Google Sheets les fichiers du dossier `inputs/jeu-fictif/`, les placer dans un dossier de test avec les deux tables fictives, coller le programme dans la database fictive, lancer l'import d'Octobre 2026 et vérifier 7 / 2 / 3 comme dans le corrigé.
+5. **Premier essai sur des copies fictives** : importer dans Google Sheets les fichiers du dossier `inputs/jeu-fictif/` (fichier finance, database, `table-pseudonymisation-multiservices (FICTIF).csv`, `table-correspondance-colonnes (FICTIF).csv`), les placer dans un dossier de test sous les noms attendus (`Xbh Contracts Financial performance : Octobre 2026`, `Database Hcare XBH in service contracts`, `Table de pseudonymisation multiservices`, `Table de correspondance des colonnes`), coller le programme dans la database fictive, lancer l'import d'Octobre 2026 et vérifier 370 / 15 / 13 comme dans le corrigé.
 6. **Utilisation réelle, chaque mois :**
    1. à réception du fichier finance, ouvrir la database centrale → **Import mensuel finance → Lancer l'import** → saisir le mois (« Novembre 2026 ») ;
    2. ouvrir la database du mois créée, remplir « Oui » ou « Non » dans l'onglet « Correspondances à confirmer », traiter si besoin « À traiter à la main » ;
@@ -52,3 +52,5 @@
 - Obtenir l'autorisation Apps Script et faire le premier essai réel sur copies fictives (étape 5 du guide).
 - Créer les vraies tables C3 et C5 (étape 1 du guide).
 - Étape suivante du cours : **Test** (Step 5) sur les scénarios E1 à E7.
+
+**Jeu fictif :** depuis le 2026-10-27, le seul jeu de référence est celui de 400 contrats (`inputs/jeu-fictif/`, régénérable avec `generer_jeu_fictif.py`) ; le premier jeu de 12 contrats et ses résultats sont archivés dans `inputs/archive-v1/` et `runs/archive-v1/`.

@@ -1,108 +1,71 @@
-# Corrigé du jeu fictif E5 — à ne pas donner au prompt
+# Corrigé du jeu fictif de référence (400 contrats) — à ne pas donner au programme
 
-*Version 1 : requirements du matin du 2026-10-27 (workflow augmenté, aucun rapprochement par ressemblance). Version 2 : section en fin de fichier.*
+*Généré par `generer_jeu_fictif.py` à partir des pièges qu'il a placés (graine fixe 2026). Version machine : `corrige-jeu-fictif.json`. Ne jamais fournir ce fichier à une exécution : il sert uniquement à vérifier les résultats.*
 
-Ce fichier sert uniquement à vérifier les résultats. Ne le joignez jamais à l'exécution d'un prompt.
+Fichier finance : **398 lignes** de contrats (lignes 20 à 417). Database centrale : **400 contrats**. Mois : **Octobre 2026**.
 
-## Pièges volontaires
+## Pièges placés
 
-| Piège | Ligne(s) | Résultat attendu |
+| Piège | Nombre | Résultat attendu (E5, mémoire vide) |
 |---|---|---|
-| WBS divergent (`FB.TEST060` côté finance, `FH.TEST006` côté database) | 25 | Aucun rapprochement ; les deux côtés dans « À traiter à la main » |
-| Espace parasite en fin de WBS (`FH.TEST007 `) | 26 | Rapproché avec `FH.TEST007` (seuls les espaces de début et fin sont retirés) |
-| Texte au lieu d'un nombre (Cost = `N/A`) | 27 | Rapproché, `N/A` recopié tel quel et signalé dans « À traiter à la main » |
-| WBS en double (`FH.TEST009` deux fois) | 28-29 | Aucun rapprochement ; les deux lignes dans « À traiter à la main » (doublon) |
-| Nouveau contrat absent de la database (`FH.TEST011`) | 30 | « À traiter à la main » : absent de la database |
-| Contrat sans WBS (Lynx Helicopter Services) | 31 | « À traiter à la main » : WBS manquant ; jamais rapproché par nom avec `FH.TEST012` |
-| Contrats de la database absents du fichier finance (`FH.TEST006`, `FH.TEST010`, `FH.TEST012`) | — | « À traiter à la main » : absent du fichier finance |
+| WBS identiques | 347 | Rapprochés à **100 %** |
+| Espaces, espaces insécables, caractère invisible, minuscules | 10 | Rapprochés à **100 %** |
+| Multiservices présents dans la table (`MS-…`) | 8 | Rapprochés à **100 %** par leur code |
+| Cost = « N/A » | 3 | Rapprochés à **100 %**, signalés (f) |
+| Même WBS, type différent (finance XBH, database PBH) | 2 | Rapprochés à **100 %**, signalés (h) |
+| WBS mal saisis (O/0, I/1, préfixe FH/FB, inversion) | 10 | À confirmer, confiance **Élevée** ; bonne décision **Oui** |
+| WBS mal saisis (deux erreurs typiques, ou une autre lettre) | 4 | À confirmer, confiance **Moyenne** ; bonne décision **Oui** |
+| Faux ami : nouveau contrat à un caractère d'un contrat absent | 1 | À confirmer, confiance **Moyenne** ; bonne décision **Non** |
+| Doublons (même WBS sur deux lignes) | 2 WBS (4 lignes) | Non rapprochés, (e) ; jamais additionnés |
+| Lignes sans WBS (type XBH) | 3 | Non rapprochées, (d) ; jamais rapprochées par le nom |
+| Multiservices absents de la table | 2 | Non rapprochés, (c), des deux côtés |
+| Nouveaux contrats PBH | 4 | Non rapprochés, (a) : aucun contrat PBH libre |
+| Contrats de la database absents du fichier finance | 8 | (b) |
 
-## Contrôle d'exhaustivité attendu
+## Comptages attendus
 
-- Lignes de contrats dans le fichier finance : **12**
-- Rapprochées et remplies : **7** (`FH.TEST001` à `005`, `007`, `008`)
-- Lignes du fichier finance dans « À traiter à la main » : **5** (`FB.TEST060`, `FH.TEST009` ×2, `FH.TEST011`, ligne sans WBS)
-- Contrats de la database absents du fichier finance : **3** (`FH.TEST006`, `FH.TEST010`, `FH.TEST012`)
-- Vérification : 7 + 5 = 12 ✔
-
-## Totaux attendus dans la database du mois (contrats rapprochés uniquement)
-
-| KPI | Total fichier finance | Total database | Écart expliqué par les cas manuels |
-|---|---|---|---|
-| Turnover | 13 587 501,65 | 8 048 601,65 | 5 538 900,00 |
-| Invoicing | 13 218 400,00 | 7 787 500,00 | 5 430 900,00 |
-| Cost | 9 356 130,35 | 5 044 480,35 | 4 311 650,00 |
-| FH | 33 417 | 20 170 | 13 247 |
-
-Le Cost de `FH.TEST008` (`N/A`) n'entre dans aucun total.
-
-
----
-
-# Version 2 — workflow automatisé (requirements du 2026-10-27, après l'oral)
-
-Le jeu E5 est d'abord anonymisé : seuls le numéro de ligne, le WBS, le type de contrat et les KPI sont conservés. Aucun contrat n'est de type « Multiservices » dans ce jeu.
-
-## Résultats attendus (E5, mémoire C6 vide)
-
-| Ligne(s) | Clé finance | Résultat attendu |
-|---|---|---|
-| 20 à 24 | `FH.TEST001` à `FH.TEST005` | Rapprochées à **100 %** |
-| 26 | `FH.TEST007 ` | Rapprochée à **100 %** (espace retiré) |
-| 27 | `FH.TEST008` | Rapprochée à **100 %**, `N/A` recopié et signalé (f) |
-| 25 | `FB.TEST060` | Rapprochée en passe 2 avec `FH.TEST006` (préfixe et deux chiffres inversés : erreurs typiques), confiance **inférieure à 100 %** (Moyenne attendue), « en attente de confirmation ». Bonne décision : **Oui** (même contrat Falcon Offshore) |
-| 30 | `FH.TEST011` | Rapprochée en passe 2 avec `FH.TEST010` (un chiffre différent), confiance **inférieure à 100 %**, « en attente de confirmation ». **Piège** : ce sont deux contrats différents (Kestrel Charter et Juniper Air). Bonne décision : **Non** |
-| 28-29 | `FH.TEST009` ×2 | Non rapprochées, raison (e) doublon ; le `FH.TEST009` de la database reste vide |
-| 31 | *(vide)*, type FBH | Non rapprochée, raison (d) clé manquante ; jamais rapprochée avec `FH.TEST012` |
-| — | `FH.TEST012` (database) | Raison (b) absent du fichier finance |
-
-Contrôle d'exhaustivité attendu : 12 lignes = 7 à 100 % + 2 en attente de confirmation + 3 non rapprochées.
-
-| KPI | Total fichier finance | Total database | Lignes non rapprochées | Dont en attente de confirmation (inclus dans la database) |
+| Scénario | 100 % | En attente (Élevée / Moyenne / Faible) | Non rapprochées | Total |
 |---|---|---|---|---|
-| Turnover | 13 587 501,65 | 12 271 101,65 | 1 316 400,00 | 4 222 500,00 |
-| Invoicing | 13 218 400,00 | 11 933 000,00 | 1 285 400,00 | 4 145 500,00 |
-| Cost | 9 356 130,35 | 8 324 730,35 | 1 031 400,00 | 3 280 250,00 |
-| FH | 33 417 | 29 965 | 3 452 | 9 795 |
+| **E5** — mémoire vide | 370 | 10 / 5 / 0 | 13 | 398 |
+| **E6** — mémoire `memoire-E6 (FICTIF).csv` | 384 | 0 / 0 / 0 | 14 | 398 |
+| **Chaîne** — E5, décisions de la colonne « bonne décision », relance | 384 après décisions | 0 / 0 / 0 | 14 | 398 |
 
-## Après les décisions de Baptiste (étape 8)
+Le scénario **E7 (multiservices)** se vérifie dans l'exécution de E5 : 8 multiservices rapprochés à 100 % par leur code `MS-…`, 2 en (c) des deux côtés, aucun nom de client dans les fichiers anonymisés.
 
-- `FB.TEST060` ↔ `FH.TEST006` : **Oui** → statut « certain », paire enregistrée « confirmée » dans C6.
-- `FH.TEST011` ↔ `FH.TEST010` : **Non** → KPI retirés, ligne en (g) correspondance rejetée, paire enregistrée « rejetée » dans C6 ; `FH.TEST010` passe en (b).
-- Comptage attendu après prise en compte : 12 lignes = 8 à 100 % + 0 en attente + 4 non rapprochées ; totaux identiques à ceux du scénario E6 ; validation « possible ».
-- Relance avec la mémoire obtenue : résultat identique au scénario E6.
+## Totaux attendus
 
-## Scénario E6 — mois suivant, mémoire C6 renseignée
-
-- `FB.TEST060` est rapprochée à **100 %** dès la passe 1, sans apparaître dans « Correspondances à confirmer ».
-- `FH.TEST011` n'est plus jamais proposée avec `FH.TEST010` ; aucun autre candidat XBH libre → raison (a). `FH.TEST010` → raison (b).
-- Comptage : 12 lignes = 8 à 100 % + 0 en attente + 4 non rapprochées.
-
-| KPI | Total fichier finance | Total database | Lignes non rapprochées |
+| KPI | Bloc de totaux | Database E5 | Database E6 et chaîne |
 |---|---|---|---|
-| Turnover | 13 587 501,65 | 11 151 101,65 | 2 436 400,00 |
-| Invoicing | 13 218 400,00 | 10 837 500,00 | 2 380 900,00 |
-| Cost | 9 356 130,35 | 7 454 480,35 | 1 901 650,00 |
-| FH | 33 417 | 27 090 | 6 327 |
+| Turnover (€) | 1 543 974 476,19 | 1 490 099 882,37 | 1 489 170 637,02 |
+| Invoicing (€) | 1 491 446 660,64 | 1 439 160 594,39 | 1 438 281 418,04 |
+| Cost (€) | 1 112 197 095,40 | 1 072 257 967,74 | 1 071 636 604,92 |
+| Flight Hours | 1 776 837 | 1 716 775 | 1 715 538 |
 
----
+Dans tous les cas, l'écart restant est nul (statut `OK`) : database + lignes non rapprochées = bloc de totaux.
 
-## Scénario E7 — multiservices (version 2)
+## Correspondances à confirmer (E5)
 
-| Ligne | Contrat (fictif) | Clé après anonymisation | Résultat attendu |
-|---|---|---|---|
-| 20 | Quartz Aviation, XBH | `FH.TEST101` | Rapprochée à **100 %** |
-| 21 | Nova Energy Services, Multiservices | `MS-001` (présent dans la table) | Rapprochée à **100 %** avec le contrat de la database qui reçoit aussi `MS-001` |
-| 22 | Orion Medical Fleet, Multiservices | vide, « multiservices sans code » | Non rapprochée, raison **(c)** ; le contrat Orion de la database est aussi en (c) |
-| 23 | Polar Air, XBH | vide | Non rapprochée, raison **(d)** clé manquante ; jamais rapprochée par le nom avec `FH.TEST104` |
-| — | `FH.TEST104` (database) | `FH.TEST104` | Raison **(b)** absent du fichier finance ; aucun candidat en passe 2, car la ligne 23 n'a pas de clé |
+| Clé finance | Clé database | Nature | Confiance attendue | Bonne décision |
+|---|---|---|---|---|
+| `FH.UWXOM` | `FH.UWX0M` | O/0 | Élevée | **Oui** |
+| `FH.NBORJ` | `FH.NB0RJ` | O/0 | Élevée | **Oui** |
+| `FH.OUB8S` | `FH.0UB8S` | O/0 | Élevée | **Oui** |
+| `FH.8IJW6` | `FH.81JW6` | I/1 | Élevée | **Oui** |
+| `FH.IPRFK` | `FH.1PRFK` | I/1 | Élevée | **Oui** |
+| `FH.ENIAU` | `FH.EN1AU` | I/1 | Élevée | **Oui** |
+| `FB.Z5ZT9` | `FH.Z5ZT9` | préfixe FH/FB | Élevée | **Oui** |
+| `FB.86BY7` | `FH.86BY7` | préfixe FH/FB | Élevée | **Oui** |
+| `FH.SHDCN` | `FH.SHCDN` | inversion | Élevée | **Oui** |
+| `FH.57JZ4` | `FH.75JZ4` | inversion | Élevée | **Oui** |
+| `FB.G8BW7` | `FH.G8WB7` | préfixe + inversion | Moyenne | **Oui** |
+| `FB.M2HKU` | `FH.MH2KU` | préfixe + inversion | Moyenne | **Oui** |
+| `FH.4R7SX` | `FH.437SX` | substitution | Moyenne | **Oui** |
+| `FH.GE694` | `FH.LE694` | substitution | Moyenne | **Oui** |
+| `FH.9LZYY` | `FH.9LZYW` | faux ami (contrats différents) | Moyenne | **Non** |
 
-Contrôle d'exhaustivité attendu : 4 lignes = 2 à 100 % + 0 en attente de confirmation + 2 non rapprochées.
+## Pourquoi ce corrigé est certain
 
-| KPI | Total fichier finance | Total database | Lignes non rapprochées |
-|---|---|---|---|
-| Turnover | 1 811 450,00 | 1 157 700,00 | 653 750,00 |
-| Invoicing | 1 760 000,00 | 1 130 000,00 | 630 000,00 |
-| Cost | 1 366 600,00 | 854 200,00 | 512 400,00 |
-| FH | 3 390 | 2 210 | 1 180 |
-
-Aucun nom de client, pays ou région ne figure dans les fichiers anonymisés ; le nom sert uniquement à la recherche du code `MS-…` dans la table.
+- Toutes les clés de la database diffèrent d'au moins 3 caractères entre elles : un WBS mal saisi n'a qu'un seul candidat proche.
+- Les nouveaux contrats sont de type PBH et aucun contrat PBH de la database ne reste libre : ils ne peuvent être rapprochés de rien.
+- Le faux ami est de type FBH, et aucun autre contrat FBH ne reste libre une fois sa paire rejetée (scénario E6).
+- Les contrats absents du fichier finance et les lignes sans WBS sont de type XBH : les seules lignes XBH en recherche automatique sont les WBS mal saisis, qui trouvent leur contrat avant.

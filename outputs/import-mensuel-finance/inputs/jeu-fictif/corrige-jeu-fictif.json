@@ -1,0 +1,159 @@
+{
+ "mois": "Octobre 2026",
+ "lignes_finance": 398,
+ "contrats_database": 400,
+ "E5": {
+  "100 %": 370,
+  "En attente – Élevée": 10,
+  "En attente – Moyenne": 5,
+  "En attente – Faible": 0,
+  "Non rapprochées": 13,
+  "Total lignes fichier finance": 398
+ },
+ "E6": {
+  "100 %": 384,
+  "En attente – Élevée": 0,
+  "En attente – Moyenne": 0,
+  "En attente – Faible": 0,
+  "Non rapprochées": 14,
+  "Total lignes fichier finance": 398
+ },
+ "bloc": {
+  "Turnover (€)": 1543974476.19,
+  "Invoicing (€)": 1491446660.64,
+  "Cost (€)": 1112197095.4,
+  "Flight Hours": 1776837
+ },
+ "database_E5": {
+  "Turnover (€)": 1490099882.37,
+  "Invoicing (€)": 1439160594.39,
+  "Cost (€)": 1072257967.74,
+  "Flight Hours": 1716775
+ },
+ "database_E6": {
+  "Turnover (€)": 1489170637.02,
+  "Invoicing (€)": 1438281418.04,
+  "Cost (€)": 1071636604.92,
+  "Flight Hours": 1715538
+ },
+ "a_confirmer_E5": [
+  {
+   "cle_finance": "FH.UWXOM",
+   "cle_db": "FH.UWX0M",
+   "niveau": "Élevée",
+   "nature": "O/0",
+   "bonne_decision": "Oui"
+  },
+  {
+   "cle_finance": "FH.NBORJ",
+   "cle_db": "FH.NB0RJ",
+   "niveau": "Élevée",
+   "nature": "O/0",
+   "bonne_decision": "Oui"
+  },
+  {
+   "cle_finance": "FH.OUB8S",
+   "cle_db": "FH.0UB8S",
+   "niveau": "Élevée",
+   "nature": "O/0",
+   "bonne_decision": "Oui"
+  },
+  {
+   "cle_finance": "FH.8IJW6",
+   "cle_db": "FH.81JW6",
+   "niveau": "Élevée",
+   "nature": "I/1",
+   "bonne_decision": "Oui"
+  },
+  {
+   "cle_finance": "FH.IPRFK",
+   "cle_db": "FH.1PRFK",
+   "niveau": "Élevée",
+   "nature": "I/1",
+   "bonne_decision": "Oui"
+  },
+  {
+   "cle_finance": "FH.ENIAU",
+   "cle_db": "FH.EN1AU",
+   "niveau": "Élevée",
+   "nature": "I/1",
+   "bonne_decision": "Oui"
+  },
+  {
+   "cle_finance": "FB.Z5ZT9",
+   "cle_db": "FH.Z5ZT9",
+   "niveau": "Élevée",
+   "nature": "préfixe FH/FB",
+   "bonne_decision": "Oui"
+  },
+  {
+   "cle_finance": "FB.86BY7",
+   "cle_db": "FH.86BY7",
+   "niveau": "Élevée",
+   "nature": "préfixe FH/FB",
+   "bonne_decision": "Oui"
+  },
+  {
+   "cle_finance": "FH.SHDCN",
+   "cle_db": "FH.SHCDN",
+   "niveau": "Élevée",
+   "nature": "inversion",
+   "bonne_decision": "Oui"
+  },
+  {
+   "cle_finance": "FH.57JZ4",
+   "cle_db": "FH.75JZ4",
+   "niveau": "Élevée",
+   "nature": "inversion",
+   "bonne_decision": "Oui"
+  },
+  {
+   "cle_finance": "FB.G8BW7",
+   "cle_db": "FH.G8WB7",
+   "niveau": "Moyenne",
+   "nature": "préfixe + inversion",
+   "bonne_decision": "Oui"
+  },
+  {
+   "cle_finance": "FB.M2HKU",
+   "cle_db": "FH.MH2KU",
+   "niveau": "Moyenne",
+   "nature": "préfixe + inversion",
+   "bonne_decision": "Oui"
+  },
+  {
+   "cle_finance": "FH.4R7SX",
+   "cle_db": "FH.437SX",
+   "niveau": "Moyenne",
+   "nature": "substitution",
+   "bonne_decision": "Oui"
+  },
+  {
+   "cle_finance": "FH.GE694",
+   "cle_db": "FH.LE694",
+   "niveau": "Moyenne",
+   "nature": "substitution",
+   "bonne_decision": "Oui"
+  },
+  {
+   "cle_finance": "FH.9LZYY",
+   "cle_db": "FH.9LZYW",
+   "niveau": "Moyenne",
+   "nature": "faux ami (contrats différents)",
+   "bonne_decision": "Non"
+  }
+ ],
+ "raisons_E5": {
+  "(a) absent de la database": 4,
+  "(b) absent du fichier finance": 11,
+  "(c) multiservices sans code": 4,
+  "(d) clé manquante": 3,
+  "(e) doublon": 6,
+  "(f) valeur non numérique": 3,
+  "(h) type de contrat différent": 2
+ },
+ "multiservices": {
+  "dans la table (100 %)": 8,
+  "absents de la table (c)": 2
+ }
+}
