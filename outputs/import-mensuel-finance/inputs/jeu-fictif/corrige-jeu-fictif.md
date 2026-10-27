@@ -81,3 +81,26 @@ Contrôle d'exhaustivité attendu : 12 lignes = 7 à 100 % + 2 en attente de con
 | Invoicing | 13 218 400,00 | 10 837 500,00 | 2 380 900,00 |
 | Cost | 9 356 130,35 | 7 454 480,35 | 1 901 650,00 |
 | FH | 33 417 | 27 090 | 6 327 |
+
+---
+
+## Scénario E7 — multiservices (version 2)
+
+| Ligne | Contrat (fictif) | Clé après anonymisation | Résultat attendu |
+|---|---|---|---|
+| 20 | Quartz Aviation, XBH | `FH.TEST101` | Rapprochée à **100 %** |
+| 21 | Nova Energy Services, Multiservices | `MS-001` (présent dans la table) | Rapprochée à **100 %** avec le contrat de la database qui reçoit aussi `MS-001` |
+| 22 | Orion Medical Fleet, Multiservices | vide, « multiservices sans code » | Non rapprochée, raison **(c)** ; le contrat Orion de la database est aussi en (c) |
+| 23 | Polar Air, XBH | vide | Non rapprochée, raison **(d)** clé manquante ; jamais rapprochée par le nom avec `FH.TEST104` |
+| — | `FH.TEST104` (database) | `FH.TEST104` | Raison **(b)** absent du fichier finance ; aucun candidat en passe 2, car la ligne 23 n'a pas de clé |
+
+Contrôle d'exhaustivité attendu : 4 lignes = 2 à 100 % + 0 en attente de confirmation + 2 non rapprochées.
+
+| KPI | Total fichier finance | Total database | Lignes non rapprochées |
+|---|---|---|---|
+| Turnover | 1 811 450,00 | 1 157 700,00 | 653 750,00 |
+| Invoicing | 1 760 000,00 | 1 130 000,00 | 630 000,00 |
+| Cost | 1 366 600,00 | 854 200,00 | 512 400,00 |
+| FH | 3 390 | 2 210 | 1 180 |
+
+Aucun nom de client, pays ou région ne figure dans les fichiers anonymisés ; le nom sert uniquement à la recherche du code `MS-…` dans la table.
