@@ -7,7 +7,9 @@ environment: "Claude Code (web), skill mon-import-mensuel-finance après correct
 round_status: in-progress
 criteria_total: 0
 criteria_met: 0
-results: {}
+results:
+  E5: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: not-run, AC6: not-run, AC7: met, AC8: met, AC9: met, AC10: met, AC11: met, AC12: met, AC13: met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": met, edits: none }
+  E7: { AC1: met, AC3: met, AC10: met, R8: not-run, R10: met, edits: none }
 ---
 
 # Résultats de test — Import Mensuel Finance, tour 2
@@ -86,11 +88,56 @@ Ordre du tour 2 : **E5 d'abord** (scénario raté au tour 1, avec au moins une d
 
 ## Report card
 
+### E5 + E7 — Jeu fictif de référence (Octobre 2026), mémoire vide — tour 2, noté le 2026-10-28
+
+Relance après un premier essai sans « Non ». Exécution collée dans la conversation d'ouverture et notée là ; la session n'a lu que la skill (« Je n'ai ouvert ni les specs, ni les requirements, ni les résultats de tests, ni les corrigés »). Preuves complétées par `runs/Database XBH Octobre 2026 v5.xlsx` (sur `main`). Décisions de Baptiste : « Oui pour les 15 et aucun NON » — Baptiste confirme qu'il juge les 15 paires justes. Notes confirmées par Baptiste ; retouches : aucune.
+
+| Expected | From | Result | Evidence |
+|---|---|---|---|
+| Aucune ligne oubliée | AC1 (must) | Met | 398 = 370 + 15 + 13 ; après décisions 385 + 13 |
+| Totaux justes | AC2 (must) | Met | Écart 0, OK pour les 4 KPI, avant et après décisions |
+| Aucune information client lue | AC3 (must) | Met | « anonymisation sans lire la colonne client » ; multiservices sans code non rapprochés |
+| Incertains listés | AC4 | Met | 15 paires : clés, niveau, écart, Décision vide |
+| « Oui » reconnu le mois suivant | AC5 | Not run | Demande une exécution suivante (E6) |
+| « Non » retiré, (g), mémorisé | AC6 | Not run | Aucun « Non » saisi |
+| KPI identiques | AC7 | Met | Totaux database identiques au corrigé avant décisions (1 467 184 114,25) |
+| Nom exact | AC8 | Met | `… Octobre 2026 v5.xlsx` ; « Les versions 1 à 4 sont conservées » |
+| En-têtes et informations identiques | AC9 | Met | Même programme et même database |
+| « À traiter à la main » complet | AC10 | Met | 33 lignes, toutes avec n°, clé, type, raison (aucune ligne (g) créée faute de « Non ») |
+| Onglet Contrôle | AC11 | Met | Totaux, statuts, comptages, décisions (15 Oui, 0 Non) |
+| Entrées inchangées | AC12 | Met | Seuls des fichiers de `runs/` modifiés |
+| Aucune question avant « prête » | AC13 | Met | « prérequis OK … Je lance la simulation » |
+| Chaque ligne rapprochée ou listée | R1 | Met | 398 lignes classées |
+| Rien d'inventé ni d'additionné | R2 | Met | Doublons « n'ont pas été additionnés » ; N/A tel quel |
+| Incertain jamais définitif sans « Oui » | R3 | Met | « Tant que tu n'as pas décidé … La validation reste impossible » |
+| Périmètre | R4 | Met | Rien hors périmètre |
+| Noms exacts | R5 | Met | 4 onglets |
+| Mois de l'ordre | R6 | Met | Octobre 2026 |
+| Arrêt seulement si inutilisable | R7 | Met | Pas d'arrêt |
+| Rien ne sort du Workspace | R8 | Not run | Propre au Google Workspace |
+| Même type, une seule fois | R9 | Met | Paires de même type, chaque contrat une fois |
+| Nom du client jamais utilisé | R10 | Met | Même preuve que AC3 |
+| Décision avant validation | G1 | Met | « Pour chacune, réponds Oui ou Non. La décision t'appartient » ; exemple à clés inventées ; validation possible seulement après les 15 réponses |
+| Arrêt sur fichier inutilisable | G2 | Met | Pas d'arrêt injustifié |
+| Fichiers anonymisés | Step 1 output | Not run | Écrits seulement par Apps Script |
+| Étapes 2 à 6 | Steps 2–6 output | Met | v5, KPI remplis, Contrôle OK, résumé |
+| Prise en compte des décisions | Step 8 output | Met | 15 Oui appliqués, mémoire créée, contrôle relancé |
+
+**E7 :** AC1, AC3, AC10, R10 Met (8 codes `MS-…` à 100 %, 2 sans code en (c) des deux côtés) ; R8 Not run.
+
+**Point de vigilance (hors bulletin) :** Baptiste a confirmé la paire de la ligne 171 (`FH.F4ZSJ` ↔ `FH.FVZSJ`), que le jeu de test présente comme un faux ami (deux contrats différents). Le workflow a fait ce qu'il doit : proposer avec la confiance « Moyenne » et laisser la décision à Baptiste. Sur des données réelles, les correspondances « Moyenne » demandent une vérification contrat par contrat.
+
 ## Golden example deltas
 
 *La comparaison au corrigé porte uniquement sur le résultat, pas sur le chemin suivi.*
 
+- **E5** : avant décisions, identique au corrigé (370 / 15 dont 10 Élevée et 5 Moyenne / 13, mêmes totaux). Après décisions : 385 / 0 / 13 au lieu de 384 / 0 / 14, parce que le faux ami a été confirmé — écart dû à la décision, pas au programme.
+- **E7** : identique au corrigé.
+
 ## Not run
+
+- **E5** — AC5 : vu en E6. AC6 : aucun « Non » saisi ; **AC10 après un « Non »** n'a donc pas été exercé dans une exécution notée. Il est couvert par les tests automatiques du Build correctif : chaîne Python E5 → décisions (avec le « Non » du faux ami) → `lignes_a_traiter_sans_type` = 0, et vérification `Code.gs` « type de contrat sur chaque ligne, y compris après un Non » (non conforme sur l'ancien code, conforme sur le nouveau). R8, Step 1 output : Google Workspace.
+- **E7** — R8 : Google Workspace.
 
 ## Environment
 
@@ -106,5 +153,7 @@ Ordre du tour 2 : **E5 d'abord** (scénario raté au tour 1, avec au moins une d
 ## Verdict
 
 ## Test records created
+
+- Tour 2, E5 noté : `runs/Database XBH Octobre 2026 v5.xlsx`, 2 lignes dans `runs.md` (branche `claude/simulation-octobre-2026-v5`) ; la mémoire créée a été déplacée (non supprimée) dans `runs/archive-tests-2026-10-28/memoire-correspondances (tour 2, E5 relance, 15 Oui).csv`.
 
 - Tour 2, 1er essai E5 (non noté, à relancer) : `runs/Database XBH Octobre 2026 v4.xlsx` et 2 lignes dans `runs.md` (branche `claude/simulation-octobre-2026`). Décisions « oui pour l'ensemble » : aucun « Non », donc AC10 après un rejet non vérifiable ; le faux ami (l. 171, `FH.F4ZSJ` ↔ `FH.FVZSJ`) confirmé. La mémoire créée a été déplacée (non supprimée) dans `runs/archive-tests-2026-10-28/memoire-correspondances (tour 2, E5 tout Oui).csv`, avec l'accord de Baptiste. La skill a bien présenté chaque paire et un exemple à clés inventées (correction de l'étape 8 vérifiée).
