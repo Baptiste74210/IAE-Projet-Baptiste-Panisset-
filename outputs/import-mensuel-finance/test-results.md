@@ -11,6 +11,7 @@ results:
   E5: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: not-run, AC6: not-run, AC7: met, AC8: met, AC9: met, AC10: met, AC11: met, AC12: met, AC13: met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": met, edits: none }
   E7: { AC1: met, AC3: met, AC10: met, R8: not-run, R10: met, edits: none }
   E6: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: met, AC6: met, AC7: met, AC8: met, AC9: met, AC10: met, AC11: met, AC12: met, AC13: met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": not-run, edits: none }
+  E1: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: not-run, AC6: not-run, AC7: met, AC8: met, AC9: met, AC10: met, AC11: met, AC12: met, AC13: met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": not-run, edits: none }
 ---
 
 # Résultats de test — Import Mensuel Finance, tour 2
@@ -155,6 +156,27 @@ Exécution collée dans la conversation d'ouverture et notée là ; la session n
 | Étapes 2 à 6 | Steps 2–6 output | Met | v6, KPI, Contrôle OK, résumé |
 | Prise en compte des décisions | Step 8 output | Not run | Aucune décision |
 
+### E1 — Clôture typique (Novembre 2026, fictif) — tour 2, noté le 2026-10-28
+
+Exécution collée dans la conversation d'ouverture et notée là ; la session n'a lu que la skill. Preuve : `runs/Database XBH Novembre 2026.xlsx` (sur `main`), identique cellule par cellule (hors date) à celui du tour 1 (branche `simulation-novembre-2026`). Notes confirmées par Baptiste ; retouches : aucune.
+
+| Expected | From | Result | Evidence |
+|---|---|---|---|
+| Aucune ligne oubliée | AC1 (must) | Met | 400 = 398 + 0 + 2 |
+| Totaux justes | AC2 (must) | Met | OK pour les 4 KPI ; Turnover database 1 635 558 259,04 |
+| Aucune information client lue | AC3 (must) | Met | Multiservices sans code non rapprochés |
+| Incertains listés | AC4 | Met | Aucun : « La deuxième passe … n'a rien proposé » |
+| « Oui » / « Non » mémorisés | AC5, AC6 | Not run | Aucune décision |
+| KPI, nom, en-têtes, à traiter, Contrôle, entrées | AC7–AC12 | Met | Fichier identique au tour 1 ; version 1 ; seuls `runs/` et `runs.md` modifiés |
+| Aucune question | AC13 | Met | Lancement direct |
+| Règles R1–R7, R9, R10 | R1–R7, R9, R10 | Met | 398 + 2 ; pas d'arrêt ; aucun nom de client |
+| Rien ne sort du Workspace | R8 | Not run | Google Workspace |
+| Décision avant validation | G1 | Met | « Validé : possible, c'est à vous de cocher la case » |
+| Arrêt sur fichier inutilisable | G2 | Met | « aucune anomalie … ne s'est pas arrêté » |
+| Fichiers anonymisés | Step 1 output | Not run | Apps Script |
+| Étapes 2 à 6 | Steps 2–6 output | Met | Comme au tour 1 |
+| Prise en compte des décisions | Step 8 output | Not run | Aucune décision |
+
 ## Golden example deltas
 
 *La comparaison au corrigé porte uniquement sur le résultat, pas sur le chemin suivi.*
@@ -162,11 +184,13 @@ Exécution collée dans la conversation d'ouverture et notée là ; la session n
 - **E5** : avant décisions, identique au corrigé (370 / 15 dont 10 Élevée et 5 Moyenne / 13, mêmes totaux). Après décisions : 385 / 0 / 13 au lieu de 384 / 0 / 14, parce que le faux ami a été confirmé — écart dû à la décision, pas au programme.
 - **E7** : identique au corrigé.
 - **E6** : identique au corrigé et au tour 1.
+- **E1** : identique au corrigé et au tour 1.
 
 ## Not run
 
 - **E5** — AC5 : vu en E6. AC6 : aucun « Non » saisi ; **AC10 après un « Non »** n'a donc pas été exercé dans une exécution notée. Il est couvert par les tests automatiques du Build correctif : chaîne Python E5 → décisions (avec le « Non » du faux ami) → `lignes_a_traiter_sans_type` = 0, et vérification `Code.gs` « type de contrat sur chaque ligne, y compris après un Non » (non conforme sur l'ancien code, conforme sur le nouveau). R8, Step 1 output : Google Workspace.
 - **E7** — R8 : Google Workspace.
+- **E1** — AC5, AC6, Step 8 output : aucune décision. R8, Step 1 output : Google Workspace / Apps Script.
 - **E6** — Step 8 output : aucune décision. R8, Step 1 output : Google Workspace / Apps Script.
 
 ## Environment
@@ -183,6 +207,8 @@ Exécution collée dans la conversation d'ouverture et notée là ; la session n
 ## Verdict
 
 ## Test records created
+
+- Tour 2, E1 : `runs/Database XBH Novembre 2026.xlsx` et une ligne dans `runs.md` (branche `claude/import-novembre-2026`).
 
 - Tour 2, E6 : `runs/Database XBH Octobre 2026 v6.xlsx` et une ligne dans `runs.md` (branche `claude/simulation-octobre-2026-memoire-e6`).
 
