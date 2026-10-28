@@ -4,9 +4,10 @@ design_spec: outputs/import-mensuel-finance/design-spec.md
 requirements: outputs/import-mensuel-finance/requirements.md
 date: 2026-10-28
 environment: "Claude Code (web), skill mon-import-mensuel-finance après correction AC10 (commit 3d33e72), programme Python de référence, données fictives uniquement ; Google Workspace Airbus non disponible"
-round_status: in-progress
-criteria_total: 0
-criteria_met: 0
+round_status: complete
+readiness: ready
+criteria_total: 153
+criteria_met: 153
 results:
   E5: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: not-run, AC6: not-run, AC7: met, AC8: met, AC9: met, AC10: met, AC11: met, AC12: met, AC13: met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": met, edits: none }
   E7: { AC1: met, AC3: met, AC10: met, R8: not-run, R10: met, edits: none }
@@ -14,6 +15,7 @@ results:
   E1: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: not-run, AC6: not-run, AC7: met, AC8: met, AC9: met, AC10: met, AC11: met, AC12: met, AC13: met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": not-run, edits: none }
   E2: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: not-run, AC6: not-run, AC7: met, AC8: met, AC9: met, AC10: met, AC11: met, AC12: met, AC13: met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": not-run, edits: none }
   E3: { AC1: not-run, AC2: not-run, AC3: met, AC4: not-run, AC5: not-run, AC6: not-run, AC7: not-run, AC8: met, AC9: not-run, AC10: not-run, AC11: not-run, AC12: met, AC13: met, R1: not-run, R2: met, R3: not-run, R4: met, R5: not-run, R6: met, R7: met, R8: not-run, R9: not-run, R10: met, G1: not-run, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": not-run, "Step 4 output": not-run, "Step 5 output": not-run, "Step 6 output": not-run, "Step 8 output": not-run, edits: none }
+  E4: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: not-run, AC6: not-run, AC7: met, AC8: met, AC9: met, AC10: met, AC11: met, AC12: met, AC13: met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": not-run, edits: none }
 ---
 
 # Résultats de test — Import Mensuel Finance, tour 2
@@ -221,6 +223,30 @@ Exécution collée dans la conversation d'ouverture et notée là ; la session n
 | Feu vert ou arrêt expliqué | Step 2 output | Met | Arrêt nommant F19 et l'en-tête attendu |
 | Autres lignes | AC1, AC2, AC4–AC7, AC9–AC11, R1, R3, R5, R8, R9, G1, Steps 1, 3–6, 8 | Not run | Arrêt voulu avant le rapprochement |
 
+### E4 — Database du mois déjà existante (Février 2027, fictif) — tour 2, noté le 2026-10-28
+
+Exécution collée dans la conversation d'ouverture et notée là ; la session n'a lu que la skill. Import lancé deux fois : `… Février 2027 v3.xlsx` puis `… v4.xlsx` créés ; `Database XBH Février 2027.xlsx` (d59b2a3) et `… v2.xlsx` (f1fc037) ont la même empreinte avant et après ; v4 identique (hors date et version) au fichier du tour 1. Notes confirmées par Baptiste ; retouches : aucune.
+
+| Expected | From | Result | Evidence |
+|---|---|---|---|
+| Aucune ligne oubliée | AC1 (must) | Met | 400 = 398 + 0 + 2, aux deux lancements |
+| Totaux justes | AC2 (must) | Met | Écart 0, OK pour les 4 KPI |
+| Aucune information client lue | AC3 (must) | Met | « La colonne client n'a pas été lue » |
+| Incertains listés | AC4 | Met | Aucun |
+| « Oui » / « Non » mémorisés | AC5, AC6 | Not run | Aucune décision |
+| KPI identiques | AC7 | Met | v3 = v4 = tour 1 |
+| Nouvelle version sans modifier les anciennes | AC8 | Met | « Le fichier sans numéro et la v2 existaient déjà et sont conservés » ; empreintes inchangées |
+| En-têtes, à traiter, Contrôle | AC9–AC11 | Met | Identiques au tour 1 |
+| Entrées inchangées | AC12 | Met | Seuls `runs/` et `runs.md` modifiés |
+| Aucune question | AC13 | Met | Lancement direct, deux fois |
+| Règles R1–R7, R9, R10 | R1–R7, R9, R10 | Met | Pas d'arrêt au 2e lancement ; noms exacts |
+| Rien ne sort du Workspace | R8 | Not run | Google Workspace |
+| Décision avant validation | G1 | Met | « La validation est donc possible » |
+| Arrêt sur fichier inutilisable | G2 | Met | Pas d'arrêt injustifié |
+| Fichiers anonymisés | Step 1 output | Not run | Apps Script |
+| Étapes 2 à 6 | Steps 2–6 output | Met | Aux deux lancements |
+| Prise en compte des décisions | Step 8 output | Not run | Aucune décision |
+
 ## Golden example deltas
 
 *La comparaison au corrigé porte uniquement sur le résultat, pas sur le chemin suivi.*
@@ -231,6 +257,7 @@ Exécution collée dans la conversation d'ouverture et notée là ; la session n
 - **E1** : identique au corrigé et au tour 1.
 - **E2** : identique au corrigé et au tour 1.
 - **E3** : identique au corrigé et au tour 1 (arrêt, F19 nommée, aucune database).
+- **E4** : identique au corrigé et au tour 1 (v3 et v4 créées, anciennes versions inchangées).
 
 ## Not run
 
@@ -239,6 +266,7 @@ Exécution collée dans la conversation d'ouverture et notée là ; la session n
 - **E1** — AC5, AC6, Step 8 output : aucune décision. R8, Step 1 output : Google Workspace / Apps Script.
 - **E2** — AC5, AC6, Step 8 output : aucune décision. R8, Step 1 output : Google Workspace / Apps Script.
 - **E3** — AC1, AC2, AC4–AC7, AC9–AC11, R1, R3, R5, R8, R9, G1, Steps 1, 3–6, 8 : arrêt voulu avant le rapprochement.
+- **E4** — AC5, AC6, Step 8 output : aucune décision. R8, Step 1 output : Google Workspace / Apps Script.
 - **E6** — Step 8 output : aucune décision. R8, Step 1 output : Google Workspace / Apps Script.
 
 ## Environment
@@ -248,13 +276,26 @@ Exécution collée dans la conversation d'ouverture et notée là ; la session n
 
 ## Issues identified
 
+Aucun raté dans ce tour : rien à reconstruire.
+
 ## Accepted misses
 
 - **AC13** (repris du tour 1) : question « fichiers fictifs ? » de la simulation quand l'ordre ne le précise pas — garde-fou volontaire, absent du programme Apps Script.
 
 ## Verdict
 
+**Prêt (ready)** — 153 lignes atteintes sur 153 testées, sur 7 scénarios (E1 à E7), après la correction AC10 du Build. Toutes les lignes obligatoires (AC1, AC2, AC3) sont atteintes partout ; résultats identiques aux corrigés et au tour 1 pour E1, E2, E3, E4, E6, E7, et pour E5 avant décisions. Raté accepté repris du tour 1 : AC13 (question « fichiers fictifs ? » de la simulation), qui ne s'est produit dans aucune exécution de ce tour. Ce tour est la **référence** (baseline) pour les étapes Run et Improve.
+
+**Réserves à traiter à l'étape Run :**
+- AC10 après un « Non » n'a été exercé que par les tests automatiques (Python et `Code.gs`), pas dans une exécution notée (aucun « Non » saisi en E5).
+- Lignes non testables hors du Google Workspace Airbus : R8, Step 1 output (fichiers anonymisés), dossier et partages de la database du mois (AC8) — à vérifier au premier lancement réel, sur des copies fictives d'abord.
+- Point de vigilance humain : le faux ami (ligne 171) a été confirmé à trois reprises ; les correspondances de confiance « Moyenne » demandent une vérification contrat par contrat.
+
+**Suite :** étape 6, `run` — 15 à 20 minutes.
+
 ## Test records created
+
+- Tour 2, E4 : `runs/Database XBH Février 2027 v3.xlsx`, `… v4.xlsx` et deux lignes dans `runs.md` (branche `claude/import-fevrier-2027-double`).
 
 - Tour 2, E3 : une ligne dans `runs.md` (branche `claude/import-janvier-2027-e3-arret`), aucun autre fichier.
 
