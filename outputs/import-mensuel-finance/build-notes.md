@@ -1,6 +1,6 @@
 # Build notes — Import Mensuel Finance
 
-**Date :** 2026-10-27 · **Design spec :** `design-spec.md` (v2, approuvé) · **Requirements :** `requirements.md` (v2)
+**Date :** 2026-10-27 · **Design spec :** `design-spec.md` (v2, approuvé ; révision sans nom de client ré-approuvée le 2026-10-28) · **Requirements :** `requirements.md` (v2)
 
 ## Ce qui a été construit
 

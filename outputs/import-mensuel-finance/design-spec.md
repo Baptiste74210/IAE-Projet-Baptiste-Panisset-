@@ -2,7 +2,7 @@
 workflow: import-mensuel-finance
 requirements_file: outputs/import-mensuel-finance/requirements.md
 spec_version: 3.0
-approved: false
+approved: true
 definition_type: Step-Driven
 mechanism: Skill
 involvement: Automated
@@ -24,7 +24,7 @@ counts:
 
 This Design Spec consumes the Workflow Requirements as canonical input. Goal, Value & Measurement, Metadata, Context Inventory, Security, Privacy & Safety, Acceptance Criteria, Example Scenarios, Human Gates, Steps Overview, and per-step requirements are defined there — not restated here. Read the Workflow Requirements alongside this spec when building.
 
-**Révision du 2026-10-27 (soir), à ré-approuver :** le nom du client n'est plus jamais lu ; les multiservices sont identifiés par un code `MS-…` écrit dans la colonne WBS ; la table de pseudonymisation C5 devient un référentiel non lu par le programme.
+**Révision du 2026-10-27 (soir), ré-approuvée par Baptiste le 2026-10-28 :** le nom du client n'est plus jamais lu ; les multiservices sont identifiés par un code `MS-…` écrit dans la colonne WBS ; la table de pseudonymisation C5 devient un référentiel non lu par le programme.
 
 Version précédente archivée : `outputs/import-mensuel-finance/design-spec-2026-10-27-v1.md` (workflow augmenté sur Claude Code, remplacé après l'oral). Synthèse sur une page : `outputs/import-mensuel-finance/use-case-canvas.md`.
 
@@ -314,7 +314,7 @@ Apps Script du workflow Import Mensuel Finance. Données fictives uniquement. Tr
 ## Self-Test Summary
 
 **Structure**
-- ✓ Frontmatter is present with workflow, requirements_file, spec_version (`3.0`), approved (`false` — révision à ré-approuver), definition_type, mechanism, involvement, platform, platform_mode, packaging, and counts
+- ✓ Frontmatter is present with workflow, requirements_file, spec_version (`3.0`), approved (`true` — révision ré-approuvée le 2026-10-28), definition_type, mechanism, involvement, platform, platform_mode, packaging, and counts
 - ✓ Frontmatter `counts` match the body — skills = 1 (S1), agents = 0, integrations = 3 (Google Sheets, Google Drive, Node.js)
 - ✓ Source section names the Workflow Requirements file path
 - ✓ All mandatory template sections are present in template order; Orchestrator Prompt Outline present (mechanism Skill); Agent Configuration and Multi-Agent Configuration omitted (no agents); Stakeholders omitted (Individual lens)
