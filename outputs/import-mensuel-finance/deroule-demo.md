@@ -1,5 +1,7 @@
 # Démonstration du prototype — Import Mensuel Finance (2026-10-29)
 
+> **Démo principale : dans Google Sheets**, avec le programme Apps Script dans un compte Google personnel — voir `demo-google-sheets/GUIDE.md`. Ce déroulé avec la skill Claude reste une solution de secours (même mois fictif, mêmes résultats attendus).
+
 *Données entièrement fictives. Aucun nom de client, aucun chiffre Airbus.*
 
 **Le message à faire passer :** chaque mois, au lieu de 1 à 2 jours de RECHERCHEV, Baptiste donne un ordre, le prototype rapproche les ~400 contrats, contrôle les totaux et ne lui demande que les cas incertains. Ses décisions sont mémorisées : le mois suivant, il y a de moins en moins de questions.

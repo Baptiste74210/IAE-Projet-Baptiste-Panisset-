@@ -4,7 +4,7 @@
 
 ## Your first real run
 
-**Premier lancement : démonstration sur un mois fictif réaliste (Novembre 2026), le 2026-10-29, devant l'enseignante.** Fichier `inputs/jeu-fictif/demo/…Novembre 2026 (FICTIF - démo).xlsx` et mémoire des décisions justes d'octobre ; attendu : 382 à 100 %, 2 à confirmer, 15 à traiter à la main, totaux OK. Déroulé pas à pas : `deroule-demo.md`.
+**Premier lancement : démonstration sur un mois fictif réaliste (Novembre 2026), le 2026-10-29, devant l'enseignante.** Fichier `inputs/jeu-fictif/demo/…Novembre 2026 (FICTIF - démo).xlsx` et mémoire des décisions justes d'octobre ; attendu : 382 à 100 %, 2 à confirmer, 15 à traiter à la main, totaux OK. Démo dans Google Sheets (compte personnel, programme Apps Script, fichiers fictifs) : `demo-google-sheets/GUIDE.md` ; solution de secours avec la skill Claude : `deroule-demo.md`.
 
 **Lancement sur données réelles** — pas encore fait : le premier lancement réel se fait par Baptiste dans le Google Workspace d'Airbus, jamais dans Claude, d'abord sur des copies fictives puis sur la clôture de **novembre 2026** (fichier finance reçu vers le 15 novembre). Ce jour-là, il permettra aussi de vérifier ce que les tests n'ont pas pu voir : fichiers « Anonymisé – … » créés, database du mois dans le même dossier avec les mêmes partages, rien qui sorte du Workspace.
 
