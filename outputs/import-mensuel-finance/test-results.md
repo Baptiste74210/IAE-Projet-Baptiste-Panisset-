@@ -11,6 +11,7 @@ results:
   E1: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: not-run, AC6: not-run, AC7: met, AC8: met, AC9: met, AC10: met, AC11: met, AC12: met, AC13: met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": not-run, edits: none }
   E5: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: not-run, AC6: met, AC7: met, AC8: met, AC9: met, AC10: not-met, AC11: met, AC12: met, AC13: not-met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": met, edits: minor }
   E7: { AC1: met, AC3: met, AC10: met, R8: not-run, R10: met, edits: minor }
+  E2: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: not-run, AC6: not-run, AC7: met, AC8: met, AC9: met, AC10: met, AC11: met, AC12: met, AC13: met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": not-run, edits: none }
 ---
 
 # Résultats de test — Import Mensuel Finance, tour 1
@@ -173,12 +174,52 @@ Exécution lancée pour E2, mais la session a simulé Octobre 2026 avec les fich
 
 **Observation (hors bulletin) :** la session a proposé un exemple de réponse avec de vrais numéros de ligne (« tout Oui sauf 155 et 303 ») ; Baptiste l'a repris tel quel, d'où un faux ami confirmé et deux bonnes paires rejetées. Le programme a appliqué fidèlement les décisions ; le risque est dans la façon de demander.
 
+### E2 — Contrat inconnu (Décembre 2026, fictif) — noté le 2026-10-28
+
+Exécution collée dans la conversation d'ouverture et notée là ; la session n'a lu que la skill (« Je n'ai ouvert aucun des fichiers exclus »). Lancement en un seul message (rattachement du dépôt + ordre). Preuves complétées par `runs/Database XBH Décembre 2026.xlsx` (sur `main`). Notes confirmées par Baptiste ; retouches : aucune.
+
+| Expected | From | Result | Evidence |
+|---|---|---|---|
+| Aucune ligne oubliée | AC1 (must) | Met | 401 = 398 + 0 + 3 ; tests AC1, AC4, R3 |
+| Totaux justes | AC2 (must) | Met | Écart 0, OK pour les 4 KPI ; 1 000 de `FH.TEST001` dans la part non rapprochée |
+| Aucune information client lue | AC3 (must) | Met | « le programme ne peut pas les relier sans code » |
+| Incertains listés | AC4 | Met | Aucun ; `FH.TEST001` jamais rapproché à un contrat au hasard |
+| « Oui » mémorisé | AC5 | Not run | Aucune décision |
+| « Non » mémorisé | AC6 | Not run | Aucune décision |
+| KPI identiques | AC7 | Met | 398 / 398 |
+| Nom exact | AC8 | Met | `Database XBH Décembre 2026.xlsx`, version 1 |
+| En-têtes et informations identiques | AC9 | Met | 400 contrats identiques |
+| « À traiter à la main » complet | AC10 | Met | 5 lignes complètes ; ligne 420, `FH.TEST001`, XBH, (a), 1 000 par KPI |
+| Onglet Contrôle | AC11 | Met | Totaux, statuts, comptages, trace |
+| Entrées inchangées | AC12 | Met | Seuls le fichier du mois et `runs.md` modifiés |
+| Aucune question avant « prête » | AC13 | Met | « J'ai considéré votre demande comme la confirmation que les fichiers sont fictifs » |
+| Chaque ligne rapprochée ou listée | R1 | Met | 398 + 3 = 401 |
+| Rien d'inventé | R2 | Met | 398 / 398 identiques |
+| Jamais à 100 % sans « Oui » | R3 | Met | `FH.TEST001` en (a) « sans contrat proche », jamais à 100 % |
+| Périmètre | R4 | Met | Propose de compléter les codes `MS-…` sans le faire |
+| Noms exacts | R5 | Met | 4 onglets |
+| Mois de l'ordre | R6 | Met | Décembre 2026 |
+| Arrêt seulement si inutilisable | R7 | Met | « Le fichier finance a passé tous les contrôles » |
+| Rien ne sort du Workspace | R8 | Not run | Propre au Google Workspace |
+| Même type, une seule fois | R9 | Met | Aucune passe 2 ; chaque contrat une fois |
+| Nom du client jamais utilisé | R10 | Met | Même preuve que AC3 |
+| Décision avant validation | G1 | Met | Rien à décider ; « La validation du mois est donc possible » |
+| Arrêt sur fichier inutilisable | G2 | Met | Pas d'arrêt injustifié |
+| Fichiers anonymisés | Step 1 output | Not run | Écrits seulement par Apps Script |
+| Feu vert avec la plage | Step 2 output | Met | 401 lignes lues |
+| Database préparée | Step 3 output | Met | Version 1, 400 contrats |
+| KPI remplis, onglet à traiter | Step 4 output | Met | 398 remplies, 5 à traiter |
+| Onglet Contrôle | Step 5 output | Met | 4 KPI OK |
+| Database complète + message | Step 6 output | Met | Résumé « La validation du mois est donc possible » |
+| Prise en compte des décisions | Step 8 output | Not run | Aucune décision |
+
 ## Golden example deltas
 
 *La comparaison au corrigé porte uniquement sur le résultat, pas sur le chemin suivi.*
 
 - **E5** : avant décisions, identique au corrigé (370 / 15 dont 10 Élevée et 5 Moyenne / 13, mêmes totaux, mêmes raisons). Après décisions : différent du corrigé, parce que les décisions saisies ne sont pas les « bonnes décisions » (383 / 0 / 15 au lieu de 384 / 0 / 14) — écart dû aux réponses, pas au programme.
 - **E7** : identique au corrigé (8 multiservices codés à 100 %, 2 sans code en (c) des deux côtés).
+- **E2** : identique au corrigé (398 / 0 / 3, `FH.TEST001` en (a), mêmes totaux).
 - **E1** : rien de manquant, rien en trop, rien de différent — 398 / 0 / 2 et totaux identiques au centime au corrigé.
 
 ## Not run
@@ -186,6 +227,7 @@ Exécution lancée pour E2, mais la session a simulé Octobre 2026 avec les fich
 - **E1** — AC5, AC6, Step 8 output : aucune décision dans ce scénario. R8 : propre au Google Workspace Airbus (Run). Step 1 output : la simulation n'écrit pas les fichiers anonymisés, créés seulement par Apps Script (Run).
 - **E5** — AC5 : demande une exécution suivante (E6). R8, Step 1 output : propres au Google Workspace / Apps Script.
 - **E7** — R8 : propre au Google Workspace.
+- **E2** — AC5, AC6, Step 8 output : aucune décision. R8, Step 1 output : propres au Google Workspace / Apps Script.
 
 ## Environment
 
@@ -200,5 +242,6 @@ Exécution lancée pour E2, mais la session a simulé Octobre 2026 avec les fich
 
 ## Test records created
 
+- E2 : sur `main` via `claude/import-mensuel-decembre-2026` — `runs/Database XBH Décembre 2026.xlsx` et une ligne dans `runs.md`.
 - E1 : branche `simulation-novembre-2026` (fichier `runs/Database XBH Novembre 2026.xlsx` et une ligne dans `runs.md`), non fusionnée dans `main`.
 - E5 : sur `main` via la branche `claude/import-mensuel-finance-simulation` — `runs/Database XBH Octobre 2026 v2.xlsx`, `runs/memoire-correspondances.csv` (15 paires, dont le faux ami confirmé et 2 bonnes paires rejetées), 2 lignes dans `runs.md`. La mémoire a été déplacée (non supprimée) dans `runs/archive-tests-2026-10-28/` avec l'accord de Baptiste, pour que les imports suivants partent d'une mémoire vide.
