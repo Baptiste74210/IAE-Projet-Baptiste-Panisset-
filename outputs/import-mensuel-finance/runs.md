@@ -26,3 +26,12 @@
 | 2026-10-28 | simulation (mémoire vide) | Janvier 2027 | Scénario E3 : finance `inputs/jeu-fictif/scenarios/Xbh Contracts Financial performance - Janvier 2027 (FICTIF - E3).xlsx` → **arrêt**, aucun fichier créé | Fichier finance inutilisable : en-tête « Turnover (€) » trouvé 0 fois en ligne 19 (attendu : 1) ; la cellule F19 contient « Turnover (€)_v2 », absent de la table de correspondance des colonnes. Rien rapproché, rien calculé, en attente d'une décision (corriger l'en-tête ou mettre à jour la table de correspondance) | — | — |
 | 2026-10-28 | simulation (mémoire vide) — 1er lancement | Février 2027 | Scénario E4 : finance `inputs/jeu-fictif/scenarios/Xbh Contracts Financial performance - Février 2027 (FICTIF - E4).xlsx`, database fictive de référence, mémoire vide (fichier `runs/memoire-correspondances.csv` absent) → `runs/Database XBH Février 2027 v3.xlsx` ; versions précédentes (`Février 2027.xlsx`, `v2`) conservées | 398 à 100 % / 0 en attente de confirmation / 2 non rapprochées (c) ; côté database : 2 (c) ; totaux OK sur les 4 KPI ; validation possible | 0 | 2 non rapprochées (+ 2 côté database) |
 | 2026-10-28 | simulation (mémoire vide) — 2e lancement identique | Février 2027 | Même commande, mêmes fichiers d'entrée que le 1er lancement → `runs/Database XBH Février 2027 v4.xlsx` ; v3 conservée, rien écrasé. Contenu identique à v3 sur les 4 onglets (seule différence : « Version » 4 au lieu de 3 dans l'onglet Contrôle) | 398 à 100 % / 0 en attente de confirmation / 2 non rapprochées (c) ; côté database : 2 (c) ; totaux OK sur les 4 KPI ; validation possible | 0 | 2 non rapprochées (+ 2 côté database) |
+
+## Lancements réels (Google Workspace Airbus)
+
+*Une ligne par clôture réelle. Jamais de montant, de nom de client ni de WBS réel dans ce fichier : seulement des comptages. La trace détaillée reste dans l'onglet « Contrôle » de la database du mois, dans le Workspace.*
+
+| Date | Mois | Résultat (100 % / à confirmer / à traiter ; totaux) | Temps passé | Retouches | Remarques |
+|---|---|---|---|---|---|
+| à venir | Octobre 2026 (essai à blanc sur copies fictives dans le Workspace) | attendu : 370 / 15 / 13, totaux OK | — | — | Vérifier aussi : fichiers « Anonymisé – … », dossier et partages de la database du mois |
+| à venir | Novembre 2026 (1re clôture réelle, vers le 15 novembre) | — | — | — | Mesurer le temps (baseline : 1 à 2 jours) |
