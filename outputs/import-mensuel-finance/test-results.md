@@ -7,7 +7,8 @@ environment: "Claude Code (web), skill mon-import-mensuel-finance, programme Pyt
 round_status: in-progress
 criteria_total: 0
 criteria_met: 0
-results: {}
+results:
+  E1: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: not-run, AC6: not-run, AC7: met, AC8: met, AC9: met, AC10: met, AC11: met, AC12: met, AC13: met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": not-run, edits: none }
 ---
 
 # Résultats de test — Import Mensuel Finance, tour 1
@@ -88,11 +89,54 @@ Lecture de la skill `mon-import-mensuel-finance` contre les requirements : les �
 
 ## Report card
 
+### E1 — Clôture typique (Novembre 2026, fictif) — noté le 2026-10-28
+
+Exécution collée dans la conversation d'ouverture et notée là. La session d'exécution n'a lu que la skill (« Je n'ai ouvert ni design-spec.md, ni requirements.md, ni test-results.md, ni les corrigés »). Preuves complétées par le fichier produit `runs/Database XBH Novembre 2026.xlsx` (branche `simulation-novembre-2026`). Notes confirmées par Baptiste ; retouches : aucune.
+
+| Expected | From | Result | Evidence |
+|---|---|---|---|
+| Aucune ligne oubliée | AC1 (must) | Met | 400 lignes = 398 à 100 % + 0 en attente + 2 en (c) |
+| Totaux justes à 0,01 près | AC2 (must) | Met | Bloc = lignes pour les 4 KPI ; database + non rapprochées = lignes (Turnover 1 635 558 259,04 + 7 646 621,06 = 1 643 204 880,10) ; écart 0, OK ; tests AC1–AC3, AC8, AC13 |
+| Aucune information client lue | AC3 (must) | Met | « il faudrait lire le nom du client, ce que la skill interdit. Je ne les ai donc pas rapprochés » |
+| Correspondances incertaines listées | AC4 | Met | Aucune ; onglet présent, vide |
+| Paire « Oui » mémorisée | AC5 | Not run | Aucune décision dans ce scénario |
+| Paire « Non » retirée et mémorisée | AC6 | Not run | Aucune décision dans ce scénario |
+| KPI strictement identiques | AC7 | Met | 398 / 398 lignes identiques au fichier finance (passe 2 : vue en E5) |
+| Nom exact, aucune version modifiée | AC8 | Met | `Database XBH Novembre 2026.xlsx`, version 1 ; dossier Google Drive : Run |
+| En-têtes et informations contrats identiques | AC9 | Met | En-têtes identiques ; informations des 400 contrats identiques |
+| « À traiter à la main » complet | AC10 | Met | 4 lignes : n° de ligne, clé « donnée manquante », type, raison (c) |
+| Onglet « Contrôle » complet | AC11 | Met | Totaux bloc / lignes / database, écart, statut, comptages par niveau, trace |
+| Entrées inchangées | AC12 | Met | Seuls le fichier du mois et `runs.md` modifiés sur la branche |
+| Aucune question avant « prête à valider » | AC13 | Met | « votre message indiquait que les fichiers sont fictifs, je l'ai pris comme confirmation » |
+| Chaque ligne rapprochée ou listée | R1 | Met | 398 + 2 = 400 |
+| Rien d'inventé ni d'arrondi | R2 | Met | 398 / 398 identiques ; multiservices sans code non devinés |
+| Incertain jamais définitif sans « Oui » | R3 | Met | Aucun rapprochement incertain |
+| Reste dans le périmètre | R4 | Met | Propose d'ajouter les codes `MS-…` sans le faire |
+| Noms exacts | R5 | Met | Onglets Database, À traiter à la main, Correspondances à confirmer, Contrôle |
+| Mois de l'ordre | R6 | Met | « Mois : Novembre 2026 » |
+| Arrêt seulement si fichier inutilisable | R7 | Met | Pas d'arrêt ; cas particuliers listés |
+| Rien ne sort du Workspace | R8 | Not run | Propre au Google Workspace Airbus |
+| Même type, une seule fois, rejet respecté | R9 | Met | Aucune passe 2 ; chaque contrat utilisé une fois |
+| Nom du client jamais utilisé | R10 | Met | Même preuve que AC3 |
+| Décision avant validation | G1 | Met | Rien à décider ; « Validé : possible (case à cocher par Baptiste) » |
+| Arrêt sur fichier inutilisable | G2 | Met | « Il ne s'est pas arrêté sur une anomalie » ; fichier conforme |
+| Fichiers anonymisés | Step 1 output | Not run | La simulation anonymise sans écrire de fichier |
+| Feu vert avec la plage | Step 2 output | Met | 400 lignes lues (lignes 20 à 419) |
+| Database du mois préparée | Step 3 output | Met | 400 contrats, version 1 |
+| KPI remplis, onglet à traiter | Step 4 output | Met | 398 lignes remplies, 4 à traiter |
+| Onglet Contrôle | Step 5 output | Met | 4 KPI OK |
+| Database complète + message « prête » | Step 6 output | Met | « la validation est possible » avec le résumé |
+| Prise en compte des décisions | Step 8 output | Not run | Aucune décision |
+
 ## Golden example deltas
 
 *La comparaison au corrigé porte uniquement sur le résultat, pas sur le chemin suivi.*
 
+- **E1** : rien de manquant, rien en trop, rien de différent — 398 / 0 / 2 et totaux identiques au centime au corrigé.
+
 ## Not run
+
+- **E1** — AC5, AC6, Step 8 output : aucune décision dans ce scénario. R8 : propre au Google Workspace Airbus (Run). Step 1 output : la simulation n'écrit pas les fichiers anonymisés, créés seulement par Apps Script (Run).
 
 ## Environment
 
@@ -106,3 +150,5 @@ Lecture de la skill `mon-import-mensuel-finance` contre les requirements : les �
 ## Verdict
 
 ## Test records created
+
+- E1 : branche `simulation-novembre-2026` (fichier `runs/Database XBH Novembre 2026.xlsx` et une ligne dans `runs.md`), non fusionnée dans `main`.
