@@ -33,5 +33,6 @@
 
 | Date | Mois | Résultat (100 % / à confirmer / à traiter ; totaux) | Temps passé | Retouches | Remarques |
 |---|---|---|---|---|---|
+| 2026-10-28 | Novembre 2026 — **répétition de la démo dans Google Sheets** (compte personnel, programme Apps Script, fichiers fictifs) | 1er essai 368 / 17 / 14 : mémoire non trouvée (accent du nom « Mémoire » mal encodé à l'import depuis Mac ; nom retapé) ; 2e essai **382 / 2 / 15, contrôle OK** ; 2 « Oui » pris en compte → validation possible ; relance de la prise en compte sans effet (0 / 0 / 0) | ~1 h d'installation | aucune | Premier fonctionnement de `Code.gs` dans un vrai Google Sheets : conforme au programme Python |
 | à venir | Octobre 2026 (essai à blanc sur copies fictives dans le Workspace) | attendu : 370 / 15 / 13, totaux OK | — | — | Vérifier aussi : fichiers « Anonymisé – … », dossier et partages de la database du mois |
 | à venir | Novembre 2026 (1re clôture réelle, vers le 15 novembre) | — | — | — | Mesurer le temps (baseline : 1 à 2 jours) |

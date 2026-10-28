@@ -18,6 +18,7 @@ Durée : environ 20 minutes d'installation, **à faire une fois aujourd'hui** (r
    | Table de correspondance des colonnes | rien à changer |
    | Mémoire des correspondances | rien à changer |
 
+   **Important (Mac) :** pour `Mémoire des correspondances`, **retapez le nom au clavier** même s'il paraît juste : importé depuis un Mac, le « é » peut être encodé autrement et le programme ne trouve pas le fichier (il en crée alors un vide, et le résultat devient 368 / 17 / 14 au lieu de 382 / 2 / 15).
    Vérifier qu'il n'existe **aucun autre fichier** portant le nom du fichier finance ailleurs dans votre Drive (le programme le cherche dans tout le Drive).
 5. **Installer le programme** : ouvrir `Database Hcare XBH in service contracts` → **Extensions → Apps Script**.
    - Remplacer le contenu de `Code.gs` par celui du fichier `apps-script/Code.gs` du dépôt.
@@ -38,6 +39,8 @@ Durée : environ 20 minutes d'installation, **à faire une fois aujourd'hui** (r
 | 5 | Onglet **Correspondances à confirmer** : écrire `Oui` en colonne E pour `FH.YXSBL` et `FH.SHPKH` | — |
 | 6 | Dans la database du mois : **Import mensuel finance → Prendre en compte mes décisions** | « 2 confirmée(s), 0 rejetée(s), 0 sans décision — Contrôle OK — Validation possible » ; la Mémoire reçoit 2 lignes |
 | 7 | Onglet **Contrôle** | Totaux bloc = lignes = database + non rapprochées, statut OK ; 384 à 100 % |
+
+Si vous relancez « Prendre en compte mes décisions » une deuxième fois, le message affiche « 0 confirmée(s), 0 rejetée(s) » : c'est normal, les décisions déjà prises ne sont jamais appliquées deux fois (bon point à montrer).
 
 **Pour rejouer la démo demain à l'identique :** dans le dossier, renommer (ou mettre à la corbeille) `Database XBH Novembre 2026` et `Anonymisé – Novembre 2026` créés pendant la répétition, et supprimer dans `Mémoire des correspondances` les 2 lignes ajoutées (`FH.YXSBL`, `FH.SHPKH`). Sinon, le programme crée simplement `… v2` (c'est aussi une démonstration : il n'écrase jamais rien).
 
