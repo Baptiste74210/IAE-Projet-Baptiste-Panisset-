@@ -9,6 +9,8 @@ criteria_total: 0
 criteria_met: 0
 results:
   E1: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: not-run, AC6: not-run, AC7: met, AC8: met, AC9: met, AC10: met, AC11: met, AC12: met, AC13: met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": not-run, edits: none }
+  E5: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: not-run, AC6: met, AC7: met, AC8: met, AC9: met, AC10: not-met, AC11: met, AC12: met, AC13: not-met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": met, edits: minor }
+  E7: { AC1: met, AC3: met, AC10: met, R8: not-run, R10: met, edits: minor }
 ---
 
 # Résultats de test — Import Mensuel Finance, tour 1
@@ -128,15 +130,62 @@ Exécution collée dans la conversation d'ouverture et notée là. La session d'
 | Database complète + message « prête » | Step 6 output | Met | « la validation est possible » avec le résumé |
 | Prise en compte des décisions | Step 8 output | Not run | Aucune décision |
 
+### E5 + E7 — Jeu fictif de référence (Octobre 2026), mémoire vide — noté le 2026-10-28
+
+Exécution lancée pour E2, mais la session a simulé Octobre 2026 avec les fichiers par défaut et une mémoire vide : notée comme **E5** (et E7 dans la même exécution), avec l'accord de Baptiste. Collée dans la conversation d'ouverture et notée là. La session n'a lu que la skill. Preuves complétées par `runs/Database XBH Octobre 2026 v2.xlsx` avant (commit 555bbf8) et après décisions (commit 224ff1b). Décisions saisies : « Tout Oui sauf 155 et 303 » (exemple proposé par la session ; le corrigé attendait 14 Oui et Non sur la ligne 171, le faux ami). Notes confirmées par Baptiste ; retouches : un peu.
+
+| Expected | From | Result | Evidence |
+|---|---|---|---|
+| Aucune ligne oubliée | AC1 (must) | Met | 398 = 370 + 15 + 13 ; après décisions 398 = 383 + 15 ; tests AC1–AC4, AC7, AC10, AC13, R2, R3, R9 |
+| Totaux justes à 0,01 près | AC2 (must) | Met | Écart restant 0, OK pour les 4 KPI, avant et après décisions |
+| Aucune information client lue | AC3 (must) | Met | Multiservices sans code (l. 99, 409) non rapprochés : aucun nom utilisé |
+| Incertains listés, Décision vide | AC4 | Met | 15 lignes : 2 clés, niveau, écart, Décision vide, statut « En attente de confirmation » |
+| « Oui » reconnu le mois suivant | AC5 | Not run | Demande une exécution suivante (E6) |
+| « Non » retiré, (g), mémorisé | AC6 | Met | L. 155 et 303 : KPI retirés, raison (g), « rejetée » dans `memoire-correspondances.csv` ; « plus jamais proposée » : E6 |
+| KPI identiques dont passe 2 | AC7 | Met | 15 / 15 rapprochements de passe 2 identiques au fichier finance |
+| Nom exact, aucune version modifiée | AC8 | Met | `Database XBH Octobre 2026 v2.xlsx` « pour ne pas écraser le fichier d'Octobre déjà présent » |
+| En-têtes et informations identiques | AC9 | Met | Identiques sur 400 contrats |
+| « À traiter à la main » complet | AC10 | Not met | Après l'étape 8, 4 lignes sans type de contrat : l. 155 et 303 (g), database l. 359 et l. 76 (b après rejet) ; complet avant décisions |
+| Onglet Contrôle complet | AC11 | Met | Totaux, statuts, 370 / 10 / 5 / 0 / 13, trace et décisions (13 Oui, 2 Non, 0 manquante) |
+| Entrées inchangées | AC12 | Met | Seuls des fichiers de `runs/` modifiés |
+| Aucune question avant « prête à valider » | AC13 | Not met | « confirmez-vous que les fichiers du dossier jeu-fictif sont bien fictifs … et quel usage voulez-vous ? » posée avant le lancement |
+| Chaque ligne rapprochée ou listée | R1 | Met | 398 lignes classées |
+| Rien d'inventé ni d'additionné | R2 | Met | Doublons (e) jamais additionnés ; « N/A » recopié tel quel (f) |
+| Incertain jamais définitif sans « Oui » | R3 | Met | « Je n'ai rien décidé à votre place » ; statut en attente jusqu'aux réponses |
+| Périmètre | R4 | Met | Rien hors périmètre |
+| Noms exacts | R5 | Met | Fichier et 4 onglets |
+| Mois de l'ordre | R6 | Met | Octobre 2026, mois lancé |
+| Arrêt seulement si inutilisable | R7 | Met | Pas d'arrêt ; pièges listés |
+| Rien ne sort du Workspace | R8 | Not run | Propre au Google Workspace |
+| Même type, une seule fois | R9 | Met | 0 rapprochement de types différents sur 15 ; chaque contrat une fois |
+| Nom du client jamais utilisé | R10 | Met | Même preuve que AC3 |
+| Décision avant validation | G1 | Met | « Validé : indisponible : décisions à prendre », puis « possible » après les 15 décisions |
+| Arrêt sur fichier inutilisable | G2 | Met | Fichier utilisable, pas d'arrêt |
+| Fichiers anonymisés | Step 1 output | Not run | Écrits seulement par Apps Script |
+| Feu vert avec la plage | Step 2 output | Met | 398 lignes lues |
+| Database du mois préparée | Step 3 output | Met | v2, 400 contrats |
+| KPI remplis, onglet à traiter | Step 4 output | Met | 385 lignes remplies, 18 lignes finance + 15 lignes database à traiter |
+| Onglet Contrôle | Step 5 output | Met | 4 KPI OK |
+| Database complète + message « prête » | Step 6 output | Met | Résumé et demande de décisions |
+| Prise en compte des décisions | Step 8 output | Met | 13 Oui / 2 Non appliqués, mémoire créée (15 paires), contrôle relancé |
+
+**E7 (multiservices), dans la même exécution :** AC1 Met (aucune ligne multiservices oubliée) ; AC3 et R10 Met (multiservices identifiés par le seul code `MS-…`, référentiel non lu) ; AC10 Met (l. 99, 409 et database l. 30, 118 en (c) avec n° de ligne, clé, type, raison) ; R8 Not run. Les 8 codes `MS-001` à `MS-008` sont rapprochés à 100 %.
+
+**Observation (hors bulletin) :** la session a proposé un exemple de réponse avec de vrais numéros de ligne (« tout Oui sauf 155 et 303 ») ; Baptiste l'a repris tel quel, d'où un faux ami confirmé et deux bonnes paires rejetées. Le programme a appliqué fidèlement les décisions ; le risque est dans la façon de demander.
+
 ## Golden example deltas
 
 *La comparaison au corrigé porte uniquement sur le résultat, pas sur le chemin suivi.*
 
+- **E5** : avant décisions, identique au corrigé (370 / 15 dont 10 Élevée et 5 Moyenne / 13, mêmes totaux, mêmes raisons). Après décisions : différent du corrigé, parce que les décisions saisies ne sont pas les « bonnes décisions » (383 / 0 / 15 au lieu de 384 / 0 / 14) — écart dû aux réponses, pas au programme.
+- **E7** : identique au corrigé (8 multiservices codés à 100 %, 2 sans code en (c) des deux côtés).
 - **E1** : rien de manquant, rien en trop, rien de différent — 398 / 0 / 2 et totaux identiques au centime au corrigé.
 
 ## Not run
 
 - **E1** — AC5, AC6, Step 8 output : aucune décision dans ce scénario. R8 : propre au Google Workspace Airbus (Run). Step 1 output : la simulation n'écrit pas les fichiers anonymisés, créés seulement par Apps Script (Run).
+- **E5** — AC5 : demande une exécution suivante (E6). R8, Step 1 output : propres au Google Workspace / Apps Script.
+- **E7** — R8 : propre au Google Workspace.
 
 ## Environment
 
@@ -152,3 +201,4 @@ Exécution collée dans la conversation d'ouverture et notée là. La session d'
 ## Test records created
 
 - E1 : branche `simulation-novembre-2026` (fichier `runs/Database XBH Novembre 2026.xlsx` et une ligne dans `runs.md`), non fusionnée dans `main`.
+- E5 : sur `main` via la branche `claude/import-mensuel-finance-simulation` — `runs/Database XBH Octobre 2026 v2.xlsx`, `runs/memoire-correspondances.csv` (15 paires, dont le faux ami confirmé et 2 bonnes paires rejetées), 2 lignes dans `runs.md`.
