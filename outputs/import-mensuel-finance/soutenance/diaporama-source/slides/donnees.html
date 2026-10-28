@@ -1,0 +1,21 @@
+<section id="donnees" data-transition="fade" style="background:#EAEEEA;color:#1E2A28;font-family:'IBM Plex Sans', Arial, sans-serif;padding:104px 128px 160px;display:flex;flex-direction:column;gap:36px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#B4651F;font-weight:600">5 · La chaîne de données</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:60px;font-weight:600;line-height:1.1;color:#17302F">De SAP au dashboard : le programme ferme les deux ruptures du rapprochement</h2>
+<div style="display:flex;align-items:center;gap:10px">
+<div style="flex:1;display:flex;flex-direction:column;gap:4px;background:#FFFFFF;padding:20px;border:1px solid #D3DBD6;border-radius:10px"><p style="font-size:26px;font-weight:600;color:#17302F">SAP</p><p style="font-size:24px;color:#5E6B67">finance</p></div>
+<x-shape kind="arrow-right" style="background:#8FA39E;width:44px;height:24px"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;gap:4px;background:#FFFFFF;padding:20px;border:1px solid #D3DBD6;border-radius:10px"><p style="font-size:26px;font-weight:600;color:#17302F">Fichier finance</p><p style="font-size:24px;color:#5E6B67">copier-coller, ~15</p></div>
+<x-shape kind="arrow-right" style="background:#8FA39E;width:44px;height:24px"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;gap:4px;background:#17302F;padding:20px;border-radius:10px"><p style="font-size:26px;font-weight:600;color:#F6F7F4">Programme</p><p style="font-size:24px;color:#A9CFCB">contrôles, rapprochement</p></div>
+<x-shape kind="arrow-right" style="background:#8FA39E;width:44px;height:24px"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;gap:4px;background:#FFFFFF;padding:20px;border:1px solid #D3DBD6;border-radius:10px"><p style="font-size:26px;font-weight:600;color:#17302F">Database du mois</p><p style="font-size:24px;color:#5E6B67">validée par moi</p></div>
+<x-shape kind="arrow-right" style="background:#8FA39E;width:44px;height:24px"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;gap:4px;background:#FFFFFF;padding:20px;border:1px solid #D3DBD6;border-radius:10px"><p style="font-size:26px;font-weight:600;color:#17302F">Looker Studio</p><p style="font-size:24px;color:#5E6B67">managers, Contract Managers</p></div>
+</div>
+<div style="display:flex;gap:24px">
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#FFFFFF;padding:30px;border:1px solid #D3DBD6;border-radius:12px"><h3 style="font-size:30px;font-weight:600;color:#17302F">Contrôles</h3><ul style="font-size:25px;line-height:1.45;color:#45534F"><li>Arrêt avant écriture : mois, onglet, en-tête, ligne « Total »</li><li>Total bloc = lignes = database + non rapprochées, à 0,01</li><li>Chaque ligne rapprochée ou listée avec sa raison</li></ul></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#F7E3CC;padding:30px;border-radius:12px"><h3 style="font-size:30px;font-weight:600;color:#4A2A0E">Données sensibles</h3><ul style="font-size:25px;line-height:1.45;color:#4A3420"><li>Le nom du client n’est jamais lu</li><li>Multiservices reconnus par un code MS-…</li><li>Données réelles : uniquement dans le Workspace Airbus ; Claude et GitHub ne voient que du fictif</li></ul></div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5E6B67;font-family:'IBM Plex Mono', 'Courier New', monospace">Preuve : fiche-donnees.md · chaine-de-donnees.md · 30 s · 5 / 8</p>
+<aside>30 secondes. Les chiffres viennent de SAP ; la finance les met en forme par copier-coller dans un Google Sheet vers le 15. Mon programme lit ce fichier, contrôle le format, rapproche les contrats et produit la database du mois que je valide, puis Looker Studio l’affiche aux managers et aux Contract Managers. Les contrôles : arrêt avant toute écriture si le fichier est inutilisable, totaux vérifiés au centime, chaque ligne a une destination. Côté sensible : le nom du client n’est jamais lu, les multiservices ont un code, et les vraies données ne quittent jamais Airbus.</aside>
+</section>

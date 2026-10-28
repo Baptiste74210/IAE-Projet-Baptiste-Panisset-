@@ -1,0 +1,25 @@
+<section id="tests" data-transition="fade" style="background:#F6F7F4;color:#1E2A28;font-family:'IBM Plex Sans', Arial, sans-serif;padding:104px 128px 160px;display:flex;flex-direction:column;gap:32px">
+<p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#B4651F;font-weight:600">7 · Les tests</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:60px;font-weight:600;line-height:1.1;color:#17302F">2 tours, 7 scénarios : de 153 / 155 à 153 / 153</h2>
+<div style="display:flex;gap:32px">
+<div style="flex:3;display:flex;flex-direction:column;gap:12px">
+<table style="font-size:24px;color:#1E2A28">
+<tr><th style="width:12%">Scén.</th><th style="width:60%">Cas testé</th><th style="width:28%">Tour 2</th></tr>
+<tr><td>E1</td><td>Mois normal</td><td>27 / 27</td></tr>
+<tr><td>E2</td><td>Contrat inconnu</td><td>27 / 27</td></tr>
+<tr><td>E3</td><td>En-tête renommé → arrêt</td><td>11 / 11</td></tr>
+<tr><td>E4</td><td>Mois relancé → v2, rien d’écrasé</td><td>27 / 27</td></tr>
+<tr><td>E5</td><td>400 contrats, 14 WBS mal saisis</td><td>28 / 28</td></tr>
+<tr><td>E6</td><td>Mois suivant avec la mémoire</td><td>29 / 29</td></tr>
+<tr><td>E7</td><td>Multiservices MS-…</td><td>4 / 4</td></tr>
+</table>
+</div>
+<div style="flex:2;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;flex-direction:column;gap:6px;background:#F7E3CC;padding:24px;border-radius:12px"><h3 style="font-size:28px;font-weight:600;color:#4A2A0E">Échec trouvé au tour 1</h3><p style="font-size:24px;line-height:1.35;color:#4A3420">Après un « Non », le type de contrat manquait (AC10). Corrigé, et un test le vérifie.</p></div>
+<div style="display:flex;flex-direction:column;gap:6px;background:#FFFFFF;padding:24px;border:1px solid #DCE2DE;border-radius:12px"><h3 style="font-size:28px;font-weight:600;color:#17302F">Correction de la skill</h3><p style="font-size:24px;line-height:1.35;color:#45534F">Un exemple de réponse m’a fait valider un faux ami : supprimé.</p></div>
+<div style="display:flex;flex-direction:column;gap:6px;background:#FFFFFF;padding:24px;border:1px solid #DCE2DE;border-radius:12px"><h3 style="font-size:28px;font-weight:600;color:#17302F">Limites</h3><p style="font-size:24px;line-height:1.35;color:#45534F">Partages et anonymisation dans le vrai Workspace : à vérifier au premier lancement.</p></div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5E6B67;font-family:'IBM Plex Mono', 'Courier New', monospace">Preuve : test-results.md · test-results-2026-10-28-tour1.md · 45 s · 7 / 8</p>
+<aside>45 secondes. Chaque scénario a été lancé dans une conversation neuve qui ne voyait ni mes requirements ni mon design, puis noté ligne par ligne contre mes critères. Tour 1 : 153 lignes sur 155 ; un vrai défaut (le type de contrat oublié après un « Non ») et une question « fichiers fictifs ? » que j’ai acceptée comme garde-fou. Après correction, tour 2 : 153 sur 153, verdict prêt. Les tests m’ont aussi appris quelque chose sur moi : j’ai validé le faux ami à cause d’un exemple trop suggestif ; il a été retiré. Limite : ce qui ne se voit que dans le vrai Workspace Airbus.</aside>
+</section>
