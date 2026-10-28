@@ -61,5 +61,7 @@ Une rupture est un endroit où la donnée est recopiée, retapée, perdue ou dé
 
 ## 6. Question pour le tuteur ou l'équipe data
 
-> **Peut-on brancher le dashboard Looker Studio sur une source fixe (une database « mois courant » mise à jour chaque mois, avec l'historique gardé à côté), au lieu de copier le dashboard et de le reconnecter à chaque fois ?**
+Contrainte : Looker Studio ne peut être connecté qu'à un Google Sheet (pas directement à SAP ni à une autre source).
+
+> **Peut-on brancher le dashboard Looker Studio sur un Google Sheet fixe (une database « mois courant » que le programme met à jour chaque mois, avec les mois précédents gardés en copie), au lieu de copier le dashboard et de le reconnecter à chaque fois ?**
 > Cela supprimerait la rupture R5 : managers et Contract Managers verraient toujours le bon mois, sans risque de graphique cassé ni de mauvaise database.
