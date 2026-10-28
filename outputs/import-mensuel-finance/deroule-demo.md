@@ -24,7 +24,7 @@
 **Message de lancement à coller :**
 
 ```
-Rattache le dépôt Baptiste74210/IAE-Projet-Baptiste-Panisset- avec droit d'écriture, puis utilise la skill mon-import-mensuel-finance pour simuler l'import de novembre 2026 avec le fichier finance "outputs/import-mensuel-finance/inputs/jeu-fictif/demo/Xbh Contracts Financial performance - Novembre 2026 (FICTIF - démo).xlsx" et la mémoire "outputs/import-mensuel-finance/inputs/jeu-fictif/demo/memoire-apres-octobre (FICTIF).csv" (fichiers fictifs, usage simulation). N'ouvre pas design-spec.md, requirements.md, test-results.md ni les corrigés. Enregistre les résultats sur une branche dont le nom commence par claude/.
+Rattache le dépôt Baptiste74210/IAE-Projet-Baptiste-Panisset- avec droit d'écriture, puis utilise la skill mon-import-mensuel-finance pour simuler l'import de novembre 2026 avec le fichier finance "outputs/import-mensuel-finance/inputs/jeu-fictif/demo/Xbh Contracts Financial performance - Novembre 2026 (FICTIF - démo).xlsx" et la mémoire "outputs/import-mensuel-finance/inputs/jeu-fictif/demo/memoire-apres-octobre (FICTIF).csv" (fichiers fictifs, usage simulation). À l'étape des décisions, écris la mémoire dans le fichier par défaut runs/memoire-correspondances.csv et ne modifie jamais le fichier mémoire de démo. N'ouvre pas design-spec.md, requirements.md, test-results.md ni les corrigés. Enregistre les résultats sur une branche dont le nom commence par claude/.
 ```
 
 Remarque : le nom exact du fichier produit dépend des versions déjà présentes dans `runs/` (le programme ne remplace jamais un fichier existant) ; la session l'indique dans son résumé.
