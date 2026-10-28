@@ -4,9 +4,10 @@ design_spec: outputs/import-mensuel-finance/design-spec.md
 requirements: outputs/import-mensuel-finance/requirements.md
 date: 2026-10-28
 environment: "Claude Code (web), skill mon-import-mensuel-finance, programme Python de référence (identique à Apps Script, vérifié au Build), données fictives uniquement ; Google Workspace Airbus non disponible"
-round_status: in-progress
-criteria_total: 0
-criteria_met: 0
+round_status: complete
+readiness: not-ready
+criteria_total: 155
+criteria_met: 153
 results:
   E1: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: not-run, AC6: not-run, AC7: met, AC8: met, AC9: met, AC10: met, AC11: met, AC12: met, AC13: met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": not-run, edits: none }
   E5: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: not-run, AC6: met, AC7: met, AC8: met, AC9: met, AC10: not-met, AC11: met, AC12: met, AC13: not-met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": met, edits: minor }
@@ -336,11 +337,27 @@ Exécution collée dans la conversation d'ouverture et notée là ; la session n
 
 ## Issues identified
 
+| Scenario | Line | Building block | What to change |
+|---|---|---|---|
+| E5 | AC10 | S1 — programme `import_mensuel.py` (fonction `apply_decisions`) et Apps Script `Code.gs` (`executerDecisions`, ligne « database l. … (après rejet de …) ») | À l'étape 8, écrire le type de contrat sur la ligne (g) « correspondance rejetée » et sur la ligne (b) du contrat de la database libéré ; ajouter une vérification aux tests (chaîne E5 → décisions avec au moins un « Non »). |
+| E5 | AC13 | S1 — orchestrateur `SKILL.md` (étape 1, « Quand s'arrêter ») | Accepté (voir ci-dessous) : aucun changement. |
+| E5 | — (observation hors bulletin) | S1 — orchestrateur `SKILL.md` (étape 8, demande des décisions) | Ne plus proposer d'exemple de réponse avec de vrais numéros de ligne (« tout Oui sauf 155 et 303 ») ; utiliser un exemple neutre ou présenter chaque paire avec sa question « Oui / Non ? ». À traiter avec le correctif AC10, sans bloquer le verdict. |
+
 ## Accepted misses
+
+- **E5 — AC13** : la skill demande « fichiers fictifs ? » et l'usage quand l'ordre ne le précise pas. Accepté par Baptiste le 2026-10-28 : c'est un garde-fou volontaire propre à la simulation (il empêche de lancer la skill sur des données réelles) ; le programme Apps Script de production ne pose jamais cette question. Les ordres de lancement des scénarios contiennent « (fichiers fictifs) », et E1, E2, E3, E4, E6 n'ont posé aucune question.
 
 ## Verdict
 
+**Pas encore prêt (not ready)** — 153 lignes atteintes sur 155 testées, sur 7 scénarios (E1 à E7). Toutes les lignes obligatoires (AC1, AC2, AC3) sont atteintes dans chaque scénario ; résultats identiques aux corrigés pour E1, E2, E3, E4, E6 et E7, et pour E5 avant décisions. Un raté non accepté : **AC10** (type de contrat manquant sur les lignes créées à l'étape 8). Un raté accepté : AC13 (E5).
+
+**Suite :** retour au `build` en mode correction, uniquement pour le bloc nommé dans « Issues identified » (S1 : `import_mensuel.py`, `Code.gs`, et l'exemple de l'étape 8 dans `SKILL.md`), puis nouveau tour : E5 (avec au moins une décision « Non ») d'abord, puis l'ensemble. Deux à quatre tours sont normaux.
+
+Lignes `not-run` à vérifier à l'étape Run, dans le Google Workspace Airbus : R8, Step 1 output (fichiers anonymisés), dossier et partages de la database du mois (AC8).
+
 ## Test records created
+
+Tous les fichiers créés sont fictifs et restent dans le dépôt comme trace du tour (aucune suppression sans accord de Baptiste) :
 
 - E6 : sur `main` via `claude/simulation-import-octobre-2026` — `runs/Database XBH Octobre 2026 v3.xlsx` et une ligne dans `runs.md`.
 - E4 : sur `main` via `claude/import-fevrier-2027-e4` — `runs/Database XBH Février 2027.xlsx`, `… v2.xlsx` et deux lignes dans `runs.md`.
