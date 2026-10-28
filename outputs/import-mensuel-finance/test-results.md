@@ -12,6 +12,7 @@ results:
   E7: { AC1: met, AC3: met, AC10: met, R8: not-run, R10: met, edits: none }
   E6: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: met, AC6: met, AC7: met, AC8: met, AC9: met, AC10: met, AC11: met, AC12: met, AC13: met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": not-run, edits: none }
   E1: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: not-run, AC6: not-run, AC7: met, AC8: met, AC9: met, AC10: met, AC11: met, AC12: met, AC13: met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": not-run, edits: none }
+  E2: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: not-run, AC6: not-run, AC7: met, AC8: met, AC9: met, AC10: met, AC11: met, AC12: met, AC13: met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": not-run, edits: none }
 ---
 
 # Résultats de test — Import Mensuel Finance, tour 2
@@ -177,6 +178,29 @@ Exécution collée dans la conversation d'ouverture et notée là ; la session n
 | Étapes 2 à 6 | Steps 2–6 output | Met | Comme au tour 1 |
 | Prise en compte des décisions | Step 8 output | Not run | Aucune décision |
 
+### E2 — Contrat inconnu (Décembre 2026, fictif) — tour 2, noté le 2026-10-28
+
+Exécution collée dans la conversation d'ouverture et notée là ; la session n'a lu que la skill. Preuves : `runs/Database XBH Décembre 2026 v2.xlsx` (sur `main`), identique hors date et version au fichier du tour 1 ; la v1 garde la même empreinte (0241d18) avant et après. Notes confirmées par Baptiste ; retouches : aucune.
+
+| Expected | From | Result | Evidence |
+|---|---|---|---|
+| Aucune ligne oubliée | AC1 (must) | Met | 401 = 398 + 0 + 3 |
+| Totaux justes | AC2 (must) | Met | « 1 629 735 253,88 € = 1 620 669 366,87 € + 9 065 887,01 € » ; OK pour les 4 KPI |
+| Aucune information client lue | AC3 (must) | Met | Multiservices sans code non rapprochés |
+| Incertains listés / jamais à tort | AC4 | Met | `FH.TEST001` : « aucun code proche n'a été trouvé (raison a) » |
+| « Oui » / « Non » mémorisés | AC5, AC6 | Not run | Aucune décision |
+| KPI identiques | AC7 | Met | Identique au tour 1 et au corrigé |
+| v2 sans modifier la v1 | AC8 | Met | « Le programme ne l'a pas touché et a créé … v2.xlsx » ; empreinte v1 inchangée |
+| En-têtes, à traiter, Contrôle, entrées | AC9–AC12 | Met | Identique au tour 1 ; seuls `runs/` et `runs.md` modifiés |
+| Aucune question | AC13 | Met | Lancement direct |
+| Règles R1–R7, R9, R10 | R1–R7, R9, R10 | Met | 398 + 3 ; `FH.TEST001` jamais à 100 % (R3) ; pas d'arrêt |
+| Rien ne sort du Workspace | R8 | Not run | Google Workspace |
+| Décision avant validation | G1 | Met | « la validation est déjà possible » |
+| Arrêt sur fichier inutilisable | G2 | Met | « aucune anomalie dans le fichier » |
+| Fichiers anonymisés | Step 1 output | Not run | Apps Script |
+| Étapes 2 à 6 | Steps 2–6 output | Met | v2, KPI, Contrôle OK, résumé |
+| Prise en compte des décisions | Step 8 output | Not run | Aucune décision |
+
 ## Golden example deltas
 
 *La comparaison au corrigé porte uniquement sur le résultat, pas sur le chemin suivi.*
@@ -185,12 +209,14 @@ Exécution collée dans la conversation d'ouverture et notée là ; la session n
 - **E7** : identique au corrigé.
 - **E6** : identique au corrigé et au tour 1.
 - **E1** : identique au corrigé et au tour 1.
+- **E2** : identique au corrigé et au tour 1.
 
 ## Not run
 
 - **E5** — AC5 : vu en E6. AC6 : aucun « Non » saisi ; **AC10 après un « Non »** n'a donc pas été exercé dans une exécution notée. Il est couvert par les tests automatiques du Build correctif : chaîne Python E5 → décisions (avec le « Non » du faux ami) → `lignes_a_traiter_sans_type` = 0, et vérification `Code.gs` « type de contrat sur chaque ligne, y compris après un Non » (non conforme sur l'ancien code, conforme sur le nouveau). R8, Step 1 output : Google Workspace.
 - **E7** — R8 : Google Workspace.
 - **E1** — AC5, AC6, Step 8 output : aucune décision. R8, Step 1 output : Google Workspace / Apps Script.
+- **E2** — AC5, AC6, Step 8 output : aucune décision. R8, Step 1 output : Google Workspace / Apps Script.
 - **E6** — Step 8 output : aucune décision. R8, Step 1 output : Google Workspace / Apps Script.
 
 ## Environment
@@ -207,6 +233,8 @@ Exécution collée dans la conversation d'ouverture et notée là ; la session n
 ## Verdict
 
 ## Test records created
+
+- Tour 2, E2 : `runs/Database XBH Décembre 2026 v2.xlsx` et une ligne dans `runs.md` (branche `claude/import-decembre-2026-e2`).
 
 - Tour 2, E1 : `runs/Database XBH Novembre 2026.xlsx` et une ligne dans `runs.md` (branche `claude/import-novembre-2026`).
 
