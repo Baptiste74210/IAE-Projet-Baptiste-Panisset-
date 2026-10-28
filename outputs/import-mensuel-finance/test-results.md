@@ -10,6 +10,7 @@ criteria_met: 0
 results:
   E5: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: not-run, AC6: not-run, AC7: met, AC8: met, AC9: met, AC10: met, AC11: met, AC12: met, AC13: met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": met, edits: none }
   E7: { AC1: met, AC3: met, AC10: met, R8: not-run, R10: met, edits: none }
+  E6: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: met, AC6: met, AC7: met, AC8: met, AC9: met, AC10: met, AC11: met, AC12: met, AC13: met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": not-run, edits: none }
 ---
 
 # Résultats de test — Import Mensuel Finance, tour 2
@@ -127,17 +128,46 @@ Relance après un premier essai sans « Non ». Exécution collée dans la conve
 
 **Point de vigilance (hors bulletin) :** Baptiste a confirmé la paire de la ligne 171 (`FH.F4ZSJ` ↔ `FH.FVZSJ`), que le jeu de test présente comme un faux ami (deux contrats différents). Le workflow a fait ce qu'il doit : proposer avec la confiance « Moyenne » et laisser la décision à Baptiste. Sur des données réelles, les correspondances « Moyenne » demandent une vérification contrat par contrat.
 
+### E6 — Mois suivant après confirmations (Octobre 2026, mémoire E6) — tour 2, noté le 2026-10-28
+
+Exécution collée dans la conversation d'ouverture et notée là ; la session n'a lu que la skill. Preuves : `runs/Database XBH Octobre 2026 v6.xlsx` (sur `main`), comparé à `v3` (E6 du tour 1) : identiques (384 / 0 / 14, 12 contrats (b), mêmes totaux). La session indiquait « 13 au lieu de 12 » pour la v3 : erreur du résumé de la session du tour 1, pas du programme. Notes confirmées par Baptiste ; retouches : aucune.
+
+| Expected | From | Result | Evidence |
+|---|---|---|---|
+| Aucune ligne oubliée | AC1 (must) | Met | 398 = 384 + 0 + 14 |
+| Totaux justes | AC2 (must) | Met | Écart 0, OK ; Turnover database 1 465 282 374,18 |
+| Aucune information client lue | AC3 (must) | Met | « Le programme n'a lu ni la colonne client, ni le corrigé, ni le référentiel des multiservices » |
+| Incertains listés | AC4 | Met | 0 à confirmer |
+| « Oui » reconnu le mois suivant | AC5 | Met | « 14 rapprochées grâce aux paires confirmées dans la mémoire E6 » |
+| « Non » jamais reproposé | AC6 | Met | Faux ami en (a) « sans aucun candidat » |
+| KPI identiques | AC7 | Met | Identique à v3 et au corrigé |
+| Nom exact | AC8 | Met | `… v6.xlsx` ; « Les versions v1 à v5 sont conservées » |
+| En-têtes et informations identiques | AC9 | Met | Identique à v3 |
+| « À traiter à la main » complet | AC10 | Met | 35 lignes, toutes avec type |
+| Onglet Contrôle | AC11 | Met | Totaux, statuts, comptages |
+| Entrées inchangées | AC12 | Met | « Aucun fichier d'entrée et aucune mémoire n'ont été modifiés » |
+| Aucune question | AC13 | Met | Lancement direct |
+| Règles R1–R7, R9, R10 | R1–R7, R9, R10 | Met | Doublons non additionnés ; N/A tel quel ; paire rejetée exclue ; pas d'arrêt |
+| Rien ne sort du Workspace | R8 | Not run | Google Workspace |
+| Décision avant validation | G1 | Met | Rien à décider ; « la validation est possible » |
+| Arrêt sur fichier inutilisable | G2 | Met | Pas d'arrêt injustifié |
+| Fichiers anonymisés | Step 1 output | Not run | Apps Script |
+| Étapes 2 à 6 | Steps 2–6 output | Met | v6, KPI, Contrôle OK, résumé |
+| Prise en compte des décisions | Step 8 output | Not run | Aucune décision |
+
 ## Golden example deltas
 
 *La comparaison au corrigé porte uniquement sur le résultat, pas sur le chemin suivi.*
 
 - **E5** : avant décisions, identique au corrigé (370 / 15 dont 10 Élevée et 5 Moyenne / 13, mêmes totaux). Après décisions : 385 / 0 / 13 au lieu de 384 / 0 / 14, parce que le faux ami a été confirmé — écart dû à la décision, pas au programme.
 - **E7** : identique au corrigé.
+- **E6** : identique au corrigé et au tour 1.
 
 ## Not run
 
 - **E5** — AC5 : vu en E6. AC6 : aucun « Non » saisi ; **AC10 après un « Non »** n'a donc pas été exercé dans une exécution notée. Il est couvert par les tests automatiques du Build correctif : chaîne Python E5 → décisions (avec le « Non » du faux ami) → `lignes_a_traiter_sans_type` = 0, et vérification `Code.gs` « type de contrat sur chaque ligne, y compris après un Non » (non conforme sur l'ancien code, conforme sur le nouveau). R8, Step 1 output : Google Workspace.
 - **E7** — R8 : Google Workspace.
+- **E6** — Step 8 output : aucune décision. R8, Step 1 output : Google Workspace / Apps Script.
 
 ## Environment
 
@@ -153,6 +183,8 @@ Relance après un premier essai sans « Non ». Exécution collée dans la conve
 ## Verdict
 
 ## Test records created
+
+- Tour 2, E6 : `runs/Database XBH Octobre 2026 v6.xlsx` et une ligne dans `runs.md` (branche `claude/simulation-octobre-2026-memoire-e6`).
 
 - Tour 2, E5 noté : `runs/Database XBH Octobre 2026 v5.xlsx`, 2 lignes dans `runs.md` (branche `claude/simulation-octobre-2026-v5`) ; la mémoire créée a été déplacée (non supprimée) dans `runs/archive-tests-2026-10-28/memoire-correspondances (tour 2, E5 relance, 15 Oui).csv`.
 
