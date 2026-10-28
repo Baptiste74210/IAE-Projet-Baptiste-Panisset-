@@ -12,6 +12,7 @@ results:
   E5: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: not-run, AC6: met, AC7: met, AC8: met, AC9: met, AC10: not-met, AC11: met, AC12: met, AC13: not-met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": met, edits: minor }
   E7: { AC1: met, AC3: met, AC10: met, R8: not-run, R10: met, edits: minor }
   E2: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: not-run, AC6: not-run, AC7: met, AC8: met, AC9: met, AC10: met, AC11: met, AC12: met, AC13: met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": not-run, edits: none }
+  E3: { AC1: not-run, AC2: not-run, AC3: met, AC4: not-run, AC5: not-run, AC6: not-run, AC7: not-run, AC8: met, AC9: not-run, AC10: not-run, AC11: not-run, AC12: met, AC13: met, R1: not-run, R2: met, R3: not-run, R4: met, R5: not-run, R6: met, R7: met, R8: not-run, R9: not-run, R10: met, G1: not-run, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": not-run, "Step 4 output": not-run, "Step 5 output": not-run, "Step 6 output": not-run, "Step 8 output": not-run, edits: none }
 ---
 
 # Résultats de test — Import Mensuel Finance, tour 1
@@ -213,12 +214,34 @@ Exécution collée dans la conversation d'ouverture et notée là ; la session n
 | Database complète + message | Step 6 output | Met | Résumé « La validation du mois est donc possible » |
 | Prise en compte des décisions | Step 8 output | Not run | Aucune décision |
 
+### E3 — Template modifié (Janvier 2027, fictif) — noté le 2026-10-28
+
+Exécution collée dans la conversation d'ouverture et notée là ; la session n'a lu que la skill et la seule ligne 19 du fichier finance (« Je n'ai lu aucune donnée client, et je n'ai ouvert ni design-spec.md, ni requirements.md, ni test-results.md, ni les corrigés »). Vérifié sur `main` : aucun fichier `Database XBH Janvier 2027`, seul `runs.md` modifié. Notes confirmées par Baptiste ; retouches : aucune.
+
+| Expected | From | Result | Evidence |
+|---|---|---|---|
+| Aucune information client lue | AC3 (must) | Met | « j'ai lu uniquement les en-têtes de la ligne 19. Je n'ai lu aucune donnée client » |
+| Aucune version modifiée | AC8 | Met | Aucun fichier créé |
+| Entrées inchangées | AC12 | Met | Seul `runs.md` modifié |
+| Aucune question avant l'arrêt | AC13 | Met | Lancement direct, arrêt G2 |
+| Rien d'inventé | R2 | Met | « Il ne devine pas la colonne, pour éviter de recopier un chiffre au mauvais endroit » |
+| Périmètre | R4 | Met | Propose une modification de la skill sans la faire |
+| Mois de l'ordre | R6 | Met | Janvier 2027 |
+| Arrêt avant toute écriture | R7 | Met | « Aucune database du mois n'a été créée » ; code 2 ; tests R7, G2 |
+| Nom du client jamais utilisé | R10 | Met | Même preuve que AC3 |
+| Arrêt expliqué | G2 | Met | « Dans la cellule F19, l'en-tête est devenu "Turnover (€)_v2" » ; autres en-têtes confirmés |
+| Feu vert ou arrêt expliqué | Step 2 output | Met | Arrêt nommant F19 et l'en-tête attendu |
+| Autres lignes | AC1, AC2, AC4–AC7, AC9–AC11, R1, R3, R5, R8, R9, G1, Steps 1, 3–6, 8 | Not run | Arrêt voulu avant le rapprochement |
+
+**Observation (hors bulletin) :** après l'arrêt, la session a proposé de modifier la skill pour accepter une variante d'en-tête ; non retenu pendant le test (règle « on ne corrige pas pendant le test »).
+
 ## Golden example deltas
 
 *La comparaison au corrigé porte uniquement sur le résultat, pas sur le chemin suivi.*
 
 - **E5** : avant décisions, identique au corrigé (370 / 15 dont 10 Élevée et 5 Moyenne / 13, mêmes totaux, mêmes raisons). Après décisions : différent du corrigé, parce que les décisions saisies ne sont pas les « bonnes décisions » (383 / 0 / 15 au lieu de 384 / 0 / 14) — écart dû aux réponses, pas au programme.
 - **E7** : identique au corrigé (8 multiservices codés à 100 %, 2 sans code en (c) des deux côtés).
+- **E3** : identique au corrigé (arrêt, en-tête « Turnover (€) » nommé, aucune database créée).
 - **E2** : identique au corrigé (398 / 0 / 3, `FH.TEST001` en (a), mêmes totaux).
 - **E1** : rien de manquant, rien en trop, rien de différent — 398 / 0 / 2 et totaux identiques au centime au corrigé.
 
@@ -228,6 +251,7 @@ Exécution collée dans la conversation d'ouverture et notée là ; la session n
 - **E5** — AC5 : demande une exécution suivante (E6). R8, Step 1 output : propres au Google Workspace / Apps Script.
 - **E7** — R8 : propre au Google Workspace.
 - **E2** — AC5, AC6, Step 8 output : aucune décision. R8, Step 1 output : propres au Google Workspace / Apps Script.
+- **E3** — AC1, AC2, AC4–AC7, AC9–AC11, R1, R3, R5, R8, R9, G1, Steps 1, 3–6, 8 : arrêt voulu avant le rapprochement.
 
 ## Environment
 
@@ -242,6 +266,7 @@ Exécution collée dans la conversation d'ouverture et notée là ; la session n
 
 ## Test records created
 
+- E3 : une ligne dans `runs.md` (branche `claude/import-janvier-2027-e3`), aucun autre fichier.
 - E2 : sur `main` via `claude/import-mensuel-decembre-2026` — `runs/Database XBH Décembre 2026.xlsx` et une ligne dans `runs.md`.
 - E1 : branche `simulation-novembre-2026` (fichier `runs/Database XBH Novembre 2026.xlsx` et une ligne dans `runs.md`), non fusionnée dans `main`.
 - E5 : sur `main` via la branche `claude/import-mensuel-finance-simulation` — `runs/Database XBH Octobre 2026 v2.xlsx`, `runs/memoire-correspondances.csv` (15 paires, dont le faux ami confirmé et 2 bonnes paires rejetées), 2 lignes dans `runs.md`. La mémoire a été déplacée (non supprimée) dans `runs/archive-tests-2026-10-28/` avec l'accord de Baptiste, pour que les imports suivants partent d'une mémoire vide.
