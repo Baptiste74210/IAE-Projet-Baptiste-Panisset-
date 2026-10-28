@@ -106,3 +106,5 @@ Ordre du tour 2 : **E5 d'abord** (scénario raté au tour 1, avec au moins une d
 ## Verdict
 
 ## Test records created
+
+- Tour 2, 1er essai E5 (non noté, à relancer) : `runs/Database XBH Octobre 2026 v4.xlsx` et 2 lignes dans `runs.md` (branche `claude/simulation-octobre-2026`). Décisions « oui pour l'ensemble » : aucun « Non », donc AC10 après un rejet non vérifiable ; le faux ami (l. 171, `FH.F4ZSJ` ↔ `FH.FVZSJ`) confirmé. La mémoire créée a été déplacée (non supprimée) dans `runs/archive-tests-2026-10-28/memoire-correspondances (tour 2, E5 tout Oui).csv`, avec l'accord de Baptiste. La skill a bien présenté chaque paire et un exemple à clés inventées (correction de l'étape 8 vérifiée).
