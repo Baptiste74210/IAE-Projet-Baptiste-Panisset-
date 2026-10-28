@@ -1,0 +1,148 @@
+<title>Pilotage Import Mensuel Finance</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,600&display=swap">
+<style>
+/* Layout : tableau de bord de supervision — bandeau de décision, puis résumé chiffré, puis détail par scénario, journal et garde-fous */
+:root {
+  --bg: #f5f6f4; --surface: #ffffff; --fg: #1d2421; --muted: #5d6963; --line: #dde2de;
+  --accent: #1f5c63; --accent-soft: #e2eeee;
+  --ok: #2f7a4b; --ok-soft: #e3f1e7; --warn: #a3660b; --warn-soft: #f8ecd6; --bad: #a33a2f; --bad-soft: #f6e1de;
+  --display: "Fraunces", Georgia, serif; --body: "IBM Plex Sans", system-ui, sans-serif; --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121715; --surface: #1a211e; --fg: #e6ebe8; --muted: #9aa7a0; --line: #2c3632;
+  --accent: #6fb5bb; --accent-soft: #1d3235; --ok: #6cc38e; --ok-soft: #1b3326; --warn: #e0a64c; --warn-soft: #3a2c14; --bad: #e88a7f; --bad-soft: #3d1f1b; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #121715; --surface: #1a211e; --fg: #e6ebe8; --muted: #9aa7a0; --line: #2c3632;
+  --accent: #6fb5bb; --accent-soft: #1d3235; --ok: #6cc38e; --ok-soft: #1b3326; --warn: #e0a64c; --warn-soft: #3a2c14; --bad: #e88a7f; --bad-soft: #3d1f1b; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 48px }
+.wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 28px }
+header { display: grid; gap: 6px }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted) }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 4vw, 38px); line-height: 1.15; margin: 0; text-wrap: balance }
+h2 { font-size: 17px; font-weight: 600; margin: 0 0 12px; text-wrap: balance }
+.sub { color: var(--muted); margin: 0; max-width: 70ch }
+.decision { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px }
+.verdict { border-radius: 10px; padding: 16px 18px; display: grid; gap: 6px; border: 1px solid var(--line); background: var(--surface) }
+.verdict .tag { font-family: var(--mono); font-weight: 500; font-size: 13px; letter-spacing: .06em; padding: 3px 9px; border-radius: 999px; width: fit-content }
+.go .tag { background: var(--ok-soft); color: var(--ok) } .go { border-left: 4px solid var(--ok) }
+.nogo .tag { background: var(--warn-soft); color: var(--warn) } .nogo { border-left: 4px solid var(--warn) }
+.verdict strong { font-size: 16px } .verdict p { margin: 0; color: var(--muted) }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 2px }
+.kpi .v { font-family: var(--mono); font-size: 28px; font-weight: 500; font-variant-numeric: tabular-nums }
+.kpi .l { font-size: 13px; color: var(--muted) } .kpi .s { font-size: 12px; font-family: var(--mono); color: var(--muted) }
+.grid2 { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 20px }
+@media (max-width: 820px) { .grid2 { grid-template-columns: 1fr } }
+section.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; min-width: 0 }
+.scroll { overflow-x: auto }
+table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums }
+th { text-align: left; font-weight: 500; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; padding: 6px 8px; border-bottom: 1px solid var(--line) }
+td { padding: 8px; border-bottom: 1px solid var(--line); vertical-align: top }
+tr:last-child td { border-bottom: 0 }
+.mono { font-family: var(--mono) }
+.pill { font-family: var(--mono); font-size: 12px; padding: 2px 8px; border-radius: 999px; white-space: nowrap }
+.p-ok { background: var(--ok-soft); color: var(--ok) } .p-warn { background: var(--warn-soft); color: var(--warn) } .p-bad { background: var(--bad-soft); color: var(--bad) } .p-info { background: var(--accent-soft); color: var(--accent) }
+.bar { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; min-width: 80px }
+.bar i { display: block; height: 100%; background: var(--ok) }
+.rounds { display: grid; gap: 14px }
+.round { display: grid; grid-template-columns: 90px minmax(0, 1fr) 80px; align-items: center; gap: 10px; font-size: 14px }
+.round .bar { height: 14px } .round .n { font-family: var(--mono); text-align: right }
+ul.guards { margin: 0; padding-left: 18px; display: grid; gap: 6px } ul.guards li { color: var(--fg) }
+.note { font-size: 13px; color: var(--muted); margin: 10px 0 0 }
+.steps { display: flex; flex-wrap: wrap; gap: 6px }
+.step { font-size: 13px; padding: 5px 10px; border-radius: 6px; border: 1px solid var(--line) }
+.step.done { background: var(--ok-soft); color: var(--ok); border-color: transparent }
+.step.todo { color: var(--muted) }
+footer { font-size: 12px; color: var(--muted); font-family: var(--mono) }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Airbus Helicopters · ESXCC · contrats HCare — données fictives</span>
+    <h1>Import Mensuel Finance — tableau de pilotage</h1>
+    <p class="sub">Prototype qui transforme le fichier finance mensuel en database du mois : rapprochement automatique par WBS avec niveau de confiance, contrôle des totaux, validation humaine des cas incertains. État au 28 octobre 2026.</p>
+  </header>
+
+  <div class="steps" aria-label="Avancement du AI Workflow Framework">
+    <span class="step done">1 Analyze</span><span class="step done">2 Deconstruct</span><span class="step done">3 Design</span><span class="step done">4 Build</span><span class="step done">5 Test</span><span class="step done">6 Run (démo)</span><span class="step todo">7 Improve — 29 janv. 2027</span>
+  </div>
+
+  <div class="decision">
+    <div class="verdict go"><span class="tag">GO</span><strong>Démonstration et pilote sur données fictives</strong><p>Tests prêts (153 / 153 au tour 2) ; répétition réussie dans Google Sheets : 382 / 2 / 15, contrôle OK.</p></div>
+    <div class="verdict nogo"><span class="tag">PAS ENCORE</span><strong>Données réelles Airbus</strong><p>Conditions : accord du tuteur pour Apps Script, table des colonnes et codes MS-… créés, essai à blanc dans le Workspace (370 / 15 / 13).</p></div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><span class="v">153 / 153</span><span class="l">lignes de contrôle atteintes</span><span class="s">tour 2 · 7 scénarios</span></div>
+    <div class="kpi"><span class="v">0</span><span class="l">ligne oubliée, écart de total</span><span class="s">sur toutes les exécutions</span></div>
+    <div class="kpi"><span class="v">2</span><span class="l">questions à Baptiste en démo</span><span class="s">contre 17 sans mémoire</span></div>
+    <div class="kpi"><span class="v">1–2 j → ½ j</span><span class="l">temps par clôture</span><span class="s">base estimée · cible · à mesurer en nov.</span></div>
+  </div>
+
+  <div class="grid2">
+    <section class="panel">
+      <h2>Tests par scénario (tour 2)</h2>
+      <div class="scroll">
+      <table>
+        <thead><tr><th>Scénario</th><th>Ce qui est testé</th><th>Lignes</th><th>Résultat</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">E1</td><td>Mois normal (nov. 2026)</td><td class="mono">27 / 27</td><td><span class="pill p-ok">atteint</span></td></tr>
+          <tr><td class="mono">E2</td><td>Contrat inconnu <span class="mono">FH.TEST001</span></td><td class="mono">27 / 27</td><td><span class="pill p-ok">atteint</span></td></tr>
+          <tr><td class="mono">E3</td><td>En-tête renommé → arrêt sans rien créer</td><td class="mono">11 / 11</td><td><span class="pill p-ok">atteint</span></td></tr>
+          <tr><td class="mono">E4</td><td>Mois relancé → v3, v4, rien d'écrasé</td><td class="mono">27 / 27</td><td><span class="pill p-ok">atteint</span></td></tr>
+          <tr><td class="mono">E5</td><td>400 contrats, 14 WBS mal saisis, pièges</td><td class="mono">28 / 28</td><td><span class="pill p-ok">atteint</span></td></tr>
+          <tr><td class="mono">E6</td><td>Mois suivant avec la mémoire</td><td class="mono">29 / 29</td><td><span class="pill p-ok">atteint</span></td></tr>
+          <tr><td class="mono">E7</td><td>Multiservices codés <span class="mono">MS-…</span></td><td class="mono">4 / 4</td><td><span class="pill p-ok">atteint</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="note">Lignes non testables hors du Google Workspace Airbus (fichiers anonymisés, partages, données qui ne sortent pas) : à vérifier au premier lancement réel.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Tours de test</h2>
+      <div class="rounds">
+        <div class="round"><span>Tour 1</span><div class="bar" role="img" aria-label="153 sur 155"><i style="width:98.7%"></i></div><span class="n">153 / 155</span></div>
+        <div class="round"><span>Correctif</span><span style="grid-column: span 2; font-size: 13px; color: var(--muted)">type de contrat oublié après un « Non » (AC10) ; exemple de réponse trompeur retiré</span></div>
+        <div class="round"><span>Tour 2</span><div class="bar" role="img" aria-label="153 sur 153"><i style="width:100%"></i></div><span class="n">153 / 153</span></div>
+      </div>
+      <p class="note">Raté accepté : la simulation demande « fichiers fictifs ? » si l'ordre ne le précise pas (garde-fou volontaire, absent en production).</p>
+    </section>
+  </div>
+
+  <div class="grid2">
+    <section class="panel">
+      <h2>Journal des lancements (<span class="mono">runs.md</span>)</h2>
+      <div class="scroll">
+      <table>
+        <thead><tr><th>Date</th><th>Lancement</th><th>100 % / à confirmer / à traiter</th><th>État</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">28/10</td><td>Répétition démo, Google Sheets (nov. 2026)</td><td class="mono">382 / 2 / 15</td><td><span class="pill p-ok">contrôle OK</span></td></tr>
+          <tr><td class="mono">28/10</td><td>Test E5, mémoire vide (oct. 2026)</td><td class="mono">370 / 15 / 13</td><td><span class="pill p-ok">contrôle OK</span></td></tr>
+          <tr><td class="mono">28/10</td><td>Test E6, mémoire d'octobre</td><td class="mono">384 / 0 / 14</td><td><span class="pill p-ok">contrôle OK</span></td></tr>
+          <tr><td class="mono">29/10</td><td>Démo devant le jury</td><td class="mono">attendu 382 / 2 / 15</td><td><span class="pill p-info">prévu</span></td></tr>
+          <tr><td class="mono">~15/11</td><td>Essai à blanc puis 1ʳᵉ clôture réelle (Workspace Airbus)</td><td class="mono">—</td><td><span class="pill p-warn">conditions à lever</span></td></tr>
+        </tbody>
+      </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Supervision et garde-fous</h2>
+      <ul class="guards">
+        <li><strong>Arrêt avant écriture</strong> si le fichier est inutilisable (mois, en-tête, onglets, ligne « Total »).</li>
+        <li><strong>Contrôle des totaux</strong> à 0,01 près à chaque import et après chaque décision.</li>
+        <li><strong>Validation humaine</strong> de chaque correspondance à moins de 100 %, avant le dashboard Looker.</li>
+        <li><strong>Jamais écrasé</strong> : nouvelle version <span class="mono">v2</span>, <span class="mono">v3</span>…</li>
+        <li><strong>Nom du client jamais lu</strong> ; données réelles jamais hors du Workspace Airbus.</li>
+      </ul>
+      <p class="note">Point de vigilance : le « faux ami » du jeu de test a été confirmé à tort par l'humain ; vérifier le contrat avant un « Oui » de confiance Moyenne.</p>
+    </section>
+  </div>
+
+  <footer>Sources : test-results.md · test-results-2026-10-28-tour1.md · runs.md · demo-attendu.md — dépôt IAE-Projet-Baptiste-Panisset-, dossier outputs/import-mensuel-finance/</footer>
+</div>
