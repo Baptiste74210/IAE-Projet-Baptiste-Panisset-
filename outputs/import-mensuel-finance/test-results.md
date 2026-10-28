@@ -201,4 +201,4 @@ Exécution lancée pour E2, mais la session a simulé Octobre 2026 avec les fich
 ## Test records created
 
 - E1 : branche `simulation-novembre-2026` (fichier `runs/Database XBH Novembre 2026.xlsx` et une ligne dans `runs.md`), non fusionnée dans `main`.
-- E5 : sur `main` via la branche `claude/import-mensuel-finance-simulation` — `runs/Database XBH Octobre 2026 v2.xlsx`, `runs/memoire-correspondances.csv` (15 paires, dont le faux ami confirmé et 2 bonnes paires rejetées), 2 lignes dans `runs.md`.
+- E5 : sur `main` via la branche `claude/import-mensuel-finance-simulation` — `runs/Database XBH Octobre 2026 v2.xlsx`, `runs/memoire-correspondances.csv` (15 paires, dont le faux ami confirmé et 2 bonnes paires rejetées), 2 lignes dans `runs.md`. La mémoire a été déplacée (non supprimée) dans `runs/archive-tests-2026-10-28/` avec l'accord de Baptiste, pour que les imports suivants partent d'une mémoire vide.
