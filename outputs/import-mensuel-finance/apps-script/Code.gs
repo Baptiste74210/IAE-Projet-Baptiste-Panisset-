@@ -220,6 +220,9 @@ function executerDecisions() {
       if (typeof valeurs[c.source] === 'number') delta[c.source].att -= valeurs[c.source];
     });
     niveaux[l.niveau] = (niveaux[l.niveau] || 0) + 1;
+    // Type de contrat repris de la database : en passe 2, il est identique des deux côtés (R9).
+    var colType = enTetesDb.indexOf(PARAMETRES.colonnesDatabase.type) + 1;
+    var typeContrat = colType > 0 ? fDb.getRange(l.ligneDb, colType).getValue() : '';
     if (a.type === 'oui') {
       fConf.getRange(rang, 6).setValue('Confirmée le ' + aujourd + ' (certaine)');
       oui += 1;
@@ -229,9 +232,9 @@ function executerDecisions() {
         fDb.getRange(l.ligneDb, enTetesDb.indexOf(c.cible) + 1).clearContent();
       });
       fConf.getRange(rang, 6).setValue('Rejetée le ' + aujourd);
-      fMan.appendRow([l.ligneFin, l.cleFinance, '', RAISONS.g + ' (proposée avec ' + l.cleDatabase + ')']
+      fMan.appendRow([l.ligneFin, l.cleFinance, typeContrat, RAISONS.g + ' (proposée avec ' + l.cleDatabase + ')']
         .concat(correspondance.map(function (c) { return valeurs[c.source]; })).concat(['', '']));
-      fMan.appendRow(['database l.' + l.ligneDb, l.cleDatabase, '', RAISONS.b + ' (après rejet de ' + l.cleFinance + ')']
+      fMan.appendRow(['database l.' + l.ligneDb, l.cleDatabase, typeContrat, RAISONS.b + ' (après rejet de ' + l.cleFinance + ')']
         .concat(correspondance.map(function () { return ''; })).concat(['', '']));
       non += 1;
     }

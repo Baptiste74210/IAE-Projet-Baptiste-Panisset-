@@ -389,6 +389,8 @@ def apply_decisions(xlsx_path, mem_path, forced=None, today=None):
         raise Stop("Onglet « Correspondances à confirmer » d'un ancien format : relancer l'import d'abord.")
     headers = [c.value for c in wdb[1]]
     kcol = {src: headers.index(tgt) + 1 for src, tgt in MAP.items()}
+    # Type de contrat repris de l'onglet Database : en passe 2, il est identique des deux côtés (R9).
+    tcol = headers.index("Type de contrat") + 1 if "Type de contrat" in headers else None
     ci = {h: i + 1 for i, h in enumerate(CONF_HEADERS)}
 
     done = {"Oui": [], "Non": [], "vide": []}
@@ -410,6 +412,7 @@ def apply_decisions(xlsx_path, mem_path, forced=None, today=None):
         frow = wconf.cell(r, ci["Ligne finance d'origine"]).value
         drow = wconf.cell(r, ci["Ligne dans l'onglet Database"]).value
         vals = {h: wdb.cell(drow, kcol[h]).value for h in KPI_SRC}
+        ctype = wdb.cell(drow, tcol).value if tcol else None
         if dec not in ("oui", "non"):
             done["vide"].append(fk)
             continue
@@ -429,9 +432,9 @@ def apply_decisions(xlsx_path, mem_path, forced=None, today=None):
                     delta[h]["unm"] += vals[h]
                 wdb.cell(drow, kcol[h]).value = None
             wconf.cell(r, ci["Statut"]).value = f"Rejetée le {today}"
-            wman.append([frow, fk, None, REASONS["g"] + f" (proposée avec {dk})"]
+            wman.append([frow, fk, ctype, REASONS["g"] + f" (proposée avec {dk})"]
                         + [vals[h] for h in KPI_SRC] + [None, None])
-            wman.append([f"database l.{drow}", dk, None, REASONS["b"] + f" (après rejet de {fk})"]
+            wman.append([f"database l.{drow}", dk, ctype, REASONS["b"] + f" (après rejet de {fk})"]
                         + [None] * len(KPI_SRC) + [None, None])
             new_mem.append([norm(fk), norm(dk), "rejetée", today])
             moved["Non rapprochées"] += 1
@@ -522,6 +525,10 @@ def run_tests(mois, runs_dir=None):
             first = run(DEFAULTS["finance"], DEFAULTS["database"], None, mois, out_dir,
                         label + " [1. import]")
             after = apply_decisions(first["fichier"], mem_chain, decisions_depuis_memoire(MEMOIRE_E6))
+            # AC10 : chaque ligne de « À traiter à la main » a un type de contrat, y compris après un « Non ».
+            wman = openpyxl.load_workbook(first["fichier"])["À traiter à la main"]
+            after["lignes_a_traiter_sans_type"] = sum(
+                1 for v in wman.iter_rows(min_row=2, values_only=True) if v[0] is not None and v[2] in (None, ""))
             with open(mem_chain, newline="", encoding="utf-8") as f:
                 after["memoire_lignes"] = sum(1 for _ in csv.DictReader(f))
             second = run(DEFAULTS["finance"], DEFAULTS["database"], mem_chain, mois,

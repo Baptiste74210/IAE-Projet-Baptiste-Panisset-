@@ -48,8 +48,11 @@ Les étapes 2 à 8 ci-dessous décrivent ce que fait le programme (voir « Le pr
 6. **Vérifier** : pour chaque KPI, comparer le total du bloc de totaux, le total des lignes de contrats et le total de la database plus les lignes non rapprochées, à 0,01 près ; compter les lignes à 100 %, en attente de confirmation (par niveau) et non rapprochées ; leur somme doit égaler le nombre de lignes du fichier finance.
 7. **Écrire le fichier Excel** de la database du mois, avec ses onglets (voir « Format de la sortie »), en remettant les informations des contrats depuis la database centrale fictive grâce à la clé.
 8. **Me demander mes décisions** sur chaque correspondance à moins de 100 % (« Oui » ou « Non »), puis lancer le programme en mode `decisions` avec mes réponses :
+   - présenter chaque paire avec ses deux clés, son niveau de confiance et son écart, et me demander « Oui » ou « Non » pour **chacune** ;
+   - **ne jamais proposer d'exemple de réponse avec de vrais numéros de ligne ou de vraies clés** (pas de « tout Oui sauf 155 et 303 ») : un exemple tiré du tableau peut être recopié tel quel et valider une mauvaise correspondance ; si un exemple de format est utile, le donner avec des clés inventées (« FH.AAAAA = Oui ») ;
+   - ne jamais suggérer quelle décision prendre : la décision est la mienne ;
    - **Oui** : statut « certain », paire ajoutée à la mémoire comme « confirmée », avec la date ;
-   - **Non** : KPI retirés, ligne déplacée dans « À traiter à la main » avec la raison (g), paire ajoutée à la mémoire comme « rejetée », avec la date ;
+   - **Non** : KPI retirés, ligne déplacée dans « À traiter à la main » avec la raison (g) et son type de contrat (le contrat de la database libéré y est ajouté en (b), avec son type), paire ajoutée à la mémoire comme « rejetée », avec la date ;
    - décision manquante : la ligne reste « En attente de confirmation » et la validation reste indisponible ;
    - le programme relance la vérification (étape 6), met à jour le fichier et indique si la validation est possible.
 

@@ -21,13 +21,28 @@
 
 **Écart assumé par rapport au design :** le design prévoyait une skill nommée `import-mensuel-finance` partageant son code JavaScript avec Apps Script. La skill de Baptiste `mon-import-mensuel-finance` existait déjà, avec un programme Python testé : elle tient le rôle de S1 pour éviter un doublon. Le programme Python est la **référence** ; `Rapprochement.gs` en est la traduction, et les tests vérifient que les deux donnent exactement les mêmes résultats.
 
+## Correction après le tour de test 1 (2026-10-28)
+
+Source : `test-results.md` (tour 1, pas encore prêt, 153 / 155). Seuls les éléments nommés dans « Issues identified » ont été repris.
+
+| Build Output (from spec) | Artifact | Path | Status |
+|---|---|---|---|
+| New skill: S1 — programme de référence, étape 8 (AC10) | `apply_decisions` : type de contrat écrit sur la ligne (g) et sur le contrat de la database libéré (b) ; contrôle ajouté au mode `tests` (`lignes_a_traiter_sans_type`) | `.claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py` | Extended |
+| Handled by orchestrator — Step 8 (production, AC10) | `executerDecisions` : même correction | `outputs/import-mensuel-finance/apps-script/Code.gs` | Extended |
+| Tests Apps Script | Vérification ajoutée « type de contrat sur chaque ligne, y compris après un Non (AC10) » — non conforme sur l'ancien code, conforme sur le nouveau | `outputs/import-mensuel-finance/apps-script/tests/test_code_mock.js` | Extended |
+| New skill: S1 — orchestrateur, étape 8 (observation) | Chaque paire présentée avec sa question Oui / Non ; plus jamais d'exemple de réponse avec de vrais numéros de ligne ou de vraies clés ; aucune suggestion de décision | `.claude/skills/mon-import-mensuel-finance/SKILL.md` | Extended |
+
+Non modifié : AC13 (question « fichiers fictifs ? »), accepté par Baptiste. Résultats après correction : programme Python E5 370 / 15 / 13, E6 384 / 0 / 14, chaîne identique à E6, 0 ligne sans type ; `Rapprochement.gs` conforme ; `Code.gs` 19 vérifications conformes.
+
+**Prochaine étape :** nouveau tour de test — E5 d'abord, avec au moins une décision « Non », puis l'ensemble des scénarios.
+
 ## Résultats des tests (données fictives)
 
 | Test | Commande (depuis la racine du dépôt) | Résultat |
 |---|---|---|
 | Programme Python : E5, E6 (E7 inclus dans E5), chaîne E5 → décisions → relance, sur le jeu fictif de référence (400 contrats) | `python3 -I .claude/skills/mon-import-mensuel-finance/scripts/import_mensuel.py tests` | Conforme au corrigé : E5 370/15/13, E6 384/0/14, chaîne identique à E6 ; environ 8 secondes |
 | `Rapprochement.gs` contre le programme Python | `python3 -I outputs/import-mensuel-finance/apps-script/tests/exporter_jeu.py /tmp/jeu.json` puis `node outputs/import-mensuel-finance/apps-script/tests/test_rapprochement.js /tmp/jeu.json` | 14 vérifications conformes (E5, E6, chaîne) |
-| `Code.gs` avec un faux Google Sheets | `python3 -I outputs/import-mensuel-finance/apps-script/tests/exporter_brut.py /tmp/brut.json` puis `node outputs/import-mensuel-finance/apps-script/tests/test_code_mock.js /tmp/brut.json` | 18 vérifications conformes sur 398 lignes : import, partages, anonymisation sans nom de client, entrées inchangées, version v2, arrêts, décisions, mémoire, mois suivant |
+| `Code.gs` avec un faux Google Sheets | `python3 -I outputs/import-mensuel-finance/apps-script/tests/exporter_brut.py /tmp/brut.json` puis `node outputs/import-mensuel-finance/apps-script/tests/test_code_mock.js /tmp/brut.json` | 19 vérifications conformes (depuis la correction AC10 du 2026-10-28) sur 398 lignes : import, partages, anonymisation sans nom de client, entrées inchangées, version v2, arrêts, décisions, mémoire, mois suivant |
 
 **Limite :** `Code.gs` n'a pas encore tourné dans un vrai Google Workspace ; le faux Google Sheets imite les fonctions utilisées, mais le premier lancement réel doit se faire sur une copie fictive (voir ci-dessous).
 

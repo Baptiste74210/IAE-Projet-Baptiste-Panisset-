@@ -129,6 +129,9 @@ v(`comptages ${E6['100 %']} / 0 / ${E6['Non rapprochées']} après décisions`, 
 const mem = Object.values(fichiers).find(f => f.nom === 'Mémoire des correspondances').classeur.feuilles[0].d;
 const trier = l => l.map(x => x.slice(0, 3).join('|')).sort();
 v(`mémoire : ${nOui} confirmées, ${nNon} rejetée(s), identique à la mémoire E6`, JSON.stringify(trier(mem.slice(1))) === JSON.stringify(trier(brut.memoire_e6.slice(1))), JSON.stringify(mem.slice(1, 3)));
+const man = mois.getSheetByName('À traiter à la main').d.slice(1).filter(l => l[0] !== '' && l[0] !== null && l[0] !== undefined);
+const sansType = man.filter(l => l[2] === '' || l[2] === null || l[2] === undefined);
+v('« À traiter à la main » : type de contrat sur chaque ligne, y compris après un « Non » (AC10)', sansType.length === 0, JSON.stringify(sansType.slice(0, 2)));
 const r4 = ctx.executerDecisions();
 v('nouvelle prise en compte sans effet', r4.oui === 0 && r4.non === 0, JSON.stringify(r4));
 
