@@ -13,6 +13,7 @@ results:
   E7: { AC1: met, AC3: met, AC10: met, R8: not-run, R10: met, edits: minor }
   E2: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: not-run, AC6: not-run, AC7: met, AC8: met, AC9: met, AC10: met, AC11: met, AC12: met, AC13: met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": not-run, edits: none }
   E3: { AC1: not-run, AC2: not-run, AC3: met, AC4: not-run, AC5: not-run, AC6: not-run, AC7: not-run, AC8: met, AC9: not-run, AC10: not-run, AC11: not-run, AC12: met, AC13: met, R1: not-run, R2: met, R3: not-run, R4: met, R5: not-run, R6: met, R7: met, R8: not-run, R9: not-run, R10: met, G1: not-run, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": not-run, "Step 4 output": not-run, "Step 5 output": not-run, "Step 6 output": not-run, "Step 8 output": not-run, edits: none }
+  E4: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: not-run, AC6: not-run, AC7: met, AC8: met, AC9: met, AC10: met, AC11: met, AC12: met, AC13: met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": not-run, edits: none }
 ---
 
 # Résultats de test — Import Mensuel Finance, tour 1
@@ -235,12 +236,48 @@ Exécution collée dans la conversation d'ouverture et notée là ; la session n
 
 **Observation (hors bulletin) :** après l'arrêt, la session a proposé de modifier la skill pour accepter une variante d'en-tête ; non retenu pendant le test (règle « on ne corrige pas pendant le test »).
 
+### E4 — Database du mois déjà existante (Février 2027, fictif) — noté le 2026-10-28
+
+Exécution collée dans la conversation d'ouverture et notée là ; la session n'a lu que la skill (« Je n'ai ouvert ni design-spec.md, ni requirements.md, ni test-results.md, ni aucun corrigé »). Import lancé deux fois. Vérifié sur `main` : `Database XBH Février 2027.xlsx` a la même empreinte (d59b2a3) au commit du 1er lancement (ada13f0) et après le 2e (6233ce9) ; `… v2.xlsx` créé. Notes confirmées par Baptiste ; retouches : aucune.
+
+| Expected | From | Result | Evidence |
+|---|---|---|---|
+| Aucune ligne oubliée | AC1 (must) | Met | 400 = 398 + 0 + 2, aux deux lancements |
+| Totaux justes | AC2 (must) | Met | Écart 0, OK ; Turnover database 1 683 481 054,36 |
+| Aucune information client lue | AC3 (must) | Met | Multiservices sans code non rapprochés |
+| Incertains listés | AC4 | Met | Aucun |
+| « Oui » mémorisé | AC5 | Not run | Aucune décision |
+| « Non » mémorisé | AC6 | Not run | Aucune décision |
+| KPI identiques | AC7 | Met | Les deux versions identiques cellule par cellule (sauf « Version ») et conformes au corrigé |
+| v2 sans modifier la v1 | AC8 | Met | « nouvelle version `v2`, la première n'a pas été écrasée » ; empreinte v1 inchangée ; tests AC8, AC12 |
+| En-têtes et informations identiques | AC9 | Met | Même programme et même database que E1 ; fichiers identiques entre eux |
+| « À traiter à la main » complet | AC10 | Met | 4 lignes (c) complètes |
+| Onglet Contrôle | AC11 | Met | Totaux, statuts, comptages ; « Version » 1 puis 2 |
+| Entrées inchangées | AC12 | Met | Seuls `runs/` et `runs.md` modifiés |
+| Aucune question avant « prête » | AC13 | Met | « J'ai pris votre message comme confirmation que les fichiers sont fictifs » |
+| Chaque ligne rapprochée ou listée | R1 | Met | 398 + 2 = 400 |
+| Rien d'inventé | R2 | Met | KPI identiques |
+| Incertain jamais définitif | R3 | Met | Aucun |
+| Périmètre | R4 | Met | Rien hors périmètre |
+| Noms exacts | R5 | Met | `Database XBH Février 2027` et `… v2`, 4 onglets |
+| Mois de l'ordre | R6 | Met | Février 2027 |
+| Pas d'arrêt si la database existe | R7 | Met | 2e lancement sans arrêt |
+| Rien ne sort du Workspace | R8 | Not run | Propre au Google Workspace |
+| Même type, une seule fois | R9 | Met | Aucune passe 2 |
+| Nom du client jamais utilisé | R10 | Met | Même preuve que AC3 |
+| Décision avant validation | G1 | Met | Rien à décider ; « La validation du mois est possible » |
+| Arrêt sur fichier inutilisable | G2 | Met | Pas d'arrêt injustifié |
+| Fichiers anonymisés | Step 1 output | Not run | Écrits seulement par Apps Script |
+| Étapes 2 à 6 | Steps 2–6 output | Met | Aux deux lancements |
+| Prise en compte des décisions | Step 8 output | Not run | Aucune décision |
+
 ## Golden example deltas
 
 *La comparaison au corrigé porte uniquement sur le résultat, pas sur le chemin suivi.*
 
 - **E5** : avant décisions, identique au corrigé (370 / 15 dont 10 Élevée et 5 Moyenne / 13, mêmes totaux, mêmes raisons). Après décisions : différent du corrigé, parce que les décisions saisies ne sont pas les « bonnes décisions » (383 / 0 / 15 au lieu de 384 / 0 / 14) — écart dû aux réponses, pas au programme.
 - **E7** : identique au corrigé (8 multiservices codés à 100 %, 2 sans code en (c) des deux côtés).
+- **E4** : identique au corrigé (398 / 0 / 2 aux deux lancements, v2 créée, v1 inchangée).
 - **E3** : identique au corrigé (arrêt, en-tête « Turnover (€) » nommé, aucune database créée).
 - **E2** : identique au corrigé (398 / 0 / 3, `FH.TEST001` en (a), mêmes totaux).
 - **E1** : rien de manquant, rien en trop, rien de différent — 398 / 0 / 2 et totaux identiques au centime au corrigé.
@@ -252,6 +289,7 @@ Exécution collée dans la conversation d'ouverture et notée là ; la session n
 - **E7** — R8 : propre au Google Workspace.
 - **E2** — AC5, AC6, Step 8 output : aucune décision. R8, Step 1 output : propres au Google Workspace / Apps Script.
 - **E3** — AC1, AC2, AC4–AC7, AC9–AC11, R1, R3, R5, R8, R9, G1, Steps 1, 3–6, 8 : arrêt voulu avant le rapprochement.
+- **E4** — AC5, AC6, Step 8 output : aucune décision. R8, Step 1 output : propres au Google Workspace / Apps Script.
 
 ## Environment
 
@@ -266,6 +304,7 @@ Exécution collée dans la conversation d'ouverture et notée là ; la session n
 
 ## Test records created
 
+- E4 : sur `main` via `claude/import-fevrier-2027-e4` — `runs/Database XBH Février 2027.xlsx`, `… v2.xlsx` et deux lignes dans `runs.md`.
 - E3 : une ligne dans `runs.md` (branche `claude/import-janvier-2027-e3`), aucun autre fichier.
 - E2 : sur `main` via `claude/import-mensuel-decembre-2026` — `runs/Database XBH Décembre 2026.xlsx` et une ligne dans `runs.md`.
 - E1 : branche `simulation-novembre-2026` (fichier `runs/Database XBH Novembre 2026.xlsx` et une ligne dans `runs.md`), non fusionnée dans `main`.
