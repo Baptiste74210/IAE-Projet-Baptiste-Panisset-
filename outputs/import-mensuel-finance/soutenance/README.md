@@ -1,7 +1,7 @@
 # Soutenance du 2026-10-29 — Import Mensuel Finance
 
-- **Diaporama (8 slides)** : publié comme page Claude « Soutenance Import Mensuel Finance » ; à exporter en PDF depuis la page (Partager → Exporter). Sources des slides : `diaporama-source/`.
-- **Tableau de bord** : `../dashboard.html` (aussi publié comme page Claude « Pilotage Import Mensuel Finance »).
+- **Diaporama (8 slides), version finale PDF** : `Soutenance-Import-Mensuel-Finance.pdf`. Sources des slides : `diaporama-source/` (aussi publié comme page Claude « Soutenance Import Mensuel Finance »).
+- **Tableau de bord** : `Tableau-de-pilotage.pdf` (version PDF) et `dashboard-autonome.html` (à ouvrir dans n'importe quel navigateur) ; source : `../dashboard.html`.
 - **Preuves par slide** :
 
 | # | Slide | Preuve | Temps |
