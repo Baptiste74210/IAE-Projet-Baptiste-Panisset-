@@ -14,6 +14,7 @@ results:
   E2: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: not-run, AC6: not-run, AC7: met, AC8: met, AC9: met, AC10: met, AC11: met, AC12: met, AC13: met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": not-run, edits: none }
   E3: { AC1: not-run, AC2: not-run, AC3: met, AC4: not-run, AC5: not-run, AC6: not-run, AC7: not-run, AC8: met, AC9: not-run, AC10: not-run, AC11: not-run, AC12: met, AC13: met, R1: not-run, R2: met, R3: not-run, R4: met, R5: not-run, R6: met, R7: met, R8: not-run, R9: not-run, R10: met, G1: not-run, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": not-run, "Step 4 output": not-run, "Step 5 output": not-run, "Step 6 output": not-run, "Step 8 output": not-run, edits: none }
   E4: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: not-run, AC6: not-run, AC7: met, AC8: met, AC9: met, AC10: met, AC11: met, AC12: met, AC13: met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": not-run, edits: none }
+  E6: { AC1: met, AC2: met, AC3: met, AC4: met, AC5: met, AC6: met, AC7: met, AC8: met, AC9: met, AC10: met, AC11: met, AC12: met, AC13: met, R1: met, R2: met, R3: met, R4: met, R5: met, R6: met, R7: met, R8: not-run, R9: met, R10: met, G1: met, G2: met, "Step 1 output": not-run, "Step 2 output": met, "Step 3 output": met, "Step 4 output": met, "Step 5 output": met, "Step 6 output": met, "Step 8 output": not-run, edits: none }
 ---
 
 # Résultats de test — Import Mensuel Finance, tour 1
@@ -271,12 +272,48 @@ Exécution collée dans la conversation d'ouverture et notée là ; la session n
 | Étapes 2 à 6 | Steps 2–6 output | Met | Aux deux lancements |
 | Prise en compte des décisions | Step 8 output | Not run | Aucune décision |
 
+### E6 — Mois suivant après confirmations (Octobre 2026, mémoire E6) — noté le 2026-10-28
+
+Exécution collée dans la conversation d'ouverture et notée là ; la session n'a lu que la skill (« Je n'ai ouvert aucun corrigé, ni design-spec.md, requirements.md ou test-results.md »). Preuves complétées par `runs/Database XBH Octobre 2026 v3.xlsx` (sur `main`). Notes confirmées par Baptiste ; retouches : aucune.
+
+| Expected | From | Result | Evidence |
+|---|---|---|---|
+| Aucune ligne oubliée | AC1 (must) | Met | 398 = 384 + 0 + 14 |
+| Totaux justes | AC2 (must) | Met | Écart 0, OK ; Turnover database 1 465 282 374,18 |
+| Aucune information client lue | AC3 (must) | Met | Multiservices sans code (l. 99, 409) non rapprochés |
+| Incertains listés | AC4 | Met | 0 à confirmer |
+| « Oui » reconnu le mois suivant | AC5 | Met | « 14 contrats ont une clé légèrement différente … quand même à 100 % parce que la mémoire avait déjà confirmé ces paires » ; tests AC5, AC6 |
+| « Non » jamais reproposé | AC6 | Met | Faux ami `FH.F4ZSJ` (l. 171) en (a) « sans aucun candidat » |
+| KPI identiques | AC7 | Met | Totaux database identiques au corrigé |
+| Nom exact, rien d'écrasé | AC8 | Met | `… v3.xlsx`, v1 et v2 non écrasées |
+| En-têtes et informations identiques | AC9 | Met | Même programme et même database |
+| « À traiter à la main » complet | AC10 | Met | 35 lignes, toutes avec n°, clé, type, raison |
+| Onglet Contrôle | AC11 | Met | Totaux, statuts, 384 / 0 / 0 / 0 / 14, trace |
+| Entrées inchangées | AC12 | Met | « Les fichiers d'entrée et la mémoire E6 n'ont pas été modifiés » |
+| Aucune question | AC13 | Met | Lancement direct jusqu'à « la validation est possible » |
+| Chaque ligne rapprochée ou listée | R1 | Met | 384 + 14 = 398 |
+| Rien d'inventé ni d'additionné | R2 | Met | Doublons « n'ont pas été additionnés » ; N/A « recopiée telle quelle » |
+| Incertain jamais définitif | R3 | Met | Aucun incertain |
+| Périmètre | R4 | Met | Rien hors périmètre |
+| Noms exacts | R5 | Met | 4 onglets |
+| Mois de l'ordre | R6 | Met | Octobre 2026 |
+| Arrêt seulement si inutilisable | R7 | Met | « Il n'y a eu aucun arrêt » |
+| Rien ne sort du Workspace | R8 | Not run | Propre au Google Workspace |
+| Paire rejetée jamais reproposée | R9 | Met | Faux ami exclu de la passe 2 |
+| Nom du client jamais utilisé | R10 | Met | Même preuve que AC3 |
+| Décision avant validation | G1 | Met | Rien à décider ; « Validé : possible » |
+| Arrêt sur fichier inutilisable | G2 | Met | Pas d'arrêt injustifié |
+| Fichiers anonymisés | Step 1 output | Not run | Écrits seulement par Apps Script |
+| Étapes 2 à 6 | Steps 2–6 output | Met | Lecture, v3, rapprochement, Contrôle, résumé |
+| Prise en compte des décisions | Step 8 output | Not run | Aucune décision |
+
 ## Golden example deltas
 
 *La comparaison au corrigé porte uniquement sur le résultat, pas sur le chemin suivi.*
 
 - **E5** : avant décisions, identique au corrigé (370 / 15 dont 10 Élevée et 5 Moyenne / 13, mêmes totaux, mêmes raisons). Après décisions : différent du corrigé, parce que les décisions saisies ne sont pas les « bonnes décisions » (383 / 0 / 15 au lieu de 384 / 0 / 14) — écart dû aux réponses, pas au programme.
 - **E7** : identique au corrigé (8 multiservices codés à 100 %, 2 sans code en (c) des deux côtés).
+- **E6** : identique au corrigé (384 / 0 / 14, faux ami non reproposé, mêmes totaux).
 - **E4** : identique au corrigé (398 / 0 / 2 aux deux lancements, v2 créée, v1 inchangée).
 - **E3** : identique au corrigé (arrêt, en-tête « Turnover (€) » nommé, aucune database créée).
 - **E2** : identique au corrigé (398 / 0 / 3, `FH.TEST001` en (a), mêmes totaux).
@@ -290,6 +327,7 @@ Exécution collée dans la conversation d'ouverture et notée là ; la session n
 - **E2** — AC5, AC6, Step 8 output : aucune décision. R8, Step 1 output : propres au Google Workspace / Apps Script.
 - **E3** — AC1, AC2, AC4–AC7, AC9–AC11, R1, R3, R5, R8, R9, G1, Steps 1, 3–6, 8 : arrêt voulu avant le rapprochement.
 - **E4** — AC5, AC6, Step 8 output : aucune décision. R8, Step 1 output : propres au Google Workspace / Apps Script.
+- **E6** — Step 8 output : aucune décision. R8, Step 1 output : propres au Google Workspace / Apps Script.
 
 ## Environment
 
@@ -304,6 +342,7 @@ Exécution collée dans la conversation d'ouverture et notée là ; la session n
 
 ## Test records created
 
+- E6 : sur `main` via `claude/simulation-import-octobre-2026` — `runs/Database XBH Octobre 2026 v3.xlsx` et une ligne dans `runs.md`.
 - E4 : sur `main` via `claude/import-fevrier-2027-e4` — `runs/Database XBH Février 2027.xlsx`, `… v2.xlsx` et deux lignes dans `runs.md`.
 - E3 : une ligne dans `runs.md` (branche `claude/import-janvier-2027-e3`), aucun autre fichier.
 - E2 : sur `main` via `claude/import-mensuel-decembre-2026` — `runs/Database XBH Décembre 2026.xlsx` et une ligne dans `runs.md`.
