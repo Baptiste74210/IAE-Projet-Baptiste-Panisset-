@@ -4,60 +4,78 @@ review_type: revue anticipée (avant le premier lancement réel)
 date: 2026-10-29
 baseline: outputs/import-mensuel-finance/test-results.md (tour 2, readiness ready, 153 / 153)
 recommendation: tune
+focus: lignes « À traiter à la main »
 next_review: 2027-01-29
 ---
 
 # Improve — Import Mensuel Finance : revue anticipée du 2026-10-29
 
-**Pourquoi maintenant :** demandée par Baptiste avant la soutenance. Le workflow n'a pas encore tourné sur des données réelles : cette revue s'appuie sur les preuves disponibles (2 tours de test, répétition de la démo dans Google Sheets, journal `runs.md`, tests automatiques relancés aujourd'hui). **Le bilan complet reste prévu le 29/01/2027**, après trois clôtures réelles.
+**Pourquoi maintenant :** demandée par Baptiste avant la soutenance. Le workflow n'a pas encore tourné sur des données réelles : la revue s'appuie sur les 2 tours de test, la répétition de la démo dans Google Sheets, le journal `runs.md` et les tests automatiques relancés aujourd'hui. **Le bilan complet reste prévu le 29/01/2027**, après trois clôtures réelles.
 
-## 1. Performance actuelle
+## 1. En bref
 
-| Source | Ce qu'elle montre |
-|---|---|
-| Tour de test 1 (2026-10-28) | 153 / 155 lignes atteintes ; 1 défaut (AC10) ; 1 raté accepté (AC13) |
-| Tour de test 2 — **baseline** | 153 / 153, verdict prêt ; résultats identiques aux corrigés |
-| Répétition Google Sheets (2026-10-28) | 1er essai 368 / 17 / 14 (mémoire non trouvée), 2e essai **382 / 2 / 15, contrôle OK** ; 2 « Oui » pris en compte ; relance sans double application |
-| Tests automatiques relancés (2026-10-29) | Python : E5 370 / 15 / 13, E6 384 / 0 / 14, chaîne identique à E6, 0 ligne sans type · `Rapprochement.gs` conforme · `Code.gs` 19 vérifications conformes |
-| Journal `runs.md` | Uniquement des lancements fictifs ; aucune clôture réelle encore |
+- **L'outil marche et rien ne s'est dégradé** : tous les tests repassent (153 / 153 au tour 2, tests automatiques conformes aujourd'hui).
+- **La principale marge de progrès, ce sont les lignes « À traiter à la main »** : chaque mois, environ **15 lignes sur 399 (≈ 4 %)** ne peuvent pas être rapprochées automatiquement et me reviennent. Le programme les repère et les explique — c'est déjà un progrès par rapport à la RECHERCHEV, qui les perdait sans alerte — mais **la plupart ont une cause à la source qui peut être supprimée**.
 
-**Retouches nécessaires (edits) :** « aucune » sur 6 des 7 scénarios du tour 2 ; « un peu » sur E5 au tour 1 (corrigé). Tendance stable.
+## 2. La marge d'amélioration : les lignes « À traiter à la main »
 
-## 2. Régression : lignes qui ont changé
+Mois de démonstration (Novembre 2026, fictif) : **15 lignes du fichier finance** à traiter à la main, plus 16 contrats de la database restés sans chiffres.
 
-Comparaison tour 1 → tour 2 (baseline) → aujourd'hui (tests automatiques relancés).
-
-| Scénario | Ligne | Tour 1 | Tour 2 | Aujourd'hui | Preuve |
-|---|---|---|---|---|---|
-| E5 | AC10 — « À traiter à la main » complet | Non atteint | Atteint | Atteint | Type de contrat écrit après un « Non » ; `lignes_a_traiter_sans_type` = 0 ; vérification `Code.gs` AC10 conforme |
-| E5 | AC13 — aucune question avant « prête » | Non atteint (accepté) | Atteint | — | Question « fichiers fictifs ? » posée seulement si l'ordre ne le précise pas |
-
-**Aucune ligne n'est passée de « atteint » à « non atteint ».** Pas de régression.
-
-## 3. Problèmes identifiés
-
-| # | Constat | Cause | Bloc concerné | Gravité |
+| Raison | Lignes | D'où vient le problème | Qui peut le corriger | Action d'amélioration |
 |---|---|---|---|---|
-| P1 | À la répétition, la `Mémoire des correspondances` importée depuis un Mac n'a pas été trouvée : le programme en a créé une vide (368 / 17 / 14 au lieu de 382 / 2 / 15) | Le « é » du nom de fichier était encodé autrement (NFD) ; la recherche par nom exact échoue | Apps Script `Code.gs` (`trouverDansDossier`, `ouvrirFichierFinance`) | Moyenne : pas d'erreur de chiffre, mais la mémoire est ignorée sans alerte |
-| P2 | Le faux ami (l. 171) a été confirmé à tort 3 fois pendant les tests | Une correspondance « Moyenne » ressemble à une faute de frappe ; rien n'invite à vérifier le contrat | Onglet « Correspondances à confirmer » (`Code.gs`, skill) | Moyenne : risque humain, pas du programme |
-| P3 | Lignes jamais testées : fichiers anonymisés, dossier et partages, données qui ne sortent pas (R8) | Pas d'accès au Workspace Airbus pendant les tests | Environnement | À vérifier à l'essai à blanc |
+| (e) Doublon — même WBS sur 2 lignes | 4 (2 WBS) | Saisie en double dans le fichier finance | Équipe finance | Signaler les doublons à la finance chaque mois ; ils sont corrigés à la source |
+| (d) Clé manquante — ligne sans WBS | 3 | WBS non renseigné dans le fichier finance | Équipe finance | Rendre le WBS obligatoire dans le fichier finance |
+| (c) Multiservices sans code `MS-…` | 2 (+ 2 côté database) | Code `MS-…` pas encore attribué | Baptiste et la finance | Attribuer les derniers codes `MS-…` dans les deux fichiers |
+| (a) Contrat absent de la database | 6 | Nouveau contrat pas encore saisi par moi (5), ou faux ami rejeté (1) | Contract Managers et Baptiste | Être prévenu plus tôt des nouveaux contrats ; à terme, automatiser leur saisie (opportunité n° 2 du rapport) |
+| **Total** | **15** | | | |
 
-## 4. Changement de mécanisme ?
+Côté database, 12 contrats sont absents du fichier finance (b) : à vérifier avec la finance chaque mois (contrat terminé ? oublié dans l'export ?).
 
-**Non.** Le chemin reste fixe (8 étapes), aucune nouvelle décision n'est apparue : le programme déterministe reste le bon choix. Pas de passage à un agent.
+**Ce qu'on peut viser (hypothèse) :** une fois les doublons, les WBS manquants et les codes `MS-…` corrigés à la source, il resterait environ **6 lignes par mois**, uniquement des contrats réellement nouveaux. Avec une saisie plus rapide des nouveaux contrats, on pourrait descendre à **1 ou 2**.
 
-## 5. Recommandation : **Tune** (ajustements légers, non bloquants pour le pilote)
+```
+Aujourd'hui (démo) : 15 lignes  ███████████████
+Causes source corrigées :  6 lignes  ██████
+Nouveaux contrats saisis plus tôt : 1–2 lignes  ██
+```
 
-La logique de rapprochement et les contrôles ne changent pas. Deux ajustements ciblés avant la première clôture réelle :
+## 3. Les autres constats
 
-| Action | Bloc | Effort |
+| # | Constat | Cause | Bloc | Gravité |
+|---|---|---|---|---|
+| P1 | À la répétition, la `Mémoire des correspondances` importée depuis un Mac n'a pas été trouvée ; le programme en a créé une vide sans prévenir (368 / 17 / 14 au lieu de 382 / 2 / 15) | Le « é » du nom de fichier était encodé autrement | `Code.gs` | Moyenne |
+| P2 | Le faux ami a été confirmé à tort 3 fois pendant les tests | Une correspondance « Moyenne » ressemble à une faute de frappe | Onglet « Correspondances à confirmer » | Moyenne (risque humain) |
+| P3 | Lignes jamais testées : fichiers anonymisés, partages, données qui ne sortent pas | Pas d'accès au Workspace Airbus pendant les tests | Environnement | À vérifier à l'essai à blanc |
+
+## 4. Régression
+
+Aucune ligne n'est passée de « atteint » à « non atteint ». La seule ligne qui a changé s'est améliorée : **E5 · AC10** (type de contrat après un « Non »), non atteint au tour 1, atteint au tour 2 et aujourd'hui. Retouches : « aucune » sur 6 des 7 scénarios du tour 2.
+
+## 5. Changement de mécanisme ?
+
+**Non.** Le chemin reste fixe ; le programme déterministe reste le bon choix. Pas d'agent.
+
+## 6. Recommandation : **Tune** (ajustements ciblés, non bloquants pour le pilote)
+
+| Action | Ce qu'elle change | Bloc | Effort |
+|---|---|---|---|
+| **A1 — Synthèse des lignes à traiter** | Nouvel onglet qui regroupe les lignes « À traiter à la main » **par cause et par responsable** (finance, Contract Managers, moi), prêt à envoyer à la finance chaque mois | `Code.gs`, programme Python | ~1 h + tests |
+| **A2 — Suivi mensuel** | Ajouter dans `runs.md` et le tableau de pilotage le **nombre de lignes à traiter à la main** chaque mois, avec un objectif en baisse (15 → 6 → 1–2) | `runs.md`, `dashboard.html` | ~15 min |
+| A3 — Accents | Retrouver les fichiers même si l'accent est encodé autrement, et **alerter** si la mémoire est introuvable | `Code.gs` | ~30 min |
+| A4 — Vigilance | Colonne « À vérifier » sur les correspondances Moyenne et Faible | `Code.gs`, Python, skill | ~30 min |
+| A5 — Avec la finance | Leur présenter la synthèse A1 : doublons, WBS manquants, codes `MS-…` | Organisation | 1 réunion |
+
+**Suite :** `build` en mode correction sur A1, A3 et A4, puis `test` sur E5 et E6.
+
+## 7. Prochaine revue — 29 janvier 2027
+
+Après trois clôtures réelles, on mesurera :
+
+| Indicateur | Aujourd'hui | Objectif |
 |---|---|---|
-| A1 — Rechercher les fichiers en ignorant les différences d'encodage des accents (comparaison des noms normalisés) et **alerter** si la mémoire attendue est introuvable au lieu d'en créer une vide en silence | `Code.gs` | ~30 min + relance des tests |
-| A2 — Dans « Correspondances à confirmer », ajouter une colonne « À vérifier » pour les confiances Moyenne et Faible (ex. « une lettre différente : vérifier le contrat ») | `Code.gs`, programme Python, skill | ~30 min + relance de E5 |
-| A3 — À l'essai à blanc dans le Workspace Airbus, cocher les lignes non testées (P3) et noter le résultat dans `runs.md` | Run | Pendant le pilote |
+| Temps par clôture | 1 à 2 jours | ½ journée |
+| Lignes oubliées sans alerte | 34 / 398 avec RECHERCHEV | 0 |
+| **Lignes à traiter à la main** | ~15 par mois | **6, puis 1 à 2** |
+| Correspondances à confirmer | 15 le 1er mois | en baisse chaque mois (2 en démo grâce à la mémoire) |
 
-**Suite :** `build` en mode correction sur A1 et A2, puis `test` sur E5 et E6.
-
-## 6. Prochaine revue
-
-**29 janvier 2027**, après trois clôtures réelles. On mesurera : temps par clôture (cible ½ journée), lignes oubliées (cible 0), correspondances à confirmer en baisse d'un mois sur l'autre. Phrase pour la lancer : « Lance la skill improve sur Import Mensuel Finance. »
+Phrase pour la lancer : « Lance la skill improve sur Import Mensuel Finance. »
