@@ -6,7 +6,7 @@
 
 ## Slide 1 — Synthèse : problème et valeur · 30 s
 
-Voici ma synthèse en une page. Le problème : chaque mois, je passe 1 à 2 jours en RECHERCHEV, et surtout, sur notre jeu de test, 34 lignes sur 398 seraient perdues ou faussées sans aucune alerte. Ma solution : un programme déterministe qui rapproche les 400 contrats, contrôle les totaux au centime et explique chaque écart ; je ne valide que les cas incertains. La valeur : environ 3 400 € par an de temps gagné, en hypothèse à 40 € de l’heure, mais surtout des chiffres fiables pour les managers et les Contract Managers. Coût environ 1 700 €, retour en 7 mois environ. Je demande un GO sous conditions pour un pilote sur la clôture de novembre, et un bilan le 29 janvier.
+Voici ma synthèse en une page. Le problème : chaque mois, je passe 1 à 2 jours en RECHERCHEV, et surtout, sur notre jeu de test, 34 lignes sur 398 seraient perdues ou faussées sans aucune alerte. Ma solution : un programme déterministe qui rapproche les 400 contrats, contrôle les totaux au centime et explique chaque écart ; je ne valide que les cas incertains. La valeur : environ 3 400 € par an de temps gagné, en hypothèse à 40 € de l’heure, mais surtout des chiffres fiables pour les managers et les Contract Managers. Coût environ 1 700 €, retour en 7 mois environ. Je demande un GO pour lancer le pilote dès aujourd’hui sur la clôture de novembre : le programme tourne dans Google Workspace, l’environnement qu’Airbus utilise déjà. Bilan le 29 janvier.
 
 ---
 
@@ -62,7 +62,7 @@ J’ai testé 7 scénarios : un mois normal, un contrat inconnu, un fichier mal 
 
 [Montrer le tableau de pilotage.] Voici mon tableau de pilotage.
 
-Ma décision : **GO** pour la démo et pour un pilote sur données fictives. **PAS ENCORE** pour les données réelles, tant que quatre conditions ne sont pas remplies : l'accord de mon tuteur pour Apps Script, la table des colonnes, les codes multiservices, et un essai à blanc dans le Workspace.
+Ma décision : **GO**. La solution est prête, et Apps Script est natif du Google Workspace qu'Airbus utilise déjà. Le pilote démarre maintenant, en quatre étapes : activer le script, créer la table des colonnes et les codes multiservices, faire un essai à blanc dans le Workspace, puis la clôture de novembre.
 
 Je supervise avec l'onglet Contrôle à chaque import et une ligne par mois dans mon journal. Objectif : passer d'un ou deux jours à une demi-journée, sans aucune ligne oubliée. Première vraie clôture vers le 15 novembre, et bilan en janvier.
 
@@ -79,4 +79,5 @@ Merci, je suis prêt pour vos questions.
 - **Pourquoi 399 lignes et pas 30 ?** C'est le vrai volume d'un mois : la démo prouve que le prototype tient la charge réelle.
 - **D'où viennent les euros ?** Ce sont des hypothèses, affichées comme telles : 84 h par an gagnées (1 jour par mois), à 40 €/h chargé ; 5 jours de construction et 1 jour par an de maintenance. À confirmer avec mon tuteur.
 - **D'où vient « 34 lignes sur 398 » ?** C'est la mesure sur le jeu de test fictif : une RECHERCHEV exacte ne retrouve pas 22 contrats au WBS légèrement différent, perd une ligne de chaque doublon, et ignore sans alerte les lignes sans clé, les types différents et les « N/A ».
+- **Et si l'informatique d'Airbus bloque Apps Script ?** C'est un outil natif du Google Workspace qu'Airbus utilise déjà ; la première étape du pilote est justement de vérifier qu'il est activé pour mon compte. Si besoin, je demande son activation à l'équipe IT : le programme ne fait sortir aucune donnée.
 - **Combien de temps gagné ?** Aujourd'hui 1 à 2 jours ; cible une demi-journée, à mesurer sur la clôture de novembre.
