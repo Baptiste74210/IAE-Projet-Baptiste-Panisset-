@@ -4,9 +4,9 @@
 
 ---
 
-## Slide 1 — Synthèse : problème et valeur · 30 s
+## Slide 1 — Synthèse : contexte, problème et valeur · 30 à 40 s
 
-Voici ma synthèse en une page. Le problème : chaque mois, je passe 1 à 2 jours en RECHERCHEV, et surtout, sur notre jeu de test, 34 lignes sur 398 seraient perdues ou faussées sans aucune alerte. Ma solution : un programme déterministe qui rapproche les 400 contrats, contrôle les totaux au centime et explique chaque écart ; je ne valide que les cas incertains. La valeur : environ 3 400 € par an de temps gagné, en hypothèse à 40 € de l’heure, mais surtout des chiffres fiables pour les managers et les Contract Managers. Coût environ 1 700 €, retour en 7 mois environ. Je demande un GO pour lancer le pilote dès aujourd’hui sur la clôture de novembre : le programme tourne dans Google Workspace, l’environnement qu’Airbus utilise déjà. Bilan le 29 janvier.
+Voici ma synthèse en une page. Le contexte : je suis alternant BA/PMO au service ESXCC, sur les contrats de support HCare. Chaque mois, je croise les chiffres du fichier finance, environ 400 contrats, avec ma database, qui est directement connectée au dashboard du service. Le problème : chaque mois, je passe 1 à 2 jours en RECHERCHEV, et surtout, sur notre jeu de test, 34 lignes sur 398 seraient perdues ou faussées sans aucune alerte. Ma solution : un programme déterministe qui rapproche les 400 contrats, contrôle les totaux au centime et explique chaque écart ; je ne valide que les cas incertains. La valeur : environ 3 400 € par an de temps gagné, en hypothèse à 40 € de l’heure, mais surtout des chiffres fiables pour les managers et les Contract Managers. Coût environ 1 700 €, retour en 7 mois environ. Je demande un GO pour lancer le pilote dès aujourd’hui sur la clôture de novembre : le programme tourne dans Google Workspace, l’environnement qu’Airbus utilise déjà. Bilan le 29 janvier.
 
 ---
 
