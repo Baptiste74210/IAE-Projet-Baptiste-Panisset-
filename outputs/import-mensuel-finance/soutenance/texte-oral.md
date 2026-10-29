@@ -4,55 +4,33 @@
 
 ---
 
-## Slide 1 — Le problème métier · 30 s
+## Slide 1 — Synthèse : problème et valeur · 30 s
 
-Bonjour. Je suis alternant BA/PMO chez Airbus Helicopters, dans le service qui suit les contrats de support HCare.
-
-Chaque mois, vers le 15, la finance m'envoie un fichier d'environ 400 contrats. Je dois reporter les chiffres — chiffre d'affaires, facturation, coûts, heures de vol — dans ma database, qui alimente le dashboard du service. Je le fais à la main, avec des RECHERCHEV : cela me prend un à deux jours par mois, et quand un WBS est mal saisi, le chiffre se perd sans alerte.
-
-C'est l'opportunité numéro 1 de mon rapport : une structure stable et un travail purement mécanique.
+Voici ma synthèse en une page. Le problème : chaque mois, je passe 1 à 2 jours en RECHERCHEV, et surtout, sur notre jeu de test, 34 lignes sur 398 seraient perdues ou faussées sans aucune alerte. Ma solution : un programme déterministe qui rapproche les 400 contrats, contrôle les totaux au centime et explique chaque écart ; je ne valide que les cas incertains. La valeur : environ 3 400 € par an de temps gagné, en hypothèse à 40 € de l’heure, mais surtout des chiffres fiables pour les managers et les Contract Managers. Coût environ 1 700 €, retour en 7 mois environ. Je demande un GO sous conditions pour un pilote sur la clôture de novembre, et un bilan le 29 janvier.
 
 ---
 
 ## Slide 2 — Le workflow déconstruit · 30 s
 
-J'ai décomposé ce travail en 8 étapes. Le programme anonymise les fichiers, contrôle le format, prépare la database du mois, rapproche les contrats, vérifie les totaux et réinjecte les résultats.
-
-Une seule étape demande une décision humaine : la 7. Je dis Oui ou Non sur chaque correspondance qui n'est pas sûre à 100 %. Ensuite, le programme s'en souvient le mois suivant.
-
-Tout ce qui ne peut pas être rapproché part dans une liste « à traiter à la main », avec sa raison. Et si le fichier est inutilisable, il s'arrête sans rien écrire.
+Huit étapes. Le programme anonymise, contrôle le fichier, prépare la database du mois, rapproche, vérifie les totaux et réinjecte. Le rapprochement cherche d’abord le WBS identique, sinon le plus proche du même type, avec un niveau de confiance. Une seule étape est humaine, la 7 : je dis Oui ou Non sur chaque cas incertain, et le programme s’en souvient le mois suivant. Ce qui ne peut pas être rapproché est mis de côté avec sa raison, et un fichier inutilisable arrête tout sans rien écrire.
 
 ---
 
 ## Slide 3 — Le classement · 30 s
 
-Mon workflow est **déterministe** : chaque étape applique une règle écrite, et le même fichier donne toujours le même résultat. Il n'y a pas d'IA pendant l'exécution.
-
-Il est **automatisé** : je tape seulement le mois, et rien ne m'est demandé jusqu'au message « database prête à valider ».
-
-La place de l'humain, c'est moi, à l'étape 7 uniquement. Je n'ai pas choisi d'agent : il n'y a aucun chemin à décider, donc un programme fixe est plus sûr et se vérifie au centime.
+Mon workflow est déterministe : il applique des règles écrites, comme une calculatrice, donc le même fichier donne toujours le même résultat, sans IA pendant l’exécution. Il est automatisé : je tape le mois, et rien ne m’est demandé jusqu’au message « prête à valider ». L’humain, c’est moi, à l’étape 7. Je n’ai pas pris d’agent : il n’y a aucun chemin à choisir, donc un programme fixe est plus sûr.
 
 ---
 
 ## Slide 4 — L'architecture · 45 s
 
-Il y a deux briques, avec le même calcul.
-
-À gauche, la **production** : un programme Apps Script installé directement dans ma database Google Sheets, dans le Google Workspace d'Airbus. Il ajoute un menu « Import mensuel finance ». C'est la seule façon de traiter les vraies données sans qu'elles sortent de l'entreprise.
-
-À droite, la **construction** : une skill Claude Code qui fait exactement le même calcul, mais sur des données fictives. Elle me sert à simuler, tester et faire évoluer le programme. Des tests automatiques vérifient que les deux versions donnent le même résultat.
-
-Ce que je n'ai volontairement pas fait : pas d'IA à l'exécution, pas d'agent, pas d'export SAP automatique — la finance ne peut pas le fournir — et je ne touche pas au dashboard Looker Studio.
+Deux briques, un même calcul. En production, un programme Apps Script installé dans ma database Google Sheets, chez Airbus : il ajoute un menu, et les vraies données ne sortent jamais du Workspace. Pour construire et tester, une skill Claude Code qui fait exactement le même calcul sur un jeu fictif de 400 contrats. 33 tests automatiques vérifient que les deux donnent le même résultat. Au total : un programme, une skill, aucun agent. Ce que je n’ai volontairement pas fait : pas d’IA pendant l’exécution, pas d’export SAP (la finance ne peut pas le fournir), et je ne touche pas au dashboard Looker.
 
 ---
 
 ## Slide 5 — La chaîne de données · 30 s
 
-Les chiffres viennent de SAP. La finance les met en forme dans un Google Sheet, par copier-coller. Mon programme lit ce fichier, le contrôle, rapproche les contrats, et produit la database du mois que je valide. Looker Studio l'affiche ensuite aux managers et aux Contract Managers.
-
-Les contrôles : arrêt avant toute écriture si le fichier est mal formé, et des totaux vérifiés au centime.
-
-Les données sensibles : le nom du client n'est jamais lu, et les vraies données ne quittent jamais Airbus. Claude et GitHub ne voient que du fictif.
+Les chiffres viennent de SAP ; la finance les met en forme dans un Google Sheet vers le 15. Mon programme se place au milieu : il contrôle le fichier, rapproche les contrats, puis je valide les cas incertains avant que le dashboard Looker ne les montre aux managers et aux Contract Managers. Les contrôles : arrêt avant toute écriture si le fichier est mal formé, totaux au centime, chaque ligne a une destination. Côté sensible : le nom du client n’est jamais lu, et les vraies données ne quittent jamais Airbus.
 
 ---
 
@@ -76,13 +54,7 @@ Je vous montre maintenant le prototype, dans Google Sheets, sur un mois de novem
 
 ## Slide 7 — Les tests · 45 s
 
-J'ai testé le workflow sur 7 scénarios : un mois normal, un contrat inconnu, un fichier mal formé, un mois lancé deux fois, 400 contrats avec des pièges, le mois suivant avec la mémoire, et les multiservices.
-
-Chaque test a été lancé dans une conversation neuve, qui ne connaissait ni mes requirements ni mon design, puis noté ligne par ligne contre mes critères.
-
-Au premier tour : 153 lignes sur 155. Le test a trouvé un vrai défaut — après un « Non », le type de contrat n'était pas recopié. Je l'ai corrigé. Au deuxième tour : 153 sur 153.
-
-Les tests m'ont aussi appris quelque chose sur moi : un exemple de réponse m'a fait valider un faux ami. J'ai retiré cet exemple. La limite : ce qui ne se voit que dans le vrai Workspace Airbus.
+J’ai testé 7 scénarios : un mois normal, un contrat inconnu, un fichier mal formé, un mois relancé, 400 contrats piégés, le mois suivant avec la mémoire, et les multiservices. Chaque test a tourné dans une conversation neuve, qui ne connaissait pas mon design, puis j’ai noté chaque critère. Tour 1 : 153 lignes sur 155, avec un vrai défaut : après un « Non », le type de contrat n’était pas recopié. Corrigé. Tour 2 : 153 sur 153, verdict prêt. La leçon : un exemple de réponse m’a fait valider un faux ami ; je l’ai retiré, et ma vigilance reste essentielle. La limite : ce qui ne se voit que dans le vrai Workspace Airbus.
 
 ---
 
@@ -105,4 +77,6 @@ Merci, je suis prêt pour vos questions.
 - **Et si on relance le même mois ?** Il crée une version 2, sans jamais écraser l'ancienne (test E4).
 - **Comment gérez-vous la confidentialité ?** Le nom du client n'est jamais lu ; les multiservices ont un code ; les vraies données restent dans le Workspace Airbus ; Claude et GitHub ne voient que des données fictives.
 - **Pourquoi 399 lignes et pas 30 ?** C'est le vrai volume d'un mois : la démo prouve que le prototype tient la charge réelle.
+- **D'où viennent les euros ?** Ce sont des hypothèses, affichées comme telles : 84 h par an gagnées (1 jour par mois), à 40 €/h chargé ; 5 jours de construction et 1 jour par an de maintenance. À confirmer avec mon tuteur.
+- **D'où vient « 34 lignes sur 398 » ?** C'est la mesure sur le jeu de test fictif : une RECHERCHEV exacte ne retrouve pas 22 contrats au WBS légèrement différent, perd une ligne de chaque doublon, et ignore sans alerte les lignes sans clé, les types différents et les « N/A ».
 - **Combien de temps gagné ?** Aujourd'hui 1 à 2 jours ; cible une demi-journée, à mesurer sur la clôture de novembre.

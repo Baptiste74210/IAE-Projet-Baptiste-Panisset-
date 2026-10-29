@@ -1,30 +1,23 @@
-<section id="architecture" data-transition="fade" style="background:#F6F7F4;color:#1E2A28;font-family:'IBM Plex Sans', Arial, sans-serif;padding:104px 128px 160px;display:flex;flex-direction:column;gap:32px">
+<section id="architecture" data-transition="fade" style="background:#F6F7F4;color:#1E2A28;font-family:'IBM Plex Sans', Arial, sans-serif;padding:104px 128px 160px;display:flex;flex-direction:column;gap:40px">
 <p style="font-size:24px;letter-spacing:3px;text-transform:uppercase;color:#B4651F;font-weight:600">4 · L’architecture</p>
-<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:60px;font-weight:600;line-height:1.1;color:#17302F">Un même calcul, deux maisons : Airbus pour le réel, Claude pour le fictif</h2>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:64px;font-weight:600;line-height:1.1;color:#17302F">Un même calcul, deux usages</h2>
 <div style="display:flex;gap:24px;align-items:stretch">
-<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FFFFFF;padding:32px;border:2px solid #2F6F73;border-radius:12px">
-<p style="font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#2F6F73;font-weight:600">Production · Google Workspace Airbus</p>
-<h3 style="font-size:34px;font-weight:600;color:#17302F">Programme Apps Script</h3>
-<ul style="font-size:26px;line-height:1.45;color:#45534F">
-<li>Menu « Import mensuel finance » dans la database</li>
-<li>Code.gs (fichiers, onglets) + Rapprochement.gs (calcul)</li>
-<li>Mémoire des correspondances, table des colonnes</li>
-<li>Les données réelles ne sortent jamais</li>
-</ul>
+<div style="flex:1;display:flex;flex-direction:column;gap:14px;background:#FFFFFF;padding:36px;border:2px solid #2F6F73;border-radius:12px">
+<p style="font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#2F6F73;font-weight:600">Production · chez Airbus</p>
+<h3 style="font-size:38px;font-weight:600;color:#17302F">Programme Apps Script</h3>
+<p style="font-size:28px;line-height:1.4;color:#45534F">Un menu dans la database Google Sheets. Les vraies données ne sortent jamais du Workspace.</p>
 </div>
-<div style="display:flex;flex-direction:column;justify-content:center;gap:8px;width:170px"><p style="font-size:24px;text-align:center;color:#2F6F73;font-weight:600">même résultat</p><x-shape kind="arrow-left" style="background:#2F6F73;width:150px;height:56px"></x-shape><p style="font-size:24px;text-align:center;color:#5E6B67">14 + 19 tests</p></div>
-<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FFFFFF;padding:32px;border:1px solid #DCE2DE;border-radius:12px">
+<div style="display:flex;flex-direction:column;justify-content:center;gap:10px;width:200px"><p style="font-size:24px;text-align:center;color:#2F6F73;font-weight:600">même résultat</p><x-shape kind="arrow-left" style="background:#2F6F73;width:180px;height:60px"></x-shape><p style="font-size:24px;text-align:center;color:#5E6B67">vérifié par 33 tests</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:14px;background:#FFFFFF;padding:36px;border:1px solid #DCE2DE;border-radius:12px">
 <p style="font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#5E6B67;font-weight:600">Construction · Claude Code</p>
-<h3 style="font-size:34px;font-weight:600;color:#17302F">Skill mon-import-mensuel-finance</h3>
-<ul style="font-size:26px;line-height:1.45;color:#45534F">
-<li>Simule, teste et fait évoluer, sur données fictives</li>
-<li>Programme Python de référence</li>
-<li>Jeu fictif de 400 contrats et corrigés</li>
-<li>Code versionné sur GitHub</li>
-</ul>
+<h3 style="font-size:38px;font-weight:600;color:#17302F">Skill de simulation</h3>
+<p style="font-size:28px;line-height:1.4;color:#45534F">Simule, teste et fait évoluer le programme sur un jeu fictif de 400 contrats.</p>
 </div>
 </div>
-<div style="display:flex;flex-direction:column;gap:6px;border-top:3px solid #B4651F;padding:16px 0 0"><h3 style="font-size:28px;font-weight:600;color:#17302F">Ce que je n’ai pas fait</h3><p style="font-size:26px;line-height:1.4;color:#45534F">Pas d’IA à l’exécution, pas d’agent, pas d’export SAP automatique (impossible), pas de modification du dashboard Looker Studio.</p></div>
+<div style="display:flex;gap:28px">
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;border-top:3px solid #17302F;padding:16px 0 0"><h3 style="font-size:28px;font-weight:600;color:#17302F">Briques</h3><p style="font-size:26px;line-height:1.4;color:#45534F">1 programme, 1 skill, 0 agent ; mémoire des correspondances, table des colonnes.</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;border-top:3px solid #B4651F;padding:16px 0 0"><h3 style="font-size:28px;font-weight:600;color:#17302F">Ce que je n’ai pas fait</h3><p style="font-size:26px;line-height:1.4;color:#45534F">Pas d’IA à l’exécution, pas d’agent, pas d’export SAP, pas de modification du dashboard.</p></div>
+</div>
 <p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5E6B67;font-family:'IBM Plex Mono', 'Courier New', monospace">Preuve : design-spec.md · .claude/skills/mon-import-mensuel-finance/SKILL.md · 45 s · 4 / 8</p>
-<aside>45 secondes. Deux briques. En production, un programme Apps Script installé dans la database centrale, dans le Google Workspace d’Airbus : c’est la seule façon de traiter les vraies données sans qu’elles sortent. Pour construire et tester, une skill Claude Code qui fait exactement le même calcul sur des données fictives ; les tests vérifient que le JavaScript et le Python donnent le même résultat. Ce que je n’ai volontairement pas fait : pas d’IA pendant l’exécution, pas d’agent, pas d’export SAP (la finance ne peut pas le fournir), et je ne touche pas au dashboard Looker.</aside>
+<aside>45 secondes. Deux briques, un même calcul. En production, un programme Apps Script installé dans ma database Google Sheets, chez Airbus : il ajoute un menu, et les vraies données ne sortent jamais du Workspace. Pour construire et tester, une skill Claude Code qui fait exactement le même calcul sur un jeu fictif de 400 contrats. 33 tests automatiques vérifient que les deux donnent le même résultat. Au total : un programme, une skill, aucun agent. Ce que je n’ai volontairement pas fait : pas d’IA pendant l’exécution, pas d’export SAP (la finance ne peut pas le fournir), et je ne touche pas au dashboard Looker.</aside>
 </section>
