@@ -51,5 +51,7 @@ Après chaque clôture réelle, ajouter **une ligne** dans `outputs/import-mensu
 
 ## Your first review
 
+*Revue anticipée faite le 2026-10-29 : `improvement-plan.md` (recommandation : ajustements légers A1 et A2 avant la première clôture réelle).*
+
 **Le 29 janvier 2027**, après trois clôtures réelles (novembre, décembre, janvier), le temps nécessaire pour lire la mesure (3) « correspondances à confirmer en baisse d'un mois sur l'autre ».
 Ce jour-là, ou plus tôt si les résultats demandent de plus en plus de retouches, ouvrir une nouvelle conversation et dire : **« Lance la skill improve sur Import Mensuel Finance. »** Rien à préparer : les résultats de test et le journal `runs.md` suffisent.
