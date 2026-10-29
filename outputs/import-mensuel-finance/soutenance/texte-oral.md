@@ -12,7 +12,7 @@ Voici ma synthèse en une page. Le problème : chaque mois, je passe 1 à 2 jour
 
 ## Slide 2 — Le workflow déconstruit · 30 s
 
-Huit étapes. Le programme anonymise, contrôle le fichier, prépare la database du mois, rapproche, vérifie les totaux et réinjecte. Le rapprochement cherche d’abord le WBS identique, sinon le plus proche du même type, avec un niveau de confiance. Une seule étape est humaine, la 7 : je dis Oui ou Non sur chaque cas incertain, et le programme s’en souvient le mois suivant. Ce qui ne peut pas être rapproché est mis de côté avec sa raison, et un fichier inutilisable arrête tout sans rien écrire.
+Huit étapes. 1, le programme anonymise : il ne garde que le WBS, le type et les chiffres, jamais le nom du client. 2, il contrôle le fichier : mauvais mois ou colonne manquante, il s’arrête sans rien écrire. 3, il prépare la database du mois, sans jamais écraser une version existante. 4, il rapproche : WBS identique, sinon le plus proche, avec un niveau de confiance. 5, il vérifie que les totaux tombent juste au centime. 6, il remet les informations des contrats. 7, c’est moi : je dis Oui ou Non aux cas incertains. 8, il mémorise mes réponses pour le mois suivant.
 
 ---
 
